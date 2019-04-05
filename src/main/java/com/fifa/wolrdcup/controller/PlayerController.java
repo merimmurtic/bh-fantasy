@@ -1,6 +1,7 @@
 package com.fifa.wolrdcup.controller;
 
 import com.fifa.wolrdcup.model.Round;
+import com.fifa.wolrdcup.model.players.Defender;
 import com.fifa.wolrdcup.model.players.Player;
 import com.fifa.wolrdcup.repository.PlayerRepository;
 import org.springframework.http.ResponseEntity;
@@ -28,5 +29,10 @@ public class PlayerController {
         }else{
             return playerRepository.findAll();
         }
+    }
+
+    @PutMapping
+    public Player putPlayer(@RequestBody Defender player) {
+        return playerRepository.save(player);
     }
 }
