@@ -1,5 +1,7 @@
 package com.fifa.wolrdcup.model.players;
 
+import com.fifa.wolrdcup.exception.InvalidPlayerPositionException;
+
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import java.util.Collections;
@@ -18,11 +20,9 @@ public class Goalkeaper extends Player {
     private static List<Position> VALID_POSITIONS = Collections.singletonList(Position.GK);
 
     @Override
-    public void validatePosition(Position position) throws Exception {
+    public void validatePosition(Position position) {
         if(!VALID_POSITIONS.contains(position)) {
-            throw new Exception("Nevalidna pozicija");
+            throw new InvalidPlayerPositionException();
         }
     }
-
-
 }

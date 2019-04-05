@@ -55,13 +55,10 @@ public abstract class Player implements Comparable<Player> {
     @Column(name = "team_id", insertable = false, updatable = false)
     private Long teamId;
 
-    @Column(name = "DTYPE", insertable = false, updatable = false)
-    private String type;
-
     public Player(){
     }
 
-    Player(String firstName, String lastName, Integer numberoOnDress, Player.Position position) throws Exception {
+    Player(String firstName, String lastName, Integer numberoOnDress, Player.Position position) {
         validatePosition(position);
 
         this.firstName = firstName;
@@ -102,7 +99,7 @@ public abstract class Player implements Comparable<Player> {
         return POSITIONS_MAP.getOrDefault(position, "Unknown");
     }
 
-    public void setPosition(Player.Position position) throws Exception {
+    public void setPosition(Player.Position position) {
         validatePosition(position);
 
         this.position = position;
@@ -120,7 +117,7 @@ public abstract class Player implements Comparable<Player> {
         this.id = id;
     }
 
-    public abstract void validatePosition(Player.Position position) throws Exception;
+    public abstract void validatePosition(Player.Position position);
 
     @Override
     public String toString() {
@@ -149,11 +146,10 @@ public abstract class Player implements Comparable<Player> {
     }
 
     public String getType() {
-        return type;
-    }
+        // You can extend this method by returning type based on position if it exist.
+        // Mapping between type and position needs to be created
 
-    public void setType(String type) {
-        this.type = type;
+        return this.getClass().getSimpleName();
     }
 
     public enum Position{

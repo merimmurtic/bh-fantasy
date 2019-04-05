@@ -1,7 +1,6 @@
 package com.fifa.wolrdcup.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fifa.wolrdcup.model.players.Player;
 
 import javax.persistence.*;
 import java.util.ArrayList;

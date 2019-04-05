@@ -1,5 +1,7 @@
 package com.fifa.wolrdcup.model.players;
 
+import com.fifa.wolrdcup.exception.InvalidPlayerPositionException;
+
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import java.util.Arrays;
@@ -18,9 +20,9 @@ public class Defender extends Player {
     private static List<Position> VALID_POSITIONS = Arrays.asList(Position.DC, Position.DL, Position.DR);
 
     @Override
-    public void validatePosition(Position position) throws Exception {
+    public void validatePosition(Position position) {
         if(!VALID_POSITIONS.contains(position)) {
-            throw new Exception("Nevalidna pozicija");
+            throw new InvalidPlayerPositionException();
         }
     }
 

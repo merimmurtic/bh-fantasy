@@ -16,6 +16,6 @@ public class Unknown extends Player {
     }
 
     @Override
-    public void validatePosition(Position position) throws Exception {
+    public void validatePosition(Position position) {
     }
 }
