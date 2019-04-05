@@ -1,6 +1,8 @@
 package com.fifa.wolrdcup.model.players;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fifa.wolrdcup.model.Team;
 
 import javax.persistence.*;
@@ -9,6 +11,16 @@ import java.util.Map;
 
 @Entity
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@JsonTypeInfo(
+        use = JsonTypeInfo.Id.NAME,
+        property = "type", defaultImpl = Unknown.class)
+@JsonSubTypes({
+        @JsonSubTypes.Type(value = Defender.class, name = "Defender"),
+        @JsonSubTypes.Type(value = Goalkeaper.class, name = "Goalkeaper"),
+        @JsonSubTypes.Type(value = Middle.class, name = "Middle"),
+        @JsonSubTypes.Type(value = Striker.class, name = "Striker"),
+        @JsonSubTypes.Type(value = Unknown.class, name = "Unknown")
+})
 public abstract class Player implements Comparable<Player> {
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
@@ -39,6 +51,12 @@ public abstract class Player implements Comparable<Player> {
     @JoinColumn
     @JsonIgnore
     private Team team;
+
+    @Column(name = "team_id", insertable = false, updatable = false)
+    private Long teamId;
+
+    @Column(name = "DTYPE", insertable = false, updatable = false)
+    private String type;
 
     public Player(){
     }
@@ -120,6 +138,22 @@ public abstract class Player implements Comparable<Player> {
 
     public void setTeam(Team team) {
         this.team = team;
+    }
+
+    public Long getTeamId() {
+        return teamId;
+    }
+
+    public void setTeamId(Long teamId) {
+        this.teamId = teamId;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 
     public enum Position{
