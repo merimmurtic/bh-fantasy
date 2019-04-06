@@ -47,9 +47,16 @@ public class PlayerController {
         }
     }
 
+    @PostMapping
+    public Player createPlayers(@RequestBody Player player) throws Exception{
+        return playerRepository.save(player);
+    }
+
+
     @PutMapping
     public Player putPlayer(@RequestBody Player player) {
         Optional<Player> existingPlayerOptional = playerRepository.findById(player.getId());
+
 
         if(existingPlayerOptional.isPresent()) {
             Player existingPlayer = existingPlayerOptional.get();
@@ -98,6 +105,7 @@ public class PlayerController {
             throw new PlayerNotFoundException();
         }
     }
+
 
     /**
      * Method returns player team based on provided player. It checks if teamId exists on player or if team exist.

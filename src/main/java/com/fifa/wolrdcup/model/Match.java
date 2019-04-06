@@ -26,6 +26,7 @@ public class Match {
     @OneToMany(mappedBy = "match", cascade = CascadeType.ALL)
     private List<Goal> goals = new ArrayList<>();
 
+    
     public Match(){}
 
     public Long getId() {
