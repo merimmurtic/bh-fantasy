@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fifa.wolrdcup.model.*;
 import com.fifa.wolrdcup.model.players.Player;
-import com.fifa.wolrdcup.model.players.Striker;
 import com.fifa.wolrdcup.model.players.Unknown;
 import com.fifa.wolrdcup.repository.*;
 import org.slf4j.Logger;
@@ -26,6 +25,8 @@ public class WorldcupApplication {
 
     private static Logger logger = LoggerFactory.getLogger(WorldcupApplication.class);
 
+    private final StadiumRepository stadiumRepository;
+
     private LeagueRepository leagueRepository;
 
     private RoundRepository roundRepository;
@@ -39,6 +40,7 @@ public class WorldcupApplication {
     private GoalRepository goalRepository;
 
     public WorldcupApplication(
+            StadiumRepository stadiumRepository,
             GoalRepository goalRepository,
             MatchRepository matchRepository,
             TeamRepository teamRepository,
@@ -51,6 +53,7 @@ public class WorldcupApplication {
         this.matchRepository = matchRepository;
         this.playerRepository = playerRepository;
         this.goalRepository = goalRepository;
+        this.stadiumRepository = stadiumRepository;
     }
 
     public static void main(String[] args) {
@@ -108,6 +111,7 @@ public class WorldcupApplication {
             match.setRound(round);
             match.setTeam1(processTeam((HashMap<String, String>) matchMap.get("team1"), league));
             match.setTeam2(processTeam((HashMap<String, String>) matchMap.get("team2"), league));
+            match.setStadium(processStadium((HashMap<String, String>) matchMap.get("stadium"), match));
 
             matchRepository.save(match);
 
@@ -167,4 +171,16 @@ public class WorldcupApplication {
 
         return  existingPlayer.orElseGet(() -> playerRepository.save(player));
     }
+
+    private Stadium processStadium(HashMap<String, String> stadiumMap, Match match) {
+        Stadium stadium = new Stadium();
+        stadium.setName(stadiumMap.get("name"));
+        stadium.setKey(stadiumMap.get("key"));
+
+
+        Optional<Stadium> existingStadium = stadiumRepository.findByKey(stadium.getKey());
+
+        return existingStadium.orElseGet(() -> (Stadium) stadiumRepository.save(stadium));
+    }
+
 }

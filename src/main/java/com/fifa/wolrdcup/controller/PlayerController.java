@@ -48,7 +48,7 @@ public class PlayerController {
     }
 
     @PostMapping
-    public Player createPlayers(@RequestBody Player player) throws Exception{
+    public Player createPlayers(@RequestBody Player player) throws PlayerNotFoundException{
         return playerRepository.save(player);
     }
 

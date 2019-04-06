@@ -26,6 +26,8 @@ public class Match {
     @OneToMany(mappedBy = "match", cascade = CascadeType.ALL)
     private List<Goal> goals = new ArrayList<>();
 
+    @OneToOne
+    private Stadium stadium;
     
     public Match(){}
 
@@ -69,4 +71,11 @@ public class Match {
         this.goals = goals;
     }
 
+    public Stadium getStadium() {
+        return stadium;
+    }
+
+    public void setStadium(Stadium stadium) {
+        this.stadium = stadium;
+    }
 }
