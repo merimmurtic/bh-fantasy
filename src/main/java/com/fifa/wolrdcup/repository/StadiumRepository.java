@@ -5,7 +5,7 @@ import org.springframework.data.repository.CrudRepository;
 
 import java.util.Optional;
 
-public interface StadiumRepository extends CrudRepository {
+// You must put Model and Model Identity for Repository
+public interface StadiumRepository extends CrudRepository<Stadium, Long> {
     Optional<Stadium> findByKey(String key);
-
 }

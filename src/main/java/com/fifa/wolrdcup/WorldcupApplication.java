@@ -27,17 +27,17 @@ public class WorldcupApplication {
 
     private final StadiumRepository stadiumRepository;
 
-    private LeagueRepository leagueRepository;
+    private final LeagueRepository leagueRepository;
 
-    private RoundRepository roundRepository;
+    private final RoundRepository roundRepository;
 
-    private TeamRepository teamRepository;
+    private final TeamRepository teamRepository;
 
-    private MatchRepository matchRepository;
+    private final MatchRepository matchRepository;
 
-    private PlayerRepository playerRepository;
+    private final PlayerRepository playerRepository;
 
-    private GoalRepository goalRepository;
+    private final GoalRepository goalRepository;
 
     public WorldcupApplication(
             StadiumRepository stadiumRepository,
@@ -111,7 +111,11 @@ public class WorldcupApplication {
             match.setRound(round);
             match.setTeam1(processTeam((HashMap<String, String>) matchMap.get("team1"), league));
             match.setTeam2(processTeam((HashMap<String, String>) matchMap.get("team2"), league));
-            match.setStadium(processStadium((HashMap<String, String>) matchMap.get("stadium"), match));
+
+            // There is matches without stadium, you need to check if it exist first
+            if(matchMap.containsKey("stadium")) {
+                match.setStadium(processStadium((HashMap<String, String>) matchMap.get("stadium")));
+            }
 
             matchRepository.save(match);
 
@@ -172,15 +176,13 @@ public class WorldcupApplication {
         return  existingPlayer.orElseGet(() -> playerRepository.save(player));
     }
 
-    private Stadium processStadium(HashMap<String, String> stadiumMap, Match match) {
-        Stadium stadium = new Stadium();
-        stadium.setName(stadiumMap.get("name"));
-        stadium.setKey(stadiumMap.get("key"));
-
+    // You don't need match inside this method, reference with match is done outside this method
+    private Stadium processStadium(HashMap<String, String> stadiumMap) {
+        // Use constructor if you have one :)
+        Stadium stadium = new Stadium(stadiumMap.get("name"), stadiumMap.get("key"));
 
         Optional<Stadium> existingStadium = stadiumRepository.findByKey(stadium.getKey());
 
-        return existingStadium.orElseGet(() -> (Stadium) stadiumRepository.save(stadium));
+        return existingStadium.orElseGet(() -> stadiumRepository.save(stadium));
     }
-
 }

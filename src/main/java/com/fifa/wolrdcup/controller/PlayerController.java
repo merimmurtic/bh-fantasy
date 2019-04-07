@@ -34,7 +34,6 @@ public class PlayerController {
 
     @GetMapping("/{playerId}")
     public ResponseEntity<Player> getPlayer(@PathVariable("playerId") Long playerId) {
-
         return ResponseEntity.of(playerRepository.findById(playerId));
     }
 
@@ -48,15 +47,16 @@ public class PlayerController {
     }
 
     @PostMapping
-    public Player createPlayers(@RequestBody Player player) throws PlayerNotFoundException{
+    public Player createPlayers(@RequestBody Player player) { // This method cannot throw PlayerNotFoundException
+        // TODO:
+        // teamId which is provided inside player is not saved properly
+        // if I provide invalid teamId TeamNotFoundException exception should be thrown
         return playerRepository.save(player);
     }
-
 
     @PutMapping
     public Player putPlayer(@RequestBody Player player) {
         Optional<Player> existingPlayerOptional = playerRepository.findById(player.getId());
-
 
         if(existingPlayerOptional.isPresent()) {
             Player existingPlayer = existingPlayerOptional.get();

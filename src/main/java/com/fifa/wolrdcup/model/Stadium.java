@@ -1,9 +1,6 @@
 package com.fifa.wolrdcup.model;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 @Entity
 public class Stadium {
@@ -13,6 +10,9 @@ public class Stadium {
     private Long id;
 
     private String name;
+
+    // This field should be unique (same as key inside Team), you're searching per it in unique way!
+    @Column(unique = true)
     private String key;
 
     public Stadium(){}
