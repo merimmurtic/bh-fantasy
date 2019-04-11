@@ -171,6 +171,7 @@ public class WorldcupApplication {
         player.setFirstName(firstName);
         player.setTeam(team);
 
+
         Optional<Player> existingPlayer = playerRepository.findByTeamAndFirstNameAndLastName(team, firstName, null);
 
         return  existingPlayer.orElseGet(() -> playerRepository.save(player));
@@ -185,4 +186,5 @@ public class WorldcupApplication {
 
         return existingStadium.orElseGet(() -> stadiumRepository.save(stadium));
     }
+
 }
