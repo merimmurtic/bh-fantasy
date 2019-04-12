@@ -78,12 +78,6 @@ public class StandingController {
         return goalsConceded;
     }
 
-    private Long getPoints(Team team) {
-        long points = 0L;
-
-        return points;
-    }
-
     private Long getWon(Team team) {
         long won = 0L;
 
