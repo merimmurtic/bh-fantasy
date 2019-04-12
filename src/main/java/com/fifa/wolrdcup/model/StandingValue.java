@@ -6,8 +6,6 @@ public class StandingValue {
 
     private String teamName;
 
-    private Long points;
-
     private Long draw;
 
     private Long lose;
@@ -37,11 +35,7 @@ public class StandingValue {
     }
 
     public Long getPoints() {
-        return points;
-    }
-
-    public void setPoints(Long points) {
-        this.points = points;
+        return won * 3 + draw;
     }
 
     public Long getDraw() {

@@ -38,7 +38,6 @@ public class StandingController {
             value.setLose(getLose(team));
             value.setWon(getWon(team));
             value.setDraw(getDraw(team));
-            value.setPoints(getPoints(team));
 
             result.add(value);
         }
