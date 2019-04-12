@@ -53,6 +53,7 @@ public class StandingController {
             List<Goal> goals = match.getGoals();
 
             for(Goal goal : goals) {
+
                 Long goalTeamId = goal.getPlayer().getTeamId();
 
                 Long teamId = team.getId();
@@ -74,6 +75,29 @@ public class StandingController {
 
     private Long getGoalsConceded(Team team) {
         long goalsConceded = 0L;
+
+        Iterable<Match> matches = matchRepository.findByTeam1OrTeam2(team, team);
+        for(Match match : matches){
+            List<Goal> goals = match.getGoals();
+
+            for(Goal goal : goals){
+
+                Long goalTeamId = goal.getPlayer().getTeamId();
+
+                Long teamId = team.getId();
+
+                if(goal.getOwnGoal()){
+                    if(goalTeamId.equals(teamId)){
+                     goalsConceded += 1;
+                    }
+                } else{
+                    if(!goalTeamId.equals(teamId)){
+                        goalsConceded += 1;
+                    }
+                }
+
+            }
+        }
 
         return goalsConceded;
     }
