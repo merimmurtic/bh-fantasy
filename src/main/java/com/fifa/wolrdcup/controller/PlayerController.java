@@ -47,10 +47,18 @@ public class PlayerController {
     }
 
     @PostMapping
-    public Player createPlayers(@RequestBody Player player) { // This method cannot throw PlayerNotFoundException
-        // TODO:
-        // teamId which is provided inside player is not saved properly
-        // if I provide invalid teamId TeamNotFoundException exception should be thrown
+    public Player createPlayers(@RequestBody Player player) throws TeamNotFoundException {
+
+        if(player.getTeamId() != null){
+            Optional<Team> existingTeamOptional = teamRepository.findById(player.getTeamId());
+            if(existingTeamOptional.isPresent()){
+                player.setTeam(existingTeamOptional.get());
+            } else{
+                throw new TeamNotFoundException();
+            }
+
+        }
+
         return playerRepository.save(player);
     }
 
