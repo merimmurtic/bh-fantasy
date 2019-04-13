@@ -105,6 +105,41 @@ public class StandingController {
     private Long getWon(Team team) {
         long won = 0L;
 
+        Iterable<Match> matches = matchRepository.findByTeam1OrTeam2(team, team);
+
+        for(Match match : matches){
+
+            List<Goal> golas = match.getGoals();
+
+
+            for(Goal goal : golas){
+
+                Long goalTeamId = goal.getPlayer().getTeamId();
+
+                Long teamId = team.getId();
+
+                String currentTeam = goal.getPlayer().getTeam().getName();
+
+                if(goalTeamId.equals(teamId)) {
+                    if(currentTeam.equals(match.getTeam1().getName())) {
+
+                        if (goal.getScore1() > goal.getScore2()) {
+
+                            won += 1;
+                        }
+                    } else if(currentTeam.equals(match.getTeam2().getName())){
+
+                        if (goal.getScore2() > goal.getScore1()) {
+
+                            won += 1;
+                        }
+                    }
+
+                }
+            }
+        }
+
+
         return won;
     }
 
