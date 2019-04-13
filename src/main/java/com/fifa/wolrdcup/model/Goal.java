@@ -94,4 +94,5 @@ public class Goal {
     public void setScore2(Integer score2) {
         this.score2 = score2;
     }
+
 }

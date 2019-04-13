@@ -122,9 +122,27 @@ public class WorldcupApplication {
             }
             if(matchMap.containsKey("score1")){
                 match.setScore1((Integer) matchMap.get("score1"));
+                if(match.getScore1() == null){
+                    match.setScore1((Integer) matchMap.get("score1et"));
+                }
             }
             if(matchMap.containsKey("score2")){
                 match.setScore2((Integer) matchMap.get("score2"));
+                if(match.getScore1() == null){
+                    match.setScore1((Integer) matchMap.get("score2et"));
+                }
+            }
+            if(matchMap.containsKey("score1et")){
+                match.setScore1((Integer) matchMap.get("score1et"));
+                if(match.getScore1() == null){
+                    match.setScore1((Integer) matchMap.get("score1"));
+                }
+            }
+            if(matchMap.containsKey("score2et")){
+                match.setScore2((Integer) matchMap.get("score2et"));
+                if(match.getScore2() == null){
+                    match.setScore2((Integer) matchMap.get("score2"));
+                }
             }
 
             matchRepository.save(match);
@@ -138,6 +156,7 @@ public class WorldcupApplication {
                 processGoals((List<HashMap<String, Object>>) matchMap.get("goals2"),
                         match, match.getTeam2(), match.getTeam1());
             }
+
         }
     }
 
@@ -165,6 +184,7 @@ public class WorldcupApplication {
             Goal goal = new Goal();
             goal.setScore1((Integer) goalMap.get("score1"));
             goal.setScore2((Integer) goalMap.get("score2"));
+
             goal.setMinute((Integer) goalMap.get("minute"));
             goal.setOwnGoal(ownGoal);
             goal.setPenalty((Boolean) goalMap.getOrDefault("penalty", false));

@@ -109,22 +109,71 @@ public class StandingController {
 
         for(Match match : matches){
 
+            if(team.getName().equals(match.getTeam1().getName())){
 
+                if (match.getScore1() > match.getScore2()){
+                    won += 1;
+                }
 
+            }else if((team.getName().equals(match.getTeam2().getName()))){
+
+                if (match.getScore1() < match.getScore2()){
+                    won += 1;
+                }
+
+            }
         }
-
-
         return won;
     }
 
     private Long getLose(Team team) {
         long lose = 0L;
 
+        Iterable<Match> matches = matchRepository.findByTeam1OrTeam2(team, team);
+
+        for(Match match : matches){
+
+            if(team.getName().equals(match.getTeam1().getName())){
+
+                if (match.getScore1() < match.getScore2()){
+                    lose += 1;
+                }
+
+            }else if((team.getName().equals(match.getTeam2().getName()))){
+
+                if (match.getScore1() > match.getScore2()){
+                    lose += 1;
+                }
+
+            }
+        }
+
+
         return lose;
     }
 
     private Long getDraw(Team team) {
         long draw = 0L;
+
+        Iterable<Match> matches = matchRepository.findByTeam1OrTeam2(team, team);
+
+         for(Match match : matches){
+
+            if(team.getName().equals(match.getTeam1().getName())){
+
+                if (match.getScore1() == match.getScore2()){
+                    draw += 1;
+                }
+
+            }else if((team.getName().equals(match.getTeam2().getName()))){
+
+                if (match.getScore1() == match.getScore2()){
+                    draw += 1;
+                }
+
+            }
+        }
+
 
         return draw;
     }

@@ -29,11 +29,11 @@ public class Match {
     @OneToOne
     private Stadium stadium;
 
-
     private Integer score1;
 
-
     private Integer score2;
+
+
     
     public Match(){}
 
@@ -100,4 +100,5 @@ public class Match {
     public void setScore2(Integer score2) {
         this.score2 = score2;
     }
+
 }
