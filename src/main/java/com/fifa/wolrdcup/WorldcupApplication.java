@@ -101,6 +101,7 @@ public class WorldcupApplication {
             roundRepository.save(round);
 
             processMatches((List<HashMap<String, Object>>) roundMap.get("matches"), round, league);
+
         }
     }
 
@@ -109,6 +110,8 @@ public class WorldcupApplication {
         for (HashMap<String, Object> matchMap : matches) {
             Match match = new Match();
             match.setRound(round);
+
+
             match.setTeam1(processTeam((HashMap<String, String>) matchMap.get("team1"), league));
             match.setTeam2(processTeam((HashMap<String, String>) matchMap.get("team2"), league));
 
@@ -159,6 +162,8 @@ public class WorldcupApplication {
             goal.setOwnGoal(ownGoal);
             goal.setPenalty((Boolean) goalMap.getOrDefault("penalty", false));
             goal.setMatch(match);
+            match.setScore1((Goal) goalMap.get("score1"));
+            match.setScore2((Goal) goalMap.get("score2"));
 
             goal.setPlayer(processPlayer((String) goalMap.get("name"), ownGoal ? teamAgainstPlayed : team));
 
