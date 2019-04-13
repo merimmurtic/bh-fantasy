@@ -115,9 +115,16 @@ public class WorldcupApplication {
             match.setTeam1(processTeam((HashMap<String, String>) matchMap.get("team1"), league));
             match.setTeam2(processTeam((HashMap<String, String>) matchMap.get("team2"), league));
 
+
             // There is matches without stadium, you need to check if it exist first
             if(matchMap.containsKey("stadium")) {
                 match.setStadium(processStadium((HashMap<String, String>) matchMap.get("stadium")));
+            }
+            if(matchMap.containsKey("score1")){
+                match.setScore1((Integer) matchMap.get("score1"));
+            }
+            if(matchMap.containsKey("score2")){
+                match.setScore2((Integer) matchMap.get("score2"));
             }
 
             matchRepository.save(match);
@@ -162,8 +169,6 @@ public class WorldcupApplication {
             goal.setOwnGoal(ownGoal);
             goal.setPenalty((Boolean) goalMap.getOrDefault("penalty", false));
             goal.setMatch(match);
-            match.setScore1((Goal) goalMap.get("score1"));
-            match.setScore2((Goal) goalMap.get("score2"));
 
             goal.setPlayer(processPlayer((String) goalMap.get("name"), ownGoal ? teamAgainstPlayed : team));
 

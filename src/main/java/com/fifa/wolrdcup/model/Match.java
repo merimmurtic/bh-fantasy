@@ -29,11 +29,11 @@ public class Match {
     @OneToOne
     private Stadium stadium;
 
-    @OneToOne
-    private Goal score1;
 
-    @OneToOne
-    private Goal score2;
+    private Integer score1;
+
+
+    private Integer score2;
     
     public Match(){}
 
@@ -85,19 +85,19 @@ public class Match {
         this.stadium = stadium;
     }
 
-    public Goal getScore1() {
+    public Integer getScore1() {
         return score1;
     }
 
-    public void setScore1(Goal score1) {
+    public void setScore1(Integer score1) {
         this.score1 = score1;
     }
 
-    public Goal getScore2() {
+    public Integer getScore2() {
         return score2;
     }
 
-    public void setScore2(Goal score2) {
+    public void setScore2(Integer score2) {
         this.score2 = score2;
     }
 }
