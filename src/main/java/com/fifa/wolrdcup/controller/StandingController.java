@@ -50,27 +50,18 @@ public class StandingController {
 
         Iterable<Match> matches = matchRepository.findByTeam1OrTeam2(team, team);
         for(Match match : matches){
-            List<Goal> goals = match.getGoals();
 
-            for(Goal goal : goals) {
+            if(team.getName().equals(match.getTeam1().getName())) {
 
-                Long goalTeamId = goal.getPlayer().getTeamId();
+                goalsScored += match.getScore1();
+            }
+            if(team.getName().equals(match.getTeam2().getName())){
 
-                Long teamId = team.getId();
-
-                if(!goal.getOwnGoal()){
-                    if(goalTeamId.equals(teamId)) {
-                        goalsScored += 1;
-                    }
-                } else{
-                    if(!goalTeamId.equals(teamId)) {
-                        goalsScored += 1;
-                    }
-                }
+                goalsScored += match.getScore2();
             }
         }
-        return goalsScored;
 
+        return goalsScored;
     }
 
     private Long getGoalsConceded(Team team) {
@@ -78,27 +69,16 @@ public class StandingController {
 
         Iterable<Match> matches = matchRepository.findByTeam1OrTeam2(team, team);
         for(Match match : matches){
-            List<Goal> goals = match.getGoals();
 
-            for(Goal goal : goals){
+            if(team.getName().equals(match.getTeam1().getName())) {
 
-                Long goalTeamId = goal.getPlayer().getTeamId();
+                goalsConceded += match.getScore2();
+            }
+            if(team.getName().equals(match.getTeam2().getName())){
 
-                Long teamId = team.getId();
-
-                if(goal.getOwnGoal()){
-                    if(goalTeamId.equals(teamId)){
-                     goalsConceded += 1;
-                    }
-                } else{
-                    if(!goalTeamId.equals(teamId)){
-                        goalsConceded += 1;
-                    }
-                }
-
+                goalsConceded += match.getScore1();
             }
         }
-
         return goalsConceded;
     }
 
@@ -114,13 +94,11 @@ public class StandingController {
                 if (match.getScore1() > match.getScore2()){
                     won += 1;
                 }
-
             }else if((team.getName().equals(match.getTeam2().getName()))){
 
                 if (match.getScore1() < match.getScore2()){
                     won += 1;
                 }
-
             }
         }
         return won;
@@ -144,11 +122,8 @@ public class StandingController {
                 if (match.getScore1() > match.getScore2()){
                     lose += 1;
                 }
-
             }
         }
-
-
         return lose;
     }
 
@@ -170,11 +145,8 @@ public class StandingController {
                 if (match.getScore1() == match.getScore2()){
                     draw += 1;
                 }
-
             }
         }
-
-
         return draw;
     }
 }
