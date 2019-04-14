@@ -51,6 +51,8 @@ public class StandingController {
         Iterable<Match> matches = matchRepository.findByTeam1OrTeam2(team, team);
         for(Match match : matches){
 
+            // TODO: Do not compare team name, two teams with same name can exist.
+            // For comparation use team id, do same for other methods
             if(team.getName().equals(match.getTeam1().getName())) {
 
                 goalsScored += match.getScore1();
