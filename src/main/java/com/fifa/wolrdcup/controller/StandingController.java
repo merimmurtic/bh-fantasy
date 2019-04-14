@@ -29,7 +29,7 @@ public class StandingController {
 
         Iterable<Team> teams = teamRepository.findAll();
 
-        for (Team team : teams) {
+        for(Team team : teams){
             StandingValue value = new StandingValue();
             value.setTeamId(team.getId());
             value.setTeamName(team.getName());
@@ -43,7 +43,6 @@ public class StandingController {
         }
 
         return result;
-
     }
 
     private Long getGoalsScored(Team team) {
@@ -52,15 +51,16 @@ public class StandingController {
         Iterable<Match> matches = matchRepository.findByTeam1OrTeam2(team, team);
         for(Match match : matches){
 
-            if(team.getId().equals(match.getTeam1().getId())) {
+            if(team.getName().equals(match.getTeam1().getName())) {
 
                 goalsScored += match.getScore1();
             }
-            if(team.getId().equals(match.getTeam2().getId())){
+            if(team.getName().equals(match.getTeam2().getName())){
 
                 goalsScored += match.getScore2();
             }
         }
+
         return goalsScored;
     }
 
@@ -70,11 +70,11 @@ public class StandingController {
         Iterable<Match> matches = matchRepository.findByTeam1OrTeam2(team, team);
         for(Match match : matches){
 
-            if(team.getId().equals(match.getTeam1().getId())) {
+            if(team.getName().equals(match.getTeam1().getName())) {
 
                 goalsConceded += match.getScore2();
             }
-            if(team.getId().equals(match.getTeam2().getId())){
+            if(team.getName().equals(match.getTeam2().getName())){
 
                 goalsConceded += match.getScore1();
             }
@@ -89,12 +89,12 @@ public class StandingController {
 
         for(Match match : matches){
 
-            if(team.getId().equals(match.getTeam1().getId())){
+            if(team.getName().equals(match.getTeam1().getName())){
 
                 if (match.getScore1() > match.getScore2()){
                     won += 1;
                 }
-            }else if((team.getId().equals(match.getTeam2().getId()))){
+            }else if((team.getName().equals(match.getTeam2().getName()))){
 
                 if (match.getScore1() < match.getScore2()){
                     won += 1;
@@ -111,13 +111,13 @@ public class StandingController {
 
         for(Match match : matches){
 
-            if(team.getId().equals(match.getTeam1().getId())){
+            if(team.getName().equals(match.getTeam1().getName())){
 
                 if (match.getScore1() < match.getScore2()){
                     lose += 1;
                 }
 
-            }else if((team.getId().equals(match.getTeam2().getId()))){
+            }else if((team.getName().equals(match.getTeam2().getName()))){
 
                 if (match.getScore1() > match.getScore2()){
                     lose += 1;
@@ -134,21 +134,19 @@ public class StandingController {
 
          for(Match match : matches){
 
-            if(team.getId().equals(match.getTeam1().getId())){
+            if(team.getName().equals(match.getTeam1().getName())){
 
-                if (match.getScore1().equals(match.getScore2())){
+                if (match.getScore1() == match.getScore2()){
                     draw += 1;
                 }
 
-            }else if((team.getId().equals(match.getTeam2().getId()))){
+            }else if((team.getName().equals(match.getTeam2().getName()))){
 
-                if (match.getScore1().equals(match.getScore2())){
+                if (match.getScore1() == match.getScore2()){
                     draw += 1;
                 }
             }
         }
         return draw;
     }
-
-
 }

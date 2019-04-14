@@ -120,29 +120,19 @@ public class WorldcupApplication {
             if(matchMap.containsKey("stadium")) {
                 match.setStadium(processStadium((HashMap<String, String>) matchMap.get("stadium")));
             }
-            if(matchMap.containsKey("score1")){
-                match.setScore1((Integer) matchMap.get("score1"));
-                if(match.getScore1() == null){
-                    match.setScore1((Integer) matchMap.get("score1et"));
-                }
-            }
-            if(matchMap.containsKey("score2")){
-                match.setScore2((Integer) matchMap.get("score2"));
-                if(match.getScore1() == null){
-                    match.setScore1((Integer) matchMap.get("score2et"));
-                }
-            }
-            if(matchMap.containsKey("score1et")){
+
+            // By using getOrDefault you can get value always, there is no need to check if key exist,
+            // if key does not exist, value you provided as defaultValue will be returned
+            if(matchMap.getOrDefault("score1et", null) != null){
                 match.setScore1((Integer) matchMap.get("score1et"));
-                if(match.getScore1() == null){
-                    match.setScore1((Integer) matchMap.get("score1"));
-                }
+            } else if(matchMap.containsKey("score1")){
+                match.setScore1((Integer) matchMap.get("score1"));
             }
-            if(matchMap.containsKey("score2et")){
+
+            if(matchMap.getOrDefault("score2et", null) != null){
                 match.setScore2((Integer) matchMap.get("score2et"));
-                if(match.getScore2() == null){
-                    match.setScore2((Integer) matchMap.get("score2"));
-                }
+            } else if(matchMap.containsKey("score2")){
+                match.setScore2((Integer) matchMap.get("score2"));
             }
 
             matchRepository.save(match);
