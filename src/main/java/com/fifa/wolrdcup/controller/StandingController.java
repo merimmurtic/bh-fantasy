@@ -138,6 +138,7 @@ public class StandingController {
 
             if(team.getName().equals(match.getTeam1().getName())){
 
+                // TODO: Don't use == for comparation, use equals
                 if (match.getScore1() == match.getScore2()){
                     draw += 1;
                 }
