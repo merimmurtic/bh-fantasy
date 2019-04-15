@@ -1,7 +1,5 @@
 package com.fifa.wolrdcup.model;
 
-import java.util.Comparator;
-
 public class StandingValue{
 
     private Long teamId;

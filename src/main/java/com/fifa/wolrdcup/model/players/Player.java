@@ -109,6 +109,8 @@ public abstract class Player implements Comparable<Player> {
         return lastName != null ? String.format("%s %s", firstName, lastName) : firstName;
     }
 
+
+
     public Long getId() {
         return id;
     }
