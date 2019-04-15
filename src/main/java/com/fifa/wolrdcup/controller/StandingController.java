@@ -58,7 +58,6 @@ public class StandingController {
                 goalsScored += match.getScore1();
             }
             if(team.getId().equals(match.getTeam2().getId())){
-
                 goalsScored += match.getScore2();
             }
         }

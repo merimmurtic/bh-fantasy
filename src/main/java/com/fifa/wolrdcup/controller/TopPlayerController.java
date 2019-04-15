@@ -42,24 +42,16 @@ public class TopPlayerController {
         Iterable<Player> players = playerRepository.findAll();
         Iterable<Team> teams = teamRepository.findAll();
 
-        for(Team team : teams) {
+        for (Player player : players) {
+            TopPlayerValue stats = new TopPlayerValue();
+            stats.setPlayerId(player.getId());
+            stats.setFullName(player.getFullName());
+            stats.setGoalsScored(getGoalsScored(player));
 
-            for (Player player : players) {
-                TopPlayerValue stats = new TopPlayerValue();
-                stats.setPlayerId(player.getId());
-                stats.setFullName(player.getFullName());
-                stats.setGoalsScored(getGoalsScored(player));
-                if(stats.getGoalsScored() != null){
-                    stats.setGoalsScored(getGoalsScored(player));
-                }
-
-                result.add(stats);
-            }
+            result.add(stats);
         }
 
         result.sort((TopPlayerValue player1, TopPlayerValue player2)-> (int) (player2.getGoalsScored()-player1.getGoalsScored()));
-
-
         return result;
     }
 
@@ -69,9 +61,7 @@ public class TopPlayerController {
         Iterable<Goal> goals = goalRepository.findGoalByPlayer(player);
 
         for (Goal goal : goals) {
-
             if (player.getId().equals(goal.getPlayer().getId())) {
-
                 goalsScored += 1;
             }
         }
