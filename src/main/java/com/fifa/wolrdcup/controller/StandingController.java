@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 
@@ -42,6 +43,7 @@ public class StandingController {
             result.add(value);
         }
 
+        result.sort((StandingValue o1, StandingValue o2)-> (int) (o2.getPoints()-o1.getPoints()));
         return result;
     }
 

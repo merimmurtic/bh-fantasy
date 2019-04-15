@@ -1,6 +1,8 @@
 package com.fifa.wolrdcup.model;
 
-public class StandingValue {
+import java.util.Comparator;
+
+public class StandingValue{
 
     private Long teamId;
 
@@ -81,4 +83,6 @@ public class StandingValue {
     public Long getGoalsDifference() {
         return goalsScored - goalsConceded;
     }
+
+
 }
