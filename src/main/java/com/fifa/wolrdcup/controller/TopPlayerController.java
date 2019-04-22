@@ -19,14 +19,15 @@ import java.util.List;
 
 
 @RestController
-@RequestMapping("/topplayers")
+@RequestMapping("/topplayers") // TODO: Call it top-players, words inside endpoint should be separated by -
 public class TopPlayerController {
 
     private final PlayerRepository playerRepository;
-    private final TeamRepository teamRepository;
-    private final MatchRepository matchRepository;
+    private final TeamRepository teamRepository; // TODO: This should be removed
+    private final MatchRepository matchRepository; // TODO: Remove matchRepository, it's not used in controller
     private final GoalRepository goalRepository;
 
+    // TODO: Don't create lines longer than 120 characters, wrap to new line on vertical line
     public TopPlayerController(PlayerRepository playerRepository, TeamRepository teamRepository, MatchRepository matchRepository, GoalRepository goalRepository) {
         this.playerRepository = playerRepository;
         this.goalRepository = goalRepository;
@@ -40,7 +41,7 @@ public class TopPlayerController {
         List<TopPlayerValue> result = new ArrayList<>();
 
         Iterable<Player> players = playerRepository.findAll();
-        Iterable<Team> teams = teamRepository.findAll();
+        Iterable<Team> teams = teamRepository.findAll(); // TODO: teams variable is not used, remove it, teamRepository also
 
         for (Player player : players) {
             TopPlayerValue stats = new TopPlayerValue();
@@ -62,6 +63,10 @@ public class TopPlayerController {
 
         for (Goal goal : goals) {
             if (player.getId().equals(goal.getPlayer().getId())) {
+                // TODO:
+                // This condition is insufficient, it will be always true because in list of goals
+                // you have only goals scored by provided player.
+                // However, this needs to be reimplemented by using countGoalsByPlayer.
                 goalsScored += 1;
             }
         }

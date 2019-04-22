@@ -34,6 +34,7 @@ public class TeamController {
         return teamRepository.findByNameContaining(query);
     }
 
+    // TODO: Remove this endpoint
     @GetMapping("/hello")
     public String getHelloWorld() {
         return "Hello World";

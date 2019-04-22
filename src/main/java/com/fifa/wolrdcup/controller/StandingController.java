@@ -34,6 +34,9 @@ public class StandingController {
             StandingValue value = new StandingValue();
             value.setTeamId(team.getId());
             value.setTeamName(team.getName());
+
+            //TODO: These 5 lines should be removed and changed with setTeamStats(team, value)
+            //TODO: getGoalsScore, getGoalsConceded, getWon, getDraw and getLose methods should be removed
             value.setGoalsScored(getGoalsScored(team));
             value.setGoalsConceded(getGoalsConceded(team));
             value.setLose(getLose(team));
@@ -43,8 +46,39 @@ public class StandingController {
             result.add(value);
         }
 
-        result.sort((StandingValue o1, StandingValue o2)-> (int) (o2.getPoints()-o1.getPoints()));
+        // TODO: Remember well how we're sorting list by using multiple criterias!
+        result.sort((StandingValue o1, StandingValue o2) -> {
+            int value = (int)(o2.getPoints()-o1.getPoints());
+
+            // If points are equal, than compare goals difference
+            if(value == 0) {
+                value = (int)(o2.getGoalsDifference()-o1.getGoalsDifference());
+            }
+
+            // If points and goals difference are equal, than compare goals scored
+            if(value == 0) {
+                value = (int)(o2.getGoalsScored()-o1.getGoalsScored());
+            }
+
+            return value;
+        });
         return result;
+    }
+
+    private void setTeamStats(Team team, StandingValue value) {
+        long goalsScored = 0L;
+        long goalsConceded = 0L;
+        long won = 0L;
+        long lose = 0L;
+        long draw = 0L;
+
+        //TODO: Do implementation here
+
+        value.setGoalsScored(goalsScored);
+        value.setGoalsConceded(goalsConceded);
+        value.setLose(lose);
+        value.setWon(won);
+        value.setDraw(draw);
     }
 
     private Long getGoalsScored(Team team) {
