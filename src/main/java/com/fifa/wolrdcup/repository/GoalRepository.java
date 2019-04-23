@@ -15,7 +15,5 @@ public interface GoalRepository extends CrudRepository<Goal, Long> {
     // which will return number of records find in database
 
 
-    Iterable<Goal> findGoalByPlayer(Player player);
-
     Long countGoalsByPlayer(Player player);
 }

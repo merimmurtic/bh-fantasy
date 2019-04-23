@@ -36,13 +36,18 @@ public class StandingController {
 
             //TODO: These 5 lines should be removed and changed with setTeamStats(team, value)
             //TODO: getGoalsScore, getGoalsConceded, getWon, getDraw and getLose methods should be removed
+
+
+
+            /*
             value.setGoalsScored(getGoalsScored(team));
             value.setGoalsConceded(getGoalsConceded(team));
             value.setLose(getLose(team));
             value.setWon(getWon(team));
             value.setDraw(getDraw(team));
-
             result.add(value);
+
+            */
         }
 
         // TODO: Remember well how we're sorting list by using multiple criterias!
@@ -72,14 +77,49 @@ public class StandingController {
         long draw = 0L;
 
         //TODO: Do implementation here
+        Iterable<Match> matches = matchRepository.findByTeam1OrTeam2(team, team);
+
+        for(Match match : matches){
+
+            if(team.getId().equals(match.getTeam1().getId())) {
+
+                if (match.getScore1() < match.getScore2()){
+                    lose += 1;
+                }
+                if (match.getScore1() > match.getScore2()){
+                    won += 1;
+                }
+                if (match.getScore1().equals(match.getScore2())){
+                    draw += 1;
+                }
+                goalsScored += match.getScore1();
+                goalsConceded += match.getScore2();
+            }
+            if(team.getId().equals(match.getTeam2().getId())){
+
+                if (match.getScore1() > match.getScore2()){
+                    lose += 1;
+                }
+                if (match.getScore1() < match.getScore2()){
+                    won += 1;
+                }
+                if (match.getScore1().equals(match.getScore2())){
+                    draw += 1;
+                }
+                goalsScored += match.getScore2();
+                goalsConceded += match.getScore1();
+            }
+        }
 
         value.setGoalsScored(goalsScored);
         value.setGoalsConceded(goalsConceded);
         value.setLose(lose);
         value.setWon(won);
         value.setDraw(draw);
+
     }
 
+    /*
     private Long getGoalsScored(Team team) {
         long goalsScored = 0L;
 
@@ -116,6 +156,8 @@ public class StandingController {
         return goalsConceded;
     }
 
+
+
     private Long getWon(Team team) {
         long won = 0L;
 
@@ -137,6 +179,8 @@ public class StandingController {
         }
         return won;
     }
+
+
 
     private Long getLose(Team team) {
         long lose = 0L;
@@ -161,6 +205,8 @@ public class StandingController {
         return lose;
     }
 
+
+
     private Long getDraw(Team team) {
         long draw = 0L;
 
@@ -183,4 +229,6 @@ public class StandingController {
         }
         return draw;
     }
+
+     */
 }

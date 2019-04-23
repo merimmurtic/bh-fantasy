@@ -16,6 +16,7 @@ public class StandingValue{
 
     private Long goalsConceded;
 
+
     public StandingValue() {}
 
     public Long getTeamId() {
@@ -83,4 +84,11 @@ public class StandingValue{
     }
 
 
+    public void setTeamStats(Team team, Long value) {
+        this.goalsScored = goalsScored;
+        this.goalsConceded = goalsConceded;
+        this.won = won;
+        this.lose = lose;
+        this.draw = draw;
+    }
 }
