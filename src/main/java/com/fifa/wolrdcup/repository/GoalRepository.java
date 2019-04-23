@@ -13,6 +13,8 @@ public interface GoalRepository extends CrudRepository<Goal, Long> {
     // TODO: This should be called findGoalsByPlayer, however,
     // instead of using this method you should use countGoalsByPlayer,
     // which will return number of records find in database
+
+
     Iterable<Goal> findGoalByPlayer(Player player);
 
     Long countGoalsByPlayer(Player player);

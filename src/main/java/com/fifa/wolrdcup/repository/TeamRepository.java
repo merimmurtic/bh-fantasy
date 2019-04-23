@@ -3,7 +3,6 @@ package com.fifa.wolrdcup.repository;
 import com.fifa.wolrdcup.model.Team;
 import org.springframework.data.repository.CrudRepository;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 

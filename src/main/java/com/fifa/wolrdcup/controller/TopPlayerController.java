@@ -1,15 +1,9 @@
 package com.fifa.wolrdcup.controller;
 
-import com.fifa.wolrdcup.model.Goal;
-import com.fifa.wolrdcup.model.Match;
-import com.fifa.wolrdcup.model.Team;
 import com.fifa.wolrdcup.model.TopPlayerValue;
 import com.fifa.wolrdcup.model.players.Player;
-import com.fifa.wolrdcup.model.players.Unknown;
 import com.fifa.wolrdcup.repository.GoalRepository;
-import com.fifa.wolrdcup.repository.MatchRepository;
 import com.fifa.wolrdcup.repository.PlayerRepository;
-import com.fifa.wolrdcup.repository.TeamRepository;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -19,21 +13,15 @@ import java.util.List;
 
 
 @RestController
-@RequestMapping("/topplayers") // TODO: Call it top-players, words inside endpoint should be separated by -
+@RequestMapping("/top-players")
 public class TopPlayerController {
 
     private final PlayerRepository playerRepository;
-    private final TeamRepository teamRepository; // TODO: This should be removed
-    private final MatchRepository matchRepository; // TODO: Remove matchRepository, it's not used in controller
     private final GoalRepository goalRepository;
 
-    // TODO: Don't create lines longer than 120 characters, wrap to new line on vertical line
-    public TopPlayerController(PlayerRepository playerRepository, TeamRepository teamRepository, MatchRepository matchRepository, GoalRepository goalRepository) {
+    public TopPlayerController(PlayerRepository playerRepository, GoalRepository goalRepository) {
         this.playerRepository = playerRepository;
         this.goalRepository = goalRepository;
-        this.teamRepository = teamRepository;
-        this.matchRepository = matchRepository;
-
     }
 
     @GetMapping
@@ -41,7 +29,7 @@ public class TopPlayerController {
         List<TopPlayerValue> result = new ArrayList<>();
 
         Iterable<Player> players = playerRepository.findAll();
-        Iterable<Team> teams = teamRepository.findAll(); // TODO: teams variable is not used, remove it, teamRepository also
+
 
         for (Player player : players) {
             TopPlayerValue stats = new TopPlayerValue();
@@ -52,25 +40,12 @@ public class TopPlayerController {
             result.add(stats);
         }
 
-        result.sort((TopPlayerValue player1, TopPlayerValue player2)-> (int) (player2.getGoalsScored()-player1.getGoalsScored()));
+        result.sort((TopPlayerValue player1, TopPlayerValue player2)->
+                (int) (player2.getGoalsScored()-player1.getGoalsScored()));
         return result;
     }
 
     private Long getGoalsScored(Player player) {
-        long goalsScored = 0L;
-
-        Iterable<Goal> goals = goalRepository.findGoalByPlayer(player);
-
-        for (Goal goal : goals) {
-            if (player.getId().equals(goal.getPlayer().getId())) {
-                // TODO:
-                // This condition is insufficient, it will be always true because in list of goals
-                // you have only goals scored by provided player.
-                // However, this needs to be reimplemented by using countGoalsByPlayer.
-                goalsScored += 1;
-            }
-        }
-
-        return goalsScored;
+        return goalRepository.countGoalsByPlayer(player);
     }
 }
