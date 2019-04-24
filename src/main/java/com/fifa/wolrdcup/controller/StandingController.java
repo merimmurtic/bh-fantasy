@@ -34,23 +34,13 @@ public class StandingController {
             value.setTeamId(team.getId());
             value.setTeamName(team.getName());
 
-            //TODO: These 5 lines should be removed and changed with setTeamStats(team, value)
-            //TODO: getGoalsScore, getGoalsConceded, getWon, getDraw and getLose methods should be removed
+            // TODO: Think about this and let me know if something is not clear, this is basic thing.
+            // value is provided to method where it is updated with stats
+            setTeamStats(team, value);
 
-
-
-            /*
-            value.setGoalsScored(getGoalsScored(team));
-            value.setGoalsConceded(getGoalsConceded(team));
-            value.setLose(getLose(team));
-            value.setWon(getWon(team));
-            value.setDraw(getDraw(team));
             result.add(value);
-
-            */
         }
 
-        // TODO: Remember well how we're sorting list by using multiple criterias!
         result.sort((StandingValue o1, StandingValue o2) -> {
             int value = (int)(o2.getPoints()-o1.getPoints());
 
@@ -66,6 +56,7 @@ public class StandingController {
 
             return value;
         });
+
         return result;
     }
 
@@ -76,36 +67,31 @@ public class StandingController {
         long lose = 0L;
         long draw = 0L;
 
-        //TODO: Do implementation here
         Iterable<Match> matches = matchRepository.findByTeam1OrTeam2(team, team);
 
         for(Match match : matches){
 
-            if(team.getId().equals(match.getTeam1().getId())) {
+            // Only check one time if scores are equal and increase counter if they are
+            if (match.getScore1().equals(match.getScore2())){
+                draw += 1;
+            }
 
+            if(team.getId().equals(match.getTeam1().getId())) {
                 if (match.getScore1() < match.getScore2()){
                     lose += 1;
-                }
-                if (match.getScore1() > match.getScore2()){
+                } else if (match.getScore1() > match.getScore2()){
                     won += 1;
                 }
-                if (match.getScore1().equals(match.getScore2())){
-                    draw += 1;
-                }
+
                 goalsScored += match.getScore1();
                 goalsConceded += match.getScore2();
-            }
-            if(team.getId().equals(match.getTeam2().getId())){
-
+            } else if(team.getId().equals(match.getTeam2().getId())){
                 if (match.getScore1() > match.getScore2()){
                     lose += 1;
-                }
-                if (match.getScore1() < match.getScore2()){
+                } else if (match.getScore1() < match.getScore2()){
                     won += 1;
                 }
-                if (match.getScore1().equals(match.getScore2())){
-                    draw += 1;
-                }
+
                 goalsScored += match.getScore2();
                 goalsConceded += match.getScore1();
             }
@@ -116,119 +102,5 @@ public class StandingController {
         value.setLose(lose);
         value.setWon(won);
         value.setDraw(draw);
-
     }
-
-    /*
-    private Long getGoalsScored(Team team) {
-        long goalsScored = 0L;
-
-        Iterable<Match> matches = matchRepository.findByTeam1OrTeam2(team, team);
-        for(Match match : matches){
-
-            if(team.getId().equals(match.getTeam1().getId())) {
-
-                goalsScored += match.getScore1();
-            }
-            if(team.getId().equals(match.getTeam2().getId())){
-                goalsScored += match.getScore2();
-            }
-        }
-
-        return goalsScored;
-    }
-
-    private Long getGoalsConceded(Team team) {
-        long goalsConceded = 0L;
-
-        Iterable<Match> matches = matchRepository.findByTeam1OrTeam2(team, team);
-        for(Match match : matches){
-
-            if(team.getId().equals(match.getTeam1().getId())) {
-
-                goalsConceded += match.getScore2();
-            }
-            if(team.getId().equals(match.getTeam2().getId())){
-
-                goalsConceded += match.getScore1();
-            }
-        }
-        return goalsConceded;
-    }
-
-
-
-    private Long getWon(Team team) {
-        long won = 0L;
-
-        Iterable<Match> matches = matchRepository.findByTeam1OrTeam2(team, team);
-
-        for(Match match : matches){
-
-            if(team.getId().equals(match.getTeam1().getId())){
-
-                if (match.getScore1() > match.getScore2()){
-                    won += 1;
-                }
-            }else if((team.getId().equals(match.getTeam2().getId()))){
-
-                if (match.getScore1() < match.getScore2()){
-                    won += 1;
-                }
-            }
-        }
-        return won;
-    }
-
-
-
-    private Long getLose(Team team) {
-        long lose = 0L;
-
-        Iterable<Match> matches = matchRepository.findByTeam1OrTeam2(team, team);
-
-        for(Match match : matches){
-
-            if(team.getId().equals(match.getTeam1().getId())){
-
-                if (match.getScore1() < match.getScore2()){
-                    lose += 1;
-                }
-
-            }else if((team.getId().equals(match.getTeam2().getId()))){
-
-                if (match.getScore1() > match.getScore2()){
-                    lose += 1;
-                }
-            }
-        }
-        return lose;
-    }
-
-
-
-    private Long getDraw(Team team) {
-        long draw = 0L;
-
-        Iterable<Match> matches = matchRepository.findByTeam1OrTeam2(team, team);
-
-         for(Match match : matches){
-
-            if(team.getId().equals(match.getTeam1().getId())){
-
-                if (match.getScore1().equals(match.getScore2())){
-                    draw += 1;
-                }
-
-            }else if((team.getId().equals(match.getTeam2().getId()))){
-
-                if (match.getScore1().equals(match.getScore2())){
-                    draw += 1;
-                }
-            }
-        }
-        return draw;
-    }
-
-     */
 }

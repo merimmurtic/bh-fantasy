@@ -30,7 +30,6 @@ public class TopPlayerController {
 
         Iterable<Player> players = playerRepository.findAll();
 
-
         for (Player player : players) {
             TopPlayerValue stats = new TopPlayerValue();
             stats.setPlayerId(player.getId());

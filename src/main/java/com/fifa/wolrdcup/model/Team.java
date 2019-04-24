@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fifa.wolrdcup.model.players.Player;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,9 +15,11 @@ public class Team {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotNull // Make sure that name exist!
     private String name;
 
     @Column(unique = true)
+    @NotNull // Make sure that code exist!
     private String code;
 
     @OneToMany(mappedBy = "team", cascade = CascadeType.ALL)

@@ -48,6 +48,8 @@ public class PlayerController {
 
     @PostMapping
     public Player createPlayers(@RequestBody Player player) throws TeamNotFoundException {
+        // Make sure id is null to avoid update of existing player
+        player.setId(null);
 
         if(player.getTeamId() != null){
             Optional<Team> existingTeamOptional = teamRepository.findById(player.getTeamId());

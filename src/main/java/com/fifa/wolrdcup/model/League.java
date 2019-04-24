@@ -3,6 +3,7 @@ package com.fifa.wolrdcup.model;
 import com.fifa.wolrdcup.model.players.Player;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -15,6 +16,8 @@ public class League {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotNull // Make sure that name exist and prevent leagues with same name!
+    @Column(unique = true)
     private String name;
 
     @ManyToMany(mappedBy = "leagues", cascade = CascadeType.ALL)
