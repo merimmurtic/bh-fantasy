@@ -1,8 +1,11 @@
 package com.fifa.wolrdcup.controller;
 
+import com.fifa.wolrdcup.exception.InvalidLeagueIdException;
+import com.fifa.wolrdcup.exception.InvalidTeamIdException;
 import com.fifa.wolrdcup.model.League;
 import com.fifa.wolrdcup.model.Team;
 import com.fifa.wolrdcup.repository.LeagueRepository;
+import com.fifa.wolrdcup.repository.TeamRepository;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,6 +14,7 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.validation.ConstraintViolationException;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/leagues")
@@ -18,8 +22,12 @@ public class LeagueController {
 
     private final LeagueRepository leagueRepository;
 
-    public LeagueController(LeagueRepository leagueRepository) {
+    private final TeamRepository teamRepository;
+
+    public LeagueController(TeamRepository teamRepository,
+            LeagueRepository leagueRepository) {
         this.leagueRepository = leagueRepository;
+        this.teamRepository = teamRepository;
     }
 
     @GetMapping
@@ -54,8 +62,36 @@ public class LeagueController {
             @PathVariable("leagueId") Long leagueId,
             @RequestBody Team team) {
         // TODO: Do implementation here, inside team object expect id only!
-        // Load league for provided leagueId, update it provided team and save it
+        // Load league for provided leagueId, update with it provided team and save it
         // Make sure to handle validation it provided leagueId doesn't exist, or provided team id doesn't exist
+        if(team.getId() != null){
+            Optional<Team> existingTeamOptional = teamRepository.findById(team.getId());
+
+            if(!existingTeamOptional.isPresent()) {
+                throw new InvalidTeamIdException();
+            }
+
+            Optional<League> existingLeagueOptional = leagueRepository.findById(leagueId);
+
+            if(!existingLeagueOptional.isPresent()) {
+                throw new InvalidLeagueIdException();
+            }
+
+            League league = existingLeagueOptional.get();
+
+            team = existingTeamOptional.get();
+
+            if(!team.getLeagues().contains(league)) {
+                team.getLeagues().add(league);
+            } else {
+                throw new ResponseStatusException(
+                        HttpStatus.BAD_REQUEST, "Team is already referenced with provided league!");
+            }
+
+            teamRepository.save(team);
+        } else {
+            throw new InvalidTeamIdException();
+        }
     }
 
     @GetMapping("/{leagueId}")

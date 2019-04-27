@@ -1,5 +1,6 @@
 package com.fifa.wolrdcup.controller;
 
+import com.fifa.wolrdcup.exception.InvalidPlayerPositionException;
 import com.fifa.wolrdcup.exception.PlayerNotFoundException;
 import com.fifa.wolrdcup.exception.TeamNotFoundException;
 import com.fifa.wolrdcup.model.Goal;
@@ -66,6 +67,10 @@ public class PlayerController {
 
     @PutMapping
     public Player putPlayer(@RequestBody Player player) {
+        if(player.getId() == null) {
+            throw new InvalidPlayerPositionException();
+        }
+
         Optional<Player> existingPlayerOptional = playerRepository.findById(player.getId());
 
         if(existingPlayerOptional.isPresent()) {
