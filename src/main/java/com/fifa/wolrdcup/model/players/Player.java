@@ -59,7 +59,6 @@ public abstract class Player implements Comparable<Player> {
     @Column(name = "team_id", insertable = false, updatable = false)
     private Long teamId;
 
-
     public Player(){
     }
 
@@ -164,9 +163,6 @@ public abstract class Player implements Comparable<Player> {
     public void setLineup(Lineup lineup) {
         this.lineup = lineup;
     }
-
-
-
 
     public enum Position{
         ST,

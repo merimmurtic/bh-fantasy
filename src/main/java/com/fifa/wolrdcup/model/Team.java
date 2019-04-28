@@ -10,7 +10,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 @Entity
-public class Team {
+public class Team{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,12 +24,8 @@ public class Team {
     @JsonIgnore
     private String code;
 
-
-    @OneToMany(mappedBy = "team", cascade = CascadeType.ALL)
+    @ManyToMany(mappedBy = "team", cascade = CascadeType.ALL)
     private List<Player> players = new ArrayList<>();
-
-
-
 
     @JsonIgnore
     @ManyToMany
@@ -81,4 +77,5 @@ public class Team {
     public void setLeagues(List<League> leagues) {
         this.leagues = leagues;
     }
+
 }
