@@ -30,6 +30,8 @@ public abstract class Player implements Comparable<Player> {
     private String lastName;
     private Integer numberoOnDress;
 
+    private Long transferMarktId;
+
     @Enumerated(EnumType.STRING)
     private Player.Position position;
 
@@ -106,7 +108,13 @@ public abstract class Player implements Comparable<Player> {
     }
 
     public String getFullName() {
-        return lastName != null ? String.format("%s %s", firstName, lastName) : firstName;
+        if(firstName != null && lastName != null) {
+            return String.format("%s %s", firstName, lastName);
+        } else if(firstName != null) {
+            return firstName;
+        } else {
+            return lastName;
+        }
     }
 
 
@@ -145,6 +153,14 @@ public abstract class Player implements Comparable<Player> {
 
     public void setTeamId(Long teamId) {
         this.teamId = teamId;
+    }
+
+    public Long getTransferMarktId() {
+        return transferMarktId;
+    }
+
+    public void setTransferMarktId(Long transferMarktId) {
+        this.transferMarktId = transferMarktId;
     }
 
     public String getType() {

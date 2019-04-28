@@ -43,15 +43,57 @@ abstract class ProcessWorker {
 
     abstract void process() throws Exception;
 
-    Player processPlayer(String firstName, Team team) {
+    Player processPlayer(String firstName, String lastName, Team team) {
+        return processPlayer(firstName, lastName, team, null);
+    }
+
+    Player processPlayer(String firstName, String lastName, Team team, Long transferMarktId) {
         Player player = new Unknown();
+        player.setLastName(lastName);
         player.setFirstName(firstName);
         player.setTeam(team);
+        player.setTransferMarktId(transferMarktId);
 
-        Optional<Player> existingPlayer = playerRepository.findByTeamAndFirstNameAndLastName(
-                team, firstName, null);
+        Optional<Player> existingPlayer = Optional.empty();
 
-        return  existingPlayer.orElseGet(() -> playerRepository.save(player));
+        if(transferMarktId != null) {
+            existingPlayer = playerRepository.findByTransferMarktId(transferMarktId);
+        }
+
+        if(!existingPlayer.isPresent() && firstName != null) {
+            existingPlayer = playerRepository.findByTeamAndFirstNameAndLastName(
+                    team, firstName, lastName);
+        }
+
+        if(!existingPlayer.isPresent()) {
+            existingPlayer = playerRepository.findByTeamAndLastName(
+                    team, lastName);
+        }
+
+        existingPlayer.ifPresent((p) -> {
+            boolean updated = false;
+
+            if(firstName != null && p.getFirstName() == null) {
+                p.setFirstName(firstName);
+                updated = true;
+            }
+
+            if(transferMarktId != null && p.getTransferMarktId() == null) {
+                p.setTransferMarktId(transferMarktId);
+                updated = true;
+            }
+
+            if(team != null && !team.getId().equals(p.getTeamId())) {
+                p.setTeam(team);
+                updated = true;
+            }
+
+            if(updated) {
+                playerRepository.save(p);
+            }
+        });
+
+        return existingPlayer.orElseGet(() -> playerRepository.save(player));
     }
 
     Team processTeam(Map<String, String> teamMap, League league) {
