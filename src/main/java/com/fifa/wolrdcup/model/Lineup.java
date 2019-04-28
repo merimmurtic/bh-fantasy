@@ -22,7 +22,8 @@ public class Lineup {
     @OneToMany(mappedBy = "lineup", cascade = CascadeType.ALL)
     private List<Substitution> sustitutionChanges = new ArrayList<>();
 
-
+    @ManyToOne
+    private Match match;
 
     @OneToOne
     private Player capiten;
