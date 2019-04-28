@@ -3,11 +3,11 @@ package com.fifa.wolrdcup.model.players;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fifa.wolrdcup.model.Lineup;
 import com.fifa.wolrdcup.model.Team;
 
 import javax.persistence.*;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 
 @Entity
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
@@ -53,6 +53,10 @@ public abstract class Player implements Comparable<Player> {
     @JoinColumn
     @JsonIgnore
     private Team team;
+
+    @ManyToOne
+    @JsonIgnore
+    private Lineup lineup;
 
     @Column(name = "team_id", insertable = false, updatable = false)
     private Long teamId;
@@ -117,8 +121,6 @@ public abstract class Player implements Comparable<Player> {
         }
     }
 
-
-
     public Long getId() {
         return id;
     }
@@ -168,6 +170,14 @@ public abstract class Player implements Comparable<Player> {
         // Mapping between type and position needs to be created
 
         return this.getClass().getSimpleName();
+    }
+
+    public Lineup getLineup() {
+        return lineup;
+    }
+
+    public void setLineup(Lineup lineup) {
+        this.lineup = lineup;
     }
 
     public enum Position{

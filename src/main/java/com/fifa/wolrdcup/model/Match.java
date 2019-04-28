@@ -29,6 +29,15 @@ public class Match {
     @OneToOne
     private Stadium stadium;
 
+    @OneToMany(mappedBy = "match", cascade = CascadeType.ALL)
+    private List<Lineup> lineup1 = new ArrayList<>();
+
+    @OneToMany(mappedBy = "match", cascade = CascadeType.ALL)
+    private List<Lineup> lineup2 = new ArrayList<>();
+
+    @OneToMany(mappedBy = "match", cascade = CascadeType.ALL)
+    private List<Card> cards = new ArrayList<>();
+
     private Integer score1;
 
     private Integer score2;
