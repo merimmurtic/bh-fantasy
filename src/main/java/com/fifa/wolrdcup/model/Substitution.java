@@ -1,8 +1,21 @@
 package com.fifa.wolrdcup.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import javax.persistence.*;
+
+@Entity
 public class Substitution {
 
+
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @ManyToOne
+    @JsonIgnore
+    private Lineup lineup;
 
     private Long playerId;
 
@@ -13,6 +26,7 @@ public class Substitution {
     public Long getId() {
         return id;
     }
+    public  Substitution(){}
 
     public void setId(Long id) {
         this.id = id;
