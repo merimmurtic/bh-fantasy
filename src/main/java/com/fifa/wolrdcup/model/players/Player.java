@@ -7,8 +7,7 @@ import com.fifa.wolrdcup.model.Lineup;
 import com.fifa.wolrdcup.model.Team;
 
 import javax.persistence.*;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 
 @Entity
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
@@ -59,6 +58,7 @@ public abstract class Player implements Comparable<Player> {
 
     @Column(name = "team_id", insertable = false, updatable = false)
     private Long teamId;
+
 
     public Player(){
     }
@@ -114,8 +114,6 @@ public abstract class Player implements Comparable<Player> {
         return lastName != null ? String.format("%s %s", firstName, lastName) : firstName;
     }
 
-
-
     public Long getId() {
         return id;
     }
@@ -158,6 +156,17 @@ public abstract class Player implements Comparable<Player> {
 
         return this.getClass().getSimpleName();
     }
+
+    public Lineup getLineup() {
+        return lineup;
+    }
+
+    public void setLineup(Lineup lineup) {
+        this.lineup = lineup;
+    }
+
+
+
 
     public enum Position{
         ST,

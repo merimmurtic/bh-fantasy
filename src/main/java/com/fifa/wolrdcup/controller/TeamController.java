@@ -1,6 +1,12 @@
 package com.fifa.wolrdcup.controller;
 
+import com.fifa.wolrdcup.exception.InvalidLeagueIdException;
+import com.fifa.wolrdcup.exception.InvalidPlayerIdException;
+import com.fifa.wolrdcup.exception.InvalidTeamIdException;
+import com.fifa.wolrdcup.model.League;
 import com.fifa.wolrdcup.model.Team;
+import com.fifa.wolrdcup.model.players.Player;
+import com.fifa.wolrdcup.repository.PlayerRepository;
 import com.fifa.wolrdcup.repository.TeamRepository;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
@@ -10,15 +16,18 @@ import org.springframework.web.server.ResponseStatusException;
 
 import javax.validation.ConstraintViolationException;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/teams")
 public class TeamController {
 
     private final TeamRepository teamRepository;
+    private final PlayerRepository playerRepository;
 
-    public TeamController(TeamRepository teamRepository) {
+    public TeamController(TeamRepository teamRepository, PlayerRepository playerRepository) {
         this.teamRepository = teamRepository;
+        this.playerRepository = playerRepository;
     }
 
     @GetMapping
@@ -54,6 +63,5 @@ public class TeamController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getConstraintViolations().toString());
         }
     }
-
 }
 

@@ -15,6 +15,9 @@ public class Goal {
     @OneToOne
     private Player player;
 
+    @OneToOne
+    private Player assist;
+
     private Integer minute;
 
     private Boolean penalty = false;
