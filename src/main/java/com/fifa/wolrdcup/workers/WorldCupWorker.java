@@ -3,6 +3,7 @@ package com.fifa.wolrdcup.workers;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fifa.wolrdcup.model.*;
+import com.fifa.wolrdcup.model.players.Player;
 import com.fifa.wolrdcup.repository.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -125,9 +126,19 @@ public class WorldCupWorker extends ProcessWorker {
             goal.setPenalty((Boolean) goalMap.getOrDefault("penalty", false));
             goal.setMatch(match);
 
-            goal.setPlayer(processPlayer(null, (String) goalMap.get("name"), ownGoal ? teamAgainstPlayed : team));
+            goal.setPlayer(processPlayer((String) goalMap.get("name"), ownGoal ? teamAgainstPlayed : team));
 
             goalRepository.save(goal);
+        }
+    }
+
+    private Player processPlayer(String playerName, Team team) {
+        String[] nameParts = playerName.split(" ", 2);
+
+        if(nameParts.length == 1) {
+            return processPlayer(null, playerName, team);
+        } else {
+            return processPlayer(nameParts[0], nameParts[1], team);
         }
     }
 
