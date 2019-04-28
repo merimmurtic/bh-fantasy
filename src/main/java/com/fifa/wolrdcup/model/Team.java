@@ -1,12 +1,12 @@
 package com.fifa.wolrdcup.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fifa.wolrdcup.model.players.Player;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 @Entity
@@ -21,7 +21,7 @@ public class Team{
 
     @Column(unique = true)
     @NotNull // Make sure that code exist!
-    @JsonIgnore
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String code;
 
     @ManyToMany(mappedBy = "team", cascade = CascadeType.ALL)

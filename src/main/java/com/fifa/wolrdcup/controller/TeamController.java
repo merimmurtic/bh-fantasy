@@ -50,6 +50,10 @@ public class TeamController {
         // Make sure id is null to avoid update of existing team
         team.setId(null);
 
+        if(team.getCode() == null) {
+            team.setCode(team.getName());
+        }
+
         try {
             return teamRepository.save(team);
         } catch (DataIntegrityViolationException e) {
