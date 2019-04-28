@@ -71,6 +71,10 @@ public class StandingController {
 
         for(Match match : matches){
 
+            if(match.getScore1() == null) {
+                continue;
+            }
+
             // Only check one time if scores are equal and increase counter if they are
             if (match.getScore1().equals(match.getScore2())){
                 draw += 1;

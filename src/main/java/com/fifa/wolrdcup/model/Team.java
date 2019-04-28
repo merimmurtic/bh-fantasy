@@ -20,6 +20,7 @@ public class Team {
 
     @Column(unique = true)
     @NotNull // Make sure that code exist!
+    @JsonIgnore
     private String code;
 
     @OneToMany(mappedBy = "team", cascade = CascadeType.ALL)
