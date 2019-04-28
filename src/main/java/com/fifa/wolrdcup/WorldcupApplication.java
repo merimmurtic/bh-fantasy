@@ -51,7 +51,7 @@ public class WorldcupApplication {
     }
 
     @Bean
-    InitializingBean sendDatabase() {
+    InitializingBean seedDatabase() {
         return () -> {
             startWorkers();
         };
@@ -63,12 +63,14 @@ public class WorldcupApplication {
                 teamRepository, roundRepository, leagueRepository, playerRepository
         ).process();
 
+
+
         // Premijer liga
-        //new TransferMarktWorker(
-        //    stadiumRepository, goalRepository, matchRepository,
-        //    teamRepository, roundRepository, leagueRepository, playerRepository,
-        //    "https://www.transfermarkt.com/premijer-liga/gesamtspielplan/wettbewerb/BOS1/saison_id/2018")
-        //        .process();
+       // new TransferMarktWorker(
+          //  stadiumRepository, goalRepository, matchRepository,
+          //  teamRepository, roundRepository, leagueRepository, playerRepository,
+           // "https://www.transfermarkt.com/premijer-liga/gesamtspielplan/wettbewerb/BOS1/saison_id/2018")
+           //     .process();
 
         // Premier liga
         //new TransferMarktWorker(

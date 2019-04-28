@@ -3,6 +3,7 @@ package com.fifa.wolrdcup.model.players;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fifa.wolrdcup.model.Lineup;
 import com.fifa.wolrdcup.model.Team;
 
 import javax.persistence.*;
@@ -51,6 +52,10 @@ public abstract class Player implements Comparable<Player> {
     @JoinColumn
     @JsonIgnore
     private Team team;
+
+    @ManyToOne
+    @JsonIgnore
+    private Lineup lineup;
 
     @Column(name = "team_id", insertable = false, updatable = false)
     private Long teamId;

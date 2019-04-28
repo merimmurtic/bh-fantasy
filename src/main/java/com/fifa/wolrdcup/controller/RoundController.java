@@ -17,7 +17,7 @@ public class RoundController {
     }
 
     @GetMapping
-    public Iterable<Round> getRounds() throws Exception{
+    public Iterable<Round> getLeagueRounds() throws Exception{
         return roundRepository.findAll();
     }
 
