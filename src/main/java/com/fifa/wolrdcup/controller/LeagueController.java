@@ -94,6 +94,7 @@ public class LeagueController {
         }
     }
 
+
     @GetMapping("/{leagueId}")
     public ResponseEntity<League> getLeague(@PathVariable("leagueId") Long leagueId) throws Exception {
         return ResponseEntity.of(leagueRepository.findById(leagueId));

@@ -14,14 +14,14 @@ public class Lineup {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToMany(mappedBy = "lineup", cascade = CascadeType.ALL)
+    @ManyToMany(cascade = CascadeType.ALL)
     private List<Player> startingPlayers = new ArrayList<>();
 
-    @OneToMany(mappedBy = "lineup", cascade = CascadeType.ALL)
+    @ManyToMany(cascade = CascadeType.ALL)
     private List<Player> availableSupstitutions = new ArrayList<>();
 
     @OneToMany(mappedBy = "lineup", cascade = CascadeType.ALL)
-    private List<Substitution> sustitutionChanges = new ArrayList<>();
+    private List<Substitution> substitutionChanges = new ArrayList<>();
 
     @ManyToOne
     @JsonIgnore
@@ -32,6 +32,9 @@ public class Lineup {
 
     @OneToOne
     private Player viceCapiten;
+
+    @Enumerated(EnumType.STRING)
+    private Lineup.Formation formation;
 
     public Lineup(){}
 
@@ -75,12 +78,28 @@ public class Lineup {
         this.availableSupstitutions = availableSupstitutions;
     }
 
-    public List<Substitution> getSustitutionChanges() {
-        return sustitutionChanges;
+    public List<Substitution> getSubstitutionChanges() {
+        return substitutionChanges;
     }
 
-    public void setSustitutionChanges(List<Substitution> sustitutionChanges) {
-        this.sustitutionChanges = sustitutionChanges;
+    public void setSubstitutionChanges(List<Substitution> substitutionChanges) {
+        this.substitutionChanges = substitutionChanges;
+    }
+
+    public Match getMatch() {
+        return match;
+    }
+
+    public void setMatch(Match match) {
+        this.match = match;
+    }
+
+    public Formation getFormation() {
+        return formation;
+    }
+
+    public void setFormation(Formation formation) {
+        this.formation = formation;
     }
 
     public enum Formation{

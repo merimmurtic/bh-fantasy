@@ -98,4 +98,11 @@ public class Goal {
         this.score2 = score2;
     }
 
+    public Player getAssist() {
+        return assist;
+    }
+
+    public void setAssist(Player assist) {
+        this.assist = assist;
+    }
 }

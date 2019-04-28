@@ -4,14 +4,20 @@ import com.fifa.wolrdcup.exception.InvalidPlayerPositionException;
 import com.fifa.wolrdcup.exception.PlayerNotFoundException;
 import com.fifa.wolrdcup.exception.TeamNotFoundException;
 import com.fifa.wolrdcup.model.Goal;
+import com.fifa.wolrdcup.model.League;
 import com.fifa.wolrdcup.model.Team;
 import com.fifa.wolrdcup.model.players.Player;
 import com.fifa.wolrdcup.repository.GoalRepository;
 import com.fifa.wolrdcup.repository.PlayerRepository;
 import com.fifa.wolrdcup.repository.TeamRepository;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.util.UriComponentsBuilder;
 
+import javax.validation.ConstraintViolationException;
 import java.util.List;
 import java.util.Optional;
 
@@ -48,21 +54,24 @@ public class PlayerController {
     }
 
     @PostMapping
-    public Player createPlayers(@RequestBody Player player) throws TeamNotFoundException {
-        // Make sure id is null to avoid update of existing player
+    public ResponseEntity<Player> createPlayer(@RequestBody Player player, UriComponentsBuilder builder) {
+        // Make sure id is null to avoid update of existing league
         player.setId(null);
 
-        if(player.getTeamId() != null){
-            Optional<Team> existingTeamOptional = teamRepository.findById(player.getTeamId());
-            if(existingTeamOptional.isPresent()){
-                player.setTeam(existingTeamOptional.get());
-            } else{
-                throw new TeamNotFoundException();
-            }
+        try {
+            player = playerRepository.save(player);
 
+            //TODO: This is the right way to handle creation of model, try to do same for player and team creation
+            return ResponseEntity.created(
+                    builder.path("/players/{id}").buildAndExpand(player.getId()).toUri()
+            ).body(player);
+        } catch (DataIntegrityViolationException e) {
+
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "League with provided name already exist!");
+        } catch (ConstraintViolationException e) {
+
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getConstraintViolations().toString());
         }
-
-        return playerRepository.save(player);
     }
 
     @PutMapping

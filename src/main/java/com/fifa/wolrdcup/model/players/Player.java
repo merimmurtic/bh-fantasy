@@ -54,9 +54,6 @@ public abstract class Player implements Comparable<Player> {
     @JsonIgnore
     private Team team;
 
-    @ManyToOne
-    @JsonIgnore
-    private Lineup lineup;
 
     @Column(name = "team_id", insertable = false, updatable = false)
     private Long teamId;
@@ -172,13 +169,7 @@ public abstract class Player implements Comparable<Player> {
         return this.getClass().getSimpleName();
     }
 
-    public Lineup getLineup() {
-        return lineup;
-    }
 
-    public void setLineup(Lineup lineup) {
-        this.lineup = lineup;
-    }
 
     public enum Position{
         ST,
