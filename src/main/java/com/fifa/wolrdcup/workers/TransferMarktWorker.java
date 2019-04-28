@@ -1,9 +1,7 @@
 package com.fifa.wolrdcup.workers;
 
-import com.fifa.wolrdcup.model.League;
-import com.fifa.wolrdcup.model.Match;
-import com.fifa.wolrdcup.model.Round;
-import com.fifa.wolrdcup.model.Team;
+import com.fifa.wolrdcup.model.*;
+import com.fifa.wolrdcup.model.players.Player;
 import com.fifa.wolrdcup.repository.*;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -15,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -36,9 +35,10 @@ public class TransferMarktWorker extends ProcessWorker {
                         RoundRepository roundRepository,
                         LeagueRepository leagueRepository,
                         PlayerRepository playerRepository,
+                        LineupRepository lineupRepository,
                         String transfermarktUrl) {
         super(stadiumRepository, goalRepository, matchRepository,
-                teamRepository, roundRepository, leagueRepository, playerRepository);
+                teamRepository, roundRepository, leagueRepository, playerRepository, lineupRepository);
 
         this.transfermarktUrl = transfermarktUrl;
     }
@@ -128,35 +128,47 @@ public class TransferMarktWorker extends ProcessWorker {
 
     private void processLineup(Element lineupElement, Match match, Team team) {
         try {
-            String formation = parseFormation(lineupElement);
+            Lineup.Formation formation = parseFormation(lineupElement);
+
+            Lineup lineup = new Lineup();
+            lineup.setMatch(match);
+            lineup.setFormation(formation);
+
+            lineupRepository.save(lineup);
 
             if(formation != null) {
                 Elements playerElements = lineupElement.select(".aufstellung-spieler-container a");
 
                 for (Element playerElement : playerElements) {
-                    processPlayerUrl(playerElement.text(), playerElement.attr("href"), team);
+                    Player player = processPlayerUrl(playerElement.text(), playerElement.attr("href"), team);
+
+                    lineup.getStartingPlayers().add(player);
                 }
             } else {
                 Elements playerElements = lineupElement.select(".spielprofil_tooltip");
 
                 for(Element playerElement : playerElements) {
-                    processPlayerUrl(playerElement.text(), playerElement.attr("href"), team);
+                    Player player = processPlayerUrl(playerElement.text(), playerElement.attr("href"), team);
+
+                    lineup.getStartingPlayers().add(player);
                 }
             }
+
+            lineupRepository.save(lineup);
         } catch (Exception e) {
             logger.error("Error while processing lineup.", e);
         }
     }
 
-    private void processPlayerUrl(String playerName, String playerInfoUrl, Team team) {
+    private Player processPlayerUrl(String playerName, String playerInfoUrl, Team team) {
         String[] nameParts = playerName.split(" ", 2);
 
         Long transferMarktId = getTransferMarktId(playerInfoUrl);
 
         if(nameParts.length == 1) {
-            processPlayer(null, playerName, team, transferMarktId);
+            return processPlayer(null, playerName, team, transferMarktId);
         } else {
-            processPlayer(nameParts[0], nameParts[1], team, transferMarktId);
+            return processPlayer(nameParts[0], nameParts[1], team, transferMarktId);
         }
     }
 
@@ -166,7 +178,7 @@ public class TransferMarktWorker extends ProcessWorker {
         return Long.parseLong(parts[parts.length - 1]);
     }
 
-    private String parseFormation(Element lineupElement) {
+    private Lineup.Formation parseFormation(Element lineupElement) {
         Element row = lineupElement.selectFirst(".row");
 
         if(row == null) {
@@ -185,7 +197,9 @@ public class TransferMarktWorker extends ProcessWorker {
         final Matcher matcher = pattern.matcher(text);
 
         if(matcher.find()) {
-            return matcher.group(0);
+            String formation = matcher.group(0);
+
+            return Lineup.Formation.valueOf("F_" + formation.replace("-", "_"));
         } else {
             return null;
         }

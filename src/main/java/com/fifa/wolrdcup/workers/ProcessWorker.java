@@ -24,6 +24,8 @@ abstract class ProcessWorker {
 
     final GoalRepository goalRepository;
 
+    final LineupRepository lineupRepository;
+
     ProcessWorker(
             StadiumRepository stadiumRepository,
             GoalRepository goalRepository,
@@ -31,7 +33,8 @@ abstract class ProcessWorker {
             TeamRepository teamRepository,
             RoundRepository roundRepository,
             LeagueRepository leagueRepository,
-            PlayerRepository playerRepository) {
+            PlayerRepository playerRepository,
+            LineupRepository lineupRepository) {
         this.leagueRepository = leagueRepository;
         this.roundRepository = roundRepository;
         this.teamRepository = teamRepository;
@@ -39,6 +42,7 @@ abstract class ProcessWorker {
         this.playerRepository = playerRepository;
         this.goalRepository = goalRepository;
         this.stadiumRepository = stadiumRepository;
+        this.lineupRepository = lineupRepository;
     }
 
     abstract void process() throws Exception;
@@ -58,16 +62,16 @@ abstract class ProcessWorker {
 
         if(transferMarktId != null) {
             existingPlayer = playerRepository.findByTransferMarktId(transferMarktId);
-        }
+        } else {
+            if (firstName != null) {
+                existingPlayer = playerRepository.findByTeamAndFirstNameAndLastName(
+                        team, firstName, lastName);
+            }
 
-        if(!existingPlayer.isPresent() && firstName != null) {
-            existingPlayer = playerRepository.findByTeamAndFirstNameAndLastName(
-                    team, firstName, lastName);
-        }
-
-        if(!existingPlayer.isPresent()) {
-            existingPlayer = playerRepository.findByTeamAndLastName(
-                    team, lastName);
+            if (!existingPlayer.isPresent()) {
+                existingPlayer = playerRepository.findByTeamAndLastName(
+                        team, lastName);
+            }
         }
 
         existingPlayer.ifPresent((p) -> {

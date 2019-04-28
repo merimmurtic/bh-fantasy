@@ -29,6 +29,8 @@ public class WorldcupApplication {
 
     private final GoalRepository goalRepository;
 
+    private final LineupRepository lineupRepository;
+
     public WorldcupApplication(
             StadiumRepository stadiumRepository,
             GoalRepository goalRepository,
@@ -36,7 +38,8 @@ public class WorldcupApplication {
             TeamRepository teamRepository,
             RoundRepository roundRepository,
             LeagueRepository leagueRepository,
-            PlayerRepository playerRepository) {
+            PlayerRepository playerRepository,
+            LineupRepository lineupRepository) {
         this.leagueRepository = leagueRepository;
         this.roundRepository = roundRepository;
         this.teamRepository = teamRepository;
@@ -44,6 +47,7 @@ public class WorldcupApplication {
         this.playerRepository = playerRepository;
         this.goalRepository = goalRepository;
         this.stadiumRepository = stadiumRepository;
+        this.lineupRepository = lineupRepository;
     }
 
     public static void main(String[] args) {
@@ -66,7 +70,7 @@ public class WorldcupApplication {
         // Premijer liga
         //new TransferMarktWorker(
         //    stadiumRepository, goalRepository, matchRepository,
-        //   teamRepository, roundRepository, leagueRepository, playerRepository,
+        //    teamRepository, roundRepository, leagueRepository, playerRepository, lineupRepository,
         //    "/premijer-liga/gesamtspielplan/wettbewerb/BOS1/saison_id/2018")
         //        .process();
 
