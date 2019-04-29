@@ -15,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.validation.ConstraintViolationException;
 import java.util.List;
@@ -50,24 +51,23 @@ public class TeamController {
     }
 
     @PostMapping
-    public Team createTeam(@RequestBody Team team) throws Exception {
-        // Make sure id is null to avoid update of existing team
+    public ResponseEntity<Team> createTeam(@RequestBody Team team, UriComponentsBuilder builder) {
+        // Make sure id is null to avoid update of existing league
         team.setId(null);
 
-        if(team.getCode() == null) {
-            team.setCode(team.getName());
-        }
-
         try {
-            return teamRepository.save(team);
+            team = teamRepository.save(team);
+
+            //TODO: This is the right way to handle creation of model, try to do same for player and team creation
+            return ResponseEntity.created(
+                    builder.path("/teams/{id}").buildAndExpand(team.getId()).toUri()
+            ).body(team);
         } catch (DataIntegrityViolationException e) {
-            // DataIntegrityViolationException is thrown in case unique constraint fails!
-            // You can throw exception with corresponding status (400 = BAD_REQUEST) and details in this way also,
-            // instead of creating new exception class (e.g. TeamWithProvidedCodeAlreadyExistException)
-            // Use this for cases when you need to throw specific exception which will be thrown only in one place
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Team with provided code already exist!");
+
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Team with provided name already exist!");
+
         } catch (ConstraintViolationException e) {
-            // In case validation of model fail (for example, name is null) throw exception with details
+
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getConstraintViolations().toString());
         }
     }

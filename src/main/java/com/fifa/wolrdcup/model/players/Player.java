@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fifa.wolrdcup.model.Lineup;
 import com.fifa.wolrdcup.model.Team;
+import com.sun.istack.internal.NotNull;
 
 import javax.persistence.*;
 import java.util.*;
@@ -25,6 +26,7 @@ public abstract class Player implements Comparable<Player> {
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
     private Long id;
+
 
     private String firstName;
     private String lastName;

@@ -9,6 +9,7 @@ import com.fifa.wolrdcup.model.players.Player;
 import com.fifa.wolrdcup.repository.GoalRepository;
 import com.fifa.wolrdcup.repository.PlayerRepository;
 import com.fifa.wolrdcup.repository.TeamRepository;
+import org.aspectj.apache.bcel.util.Play;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -66,7 +67,8 @@ public class PlayerController {
             ).body(player);
         } catch (DataIntegrityViolationException e) {
 
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "League with provided name already exist!");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Player with provided name already exist!");
+
         } catch (ConstraintViolationException e) {
 
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getConstraintViolations().toString());
