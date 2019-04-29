@@ -4,7 +4,6 @@ import com.fifa.wolrdcup.exception.InvalidPlayerPositionException;
 import com.fifa.wolrdcup.exception.PlayerNotFoundException;
 import com.fifa.wolrdcup.exception.TeamNotFoundException;
 import com.fifa.wolrdcup.model.Goal;
-import com.fifa.wolrdcup.model.League;
 import com.fifa.wolrdcup.model.Team;
 import com.fifa.wolrdcup.model.players.Player;
 import com.fifa.wolrdcup.repository.GoalRepository;

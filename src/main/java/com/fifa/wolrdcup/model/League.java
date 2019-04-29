@@ -1,5 +1,6 @@
 package com.fifa.wolrdcup.model;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import com.fifa.wolrdcup.model.players.Player;
 
 import javax.persistence.*;
@@ -24,6 +25,7 @@ public class League {
     private List<Team> teams = new LinkedList<>();
 
     @OneToMany(mappedBy = "league", cascade = CascadeType.ALL)
+    @JsonView(RoundView.class)
     private List<Round> rounds = new LinkedList<>();
 
     public League() {}
@@ -123,5 +125,7 @@ public class League {
     public void setId(Long id) {
         this.id = id;
     }
+
+    public interface RoundView{}
 }
 
