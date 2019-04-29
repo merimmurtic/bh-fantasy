@@ -53,36 +53,40 @@ abstract class ProcessWorker {
 
     Player processPlayer(String firstName, String lastName, Team team, Long transferMarktId) {
         Player player = new Unknown();
-        player.setLastName(lastName);
         player.setFirstName(firstName);
+        player.setLastName(lastName);
         player.setTransferMarktId(transferMarktId);
 
+        return processPlayer(player, team);
+    }
+
+    Player processPlayer(Player player, Team team) {
         Optional<Player> existingPlayer = Optional.empty();
 
-        if(transferMarktId != null) {
-            existingPlayer = playerRepository.findByTransferMarktId(transferMarktId);
+        if(player.getTransferMarktId() != null) {
+            existingPlayer = playerRepository.findByTransferMarktId(player.getTransferMarktId());
         } else {
-            if (firstName != null) {
+            if (player.getFirstName() != null) {
                 existingPlayer = playerRepository.findByTeamsAndFirstNameAndLastName(
-                        team, firstName, lastName);
+                        team, player.getFirstName(), player.getLastName());
             }
 
             if (!existingPlayer.isPresent()) {
                 existingPlayer = playerRepository.findByTeamsAndLastName(
-                        team, lastName);
+                        team, player.getLastName());
             }
         }
 
         existingPlayer.ifPresent((p) -> {
             boolean updated = false;
 
-            if(firstName != null && p.getFirstName() == null) {
-                p.setFirstName(firstName);
+            if(player.getFirstName() != null && p.getFirstName() == null) {
+                p.setFirstName(player.getFirstName());
                 updated = true;
             }
 
-            if(transferMarktId != null && p.getTransferMarktId() == null) {
-                p.setTransferMarktId(transferMarktId);
+            if(player.getTransferMarktId() != null && p.getTransferMarktId() == null) {
+                p.setTransferMarktId(player.getTransferMarktId());
                 updated = true;
             }
 

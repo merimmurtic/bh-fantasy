@@ -17,7 +17,7 @@ public class Striker extends Player{
         super(firstName, lastName, numberoOnDress, position);
     }
 
-    private static List<Position> VALID_POSITIONS = Arrays.asList(Position.ST, Position.FW);
+    public static List<Position> VALID_POSITIONS = Arrays.asList(Position.SS, Position.CF, Position.LW, Position.RW);
 
     @Override
     public void validatePosition(Position position) {

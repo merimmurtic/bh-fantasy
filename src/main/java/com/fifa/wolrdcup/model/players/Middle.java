@@ -13,8 +13,8 @@ public class Middle extends Player {
 
     public Middle() {}
 
-    private static List<Position> VALID_POSITIONS = Arrays.asList(
-            Position.MC, Position.MR, Position.ML, Position.AMC, Position.AML, Position.AMR);
+    public static List<Position> VALID_POSITIONS = Arrays.asList(
+            Position.CM, Position.RM, Position.LM, Position.AM, Position.DM);
 
     public Middle(String firstName, String lastName, Integer numberoOnDress, Position position) throws Exception {
         super(firstName, lastName, numberoOnDress, position);

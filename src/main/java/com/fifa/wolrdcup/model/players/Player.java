@@ -35,16 +35,6 @@ public abstract class Player implements Comparable<Player> {
     @Enumerated(EnumType.STRING)
     private Player.Position position;
 
-    private static Map<Player.Position, String> POSITIONS_MAP = new LinkedHashMap<>();
-
-    static {
-        POSITIONS_MAP.put(Player.Position.ST, "Striker");
-        POSITIONS_MAP.put(Player.Position.MC, "Midller");
-        POSITIONS_MAP.put(Player.Position.DC, "Defensive Center");
-        POSITIONS_MAP.put(Player.Position.GK, "Goalkeeper");
-        POSITIONS_MAP.put(Player.Position.AMC, "Ofansive Midle Center");
-    }
-
     @ManyToMany
     @JsonView(PlayerTeamsView.class)
     private List<Team> teams = new ArrayList<>();
@@ -90,7 +80,7 @@ public abstract class Player implements Comparable<Player> {
     }
 
     public String getPositionName() {
-        return POSITIONS_MAP.getOrDefault(position, "Unknown");
+        return position.getName();
     }
 
     public void setPosition(Player.Position position) {
@@ -153,19 +143,49 @@ public abstract class Player implements Comparable<Player> {
     }
 
     public enum Position{
-        ST,
-        MC,
-        DC,
-        DR,
-        DL,
-        GK,
-        MR,
-        ML,
-        AMC,
-        AML,
-        AMR,
-        FW,
-        UNKNOWN
+        SS("Second Striker"),
+        CF("Centre-Forward"),
+        CM("Central Midfield"),
+        CB("Centre-Back"),
+        RB("Right-Back"),
+        LB("Left-Back"),
+        GK("Goalkeeper"),
+        RM("Right Midfield"),
+        LM("Left Midfield"),
+        AM("Attacking Midfield"),
+        DM("Defensive Midfield"),
+        LW("Left Winger"),
+        RW("Right Winger"),
+        UNKNOWN("Unknown");
+
+        Position(String name) {
+            this.name = name;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        private String name;
+
+        public static Position getPosition(String name){
+            for(Position e : Position.values()){
+                if(name.equals(e.name)) return e;
+            }
+            return UNKNOWN;
+        }
+    }
+
+    public static Player getInstance(Position position) {
+        if(Middle.VALID_POSITIONS.contains(position)) {
+            return new Middle();
+        } else if(Striker.VALID_POSITIONS.contains(position)) {
+            return new Striker();
+        } else if(Defender.VALID_POSITIONS.contains(position)) {
+            return new Defender();
+        } else if(Goalkeaper.VALID_POSITIONS.contains(position)) {
+            return new Goalkeaper();
+        } else return new Unknown();
     }
 
     public interface PlayerTeamsView {}

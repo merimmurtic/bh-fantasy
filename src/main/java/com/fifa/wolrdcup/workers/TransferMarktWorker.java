@@ -2,6 +2,8 @@ package com.fifa.wolrdcup.workers;
 
 import com.fifa.wolrdcup.model.*;
 import com.fifa.wolrdcup.model.players.Player;
+import com.fifa.wolrdcup.model.players.Player.Position;
+import com.fifa.wolrdcup.model.players.Unknown;
 import com.fifa.wolrdcup.repository.*;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -12,9 +14,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.URL;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -25,6 +25,8 @@ public class TransferMarktWorker extends ProcessWorker {
     private static Logger logger = LoggerFactory.getLogger(TransferMarktWorker.class);
 
     private static final String FORMATION_REGEX = "(?:\\d-)+\\d";
+
+    private static final String POSITION_REGEX = "(?:Position: (.*))";
 
     private final String transfermarktUrl;
 
@@ -76,6 +78,8 @@ public class TransferMarktWorker extends ProcessWorker {
             Elements matchElements = matchDayElement.select("tr");
 
             processMatches(matchElements, round, league);
+
+            break;
         }
     }
 
@@ -161,21 +165,71 @@ public class TransferMarktWorker extends ProcessWorker {
     }
 
     private Player processPlayerUrl(String playerName, String playerInfoUrl, Team team) {
-        String[] nameParts = playerName.split(" ", 2);
-
         Long transferMarktId = getTransferMarktId(playerInfoUrl);
 
-        if(nameParts.length == 1) {
-            return processPlayer(null, playerName, team, transferMarktId);
-        } else {
-            return processPlayer(nameParts[0], nameParts[1], team, transferMarktId);
+        Optional<Player> optionalPlayer = playerRepository.findByTransferMarktId(transferMarktId);
+
+        if(optionalPlayer.isPresent()) {
+            Player player = optionalPlayer.get();
+
+            if(player.getPosition() != null && player.getTransferMarktId() != null) {
+                return player;
+            }
         }
+
+        Player player = null;
+
+        try {
+            Document document = Jsoup.connect(BASE_URL.concat("/spieler/_profilTooltip"))
+                    .data("spieler_id", transferMarktId.toString()).timeout(10000).post();
+
+            playerName = document.select(".spielername-kurzprofil a").text();
+
+            Position position = parsePosition(document.selectFirst(".kurzprofil-infos"));
+
+            player = Player.getInstance(position);
+            player.setPosition(position);
+        } catch (IOException e) {
+            logger.error("Error while loading player info.", e);
+        }
+
+        String[] nameParts = playerName.split(" ", 2);
+
+        if(player == null) {
+            player = new Unknown();
+        }
+
+        player.setTransferMarktId(transferMarktId);
+
+        if(nameParts.length == 1) {
+            player.setLastName(playerName);
+        } else {
+            player.setFirstName(nameParts[0]);
+            player.setLastName(nameParts[1]);
+        }
+
+        return processPlayer(player, team);
     }
 
     private Long getTransferMarktId(String playerInfoUrl) {
         String[] parts = playerInfoUrl.split("/");
 
         return Long.parseLong(parts[parts.length - 1]);
+    }
+
+    private Position parsePosition(Element element) {
+        String posititonText = element.select("br").last().previousSibling().toString();
+
+        final Pattern pattern = Pattern.compile(POSITION_REGEX, Pattern.MULTILINE);
+        final Matcher matcher = pattern.matcher(posititonText);
+
+        if(matcher.find()) {
+            String position = matcher.group(1).trim();
+
+            return Position.getPosition(position);
+        } else {
+            return Position.UNKNOWN;
+        }
     }
 
     private Lineup.Formation parseFormation(Element lineupElement) {

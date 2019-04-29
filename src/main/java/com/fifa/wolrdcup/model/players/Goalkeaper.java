@@ -17,7 +17,7 @@ public class Goalkeaper extends Player {
         super(firstName, lastName, numberoOnDress, position);
     }
 
-    private static List<Position> VALID_POSITIONS = Collections.singletonList(Position.GK);
+    public static List<Position> VALID_POSITIONS = Collections.singletonList(Position.GK);
 
     @Override
     public void validatePosition(Position position) {

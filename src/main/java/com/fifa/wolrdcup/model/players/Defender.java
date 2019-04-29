@@ -17,7 +17,7 @@ public class Defender extends Player {
         super(firstName, lastName, numberoOnDress, position);
     }
 
-    private static List<Position> VALID_POSITIONS = Arrays.asList(Position.DC, Position.DL, Position.DR);
+    public static List<Position> VALID_POSITIONS = Arrays.asList(Position.CB, Position.LB, Position.RB);
 
     @Override
     public void validatePosition(Position position) {
