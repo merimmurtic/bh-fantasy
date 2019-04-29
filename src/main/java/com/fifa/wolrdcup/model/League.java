@@ -22,10 +22,11 @@ public class League {
     private String name;
 
     @ManyToMany(mappedBy = "leagues", cascade = CascadeType.ALL)
+    @JsonView(LeagueTeamsView.class)
     private List<Team> teams = new LinkedList<>();
 
     @OneToMany(mappedBy = "league", cascade = CascadeType.ALL)
-    @JsonView(RoundView.class)
+    @JsonView(LeagueRoundsView.class)
     private List<Round> rounds = new LinkedList<>();
 
     public League() {}
@@ -42,6 +43,7 @@ public class League {
         return teams;
     }
 
+    @JsonView(LeaguePlayersView.class)
     public List<Player> getAllPlayers(){
         List<Player> allPlayers = new ArrayList<>();
 
@@ -126,6 +128,12 @@ public class League {
         this.id = id;
     }
 
-    public interface RoundView{}
+    public interface LeagueTeamsView {}
+
+    public interface LeagueRoundsView {}
+
+    public interface LeaguePlayersView {}
+
+    public interface DetailedView extends LeagueTeamsView, LeaguePlayersView {}
 }
 

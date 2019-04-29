@@ -8,11 +8,11 @@ import java.util.List;
 import java.util.Optional;
 
 public interface PlayerRepository extends CrudRepository<Player, Long> {
-    Optional<Player> findByTeamAndFirstNameAndLastName(Team team, String firstName, String lastName);
+    Optional<Player> findByTeamsAndFirstNameAndLastName(Team team, String firstName, String lastName);
 
-    Optional<Player> findByTeamAndLastName(Team team, String lastName);
+    Optional<Player> findByTeamsAndLastName(Team team, String lastName);
 
     Optional<Player> findByTransferMarktId(Long transferMarktId);
 
-    List<Player> findByTeamId(Long teamId);
+    List<Player> findByTeams(Long teamId);
 }

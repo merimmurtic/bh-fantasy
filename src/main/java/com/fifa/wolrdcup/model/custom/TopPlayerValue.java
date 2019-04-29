@@ -1,4 +1,4 @@
-package com.fifa.wolrdcup.model;
+package com.fifa.wolrdcup.model.custom;
 
 public class TopPlayerValue {
 

@@ -1,11 +1,9 @@
 package com.fifa.wolrdcup.model.players;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fifa.wolrdcup.model.Lineup;
+import com.fasterxml.jackson.annotation.JsonView;
 import com.fifa.wolrdcup.model.Team;
-import com.sun.istack.internal.NotNull;
 
 import javax.persistence.*;
 import java.util.*;
@@ -45,20 +43,11 @@ public abstract class Player implements Comparable<Player> {
         POSITIONS_MAP.put(Player.Position.DC, "Defensive Center");
         POSITIONS_MAP.put(Player.Position.GK, "Goalkeeper");
         POSITIONS_MAP.put(Player.Position.AMC, "Ofansive Midle Center");
-
-        for (Player.Position key : POSITIONS_MAP.keySet()) {
-            String value = POSITIONS_MAP.get(key);
-        }
     }
 
-    @ManyToOne
-    @JoinColumn
-    @JsonIgnore
-    private Team team;
-
-
-    @Column(name = "team_id", insertable = false, updatable = false)
-    private Long teamId;
+    @ManyToMany
+    @JsonView(PlayerTeamsView.class)
+    private List<Team> teams = new ArrayList<>();
 
     public Player(){
     }
@@ -140,22 +129,6 @@ public abstract class Player implements Comparable<Player> {
         return numberoOnDress - o.getNumberoOnDress();
     }
 
-    public Team getTeam() {
-        return team;
-    }
-
-    public void setTeam(Team team) {
-        this.team = team;
-    }
-
-    public Long getTeamId() {
-        return teamId;
-    }
-
-    public void setTeamId(Long teamId) {
-        this.teamId = teamId;
-    }
-
     public Long getTransferMarktId() {
         return transferMarktId;
     }
@@ -171,7 +144,13 @@ public abstract class Player implements Comparable<Player> {
         return this.getClass().getSimpleName();
     }
 
+    public List<Team> getTeams() {
+        return teams;
+    }
 
+    public void setTeams(List<Team> teams) {
+        this.teams = teams;
+    }
 
     public enum Position{
         ST,
@@ -188,4 +167,8 @@ public abstract class Player implements Comparable<Player> {
         FW,
         UNKNOWN
     }
+
+    public interface PlayerTeamsView {}
+
+    public interface DetailedView extends PlayerTeamsView {}
 }

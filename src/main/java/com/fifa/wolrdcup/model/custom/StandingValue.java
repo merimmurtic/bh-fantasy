@@ -1,4 +1,6 @@
-package com.fifa.wolrdcup.model;
+package com.fifa.wolrdcup.model.custom;
+
+import com.fifa.wolrdcup.model.Team;
 
 public class StandingValue{
 

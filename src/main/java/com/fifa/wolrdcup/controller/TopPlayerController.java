@@ -1,6 +1,6 @@
 package com.fifa.wolrdcup.controller;
 
-import com.fifa.wolrdcup.model.TopPlayerValue;
+import com.fifa.wolrdcup.model.custom.TopPlayerValue;
 import com.fifa.wolrdcup.model.players.Player;
 import com.fifa.wolrdcup.repository.GoalRepository;
 import com.fifa.wolrdcup.repository.PlayerRepository;

@@ -1,6 +1,6 @@
 package com.fifa.wolrdcup.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonView;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -16,10 +16,11 @@ public class Round {
     private String name;
 
     @OneToMany(mappedBy = "round", cascade = CascadeType.ALL)
+    @JsonView(RoundMatchesView.class)
     private List<Match> matches = new ArrayList<>();
 
     @ManyToOne
-    @JsonIgnore
+    @JsonView(RoundLeagueView.class)
     private League league;
 
     public Round(){}
@@ -59,4 +60,10 @@ public class Round {
     public void setLeague(League league) {
         this.league = league;
     }
+
+    public interface RoundMatchesView {}
+
+    public interface RoundLeagueView {}
+
+    public interface DetailedView extends RoundMatchesView, RoundLeagueView {}
 }

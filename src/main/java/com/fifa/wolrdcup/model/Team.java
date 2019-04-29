@@ -1,6 +1,5 @@
 package com.fifa.wolrdcup.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.fifa.wolrdcup.model.players.Player;
@@ -25,12 +24,12 @@ public class Team{
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String code;
 
-    @ManyToMany(mappedBy = "team", cascade = CascadeType.ALL)
-    @JsonView(PlayersView.class)
+    @ManyToMany(mappedBy = "teams", cascade = CascadeType.ALL)
+    @JsonView(TeamPlayersView.class)
     private List<Player> players = new ArrayList<>();
 
-    @JsonIgnore
     @ManyToMany
+    @JsonView(TeamLeaguesView.class)
     private List<League> leagues = new ArrayList<>();
 
     public Team(){}
@@ -80,5 +79,9 @@ public class Team{
         this.leagues = leagues;
     }
 
-    public interface PlayersView{}
+    public interface TeamPlayersView {}
+
+    public interface TeamLeaguesView {}
+
+    public interface DetailedView extends TeamPlayersView, TeamLeaguesView{}
 }

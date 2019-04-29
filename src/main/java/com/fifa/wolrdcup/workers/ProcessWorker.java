@@ -55,7 +55,6 @@ abstract class ProcessWorker {
         Player player = new Unknown();
         player.setLastName(lastName);
         player.setFirstName(firstName);
-        player.setTeam(team);
         player.setTransferMarktId(transferMarktId);
 
         Optional<Player> existingPlayer = Optional.empty();
@@ -64,12 +63,12 @@ abstract class ProcessWorker {
             existingPlayer = playerRepository.findByTransferMarktId(transferMarktId);
         } else {
             if (firstName != null) {
-                existingPlayer = playerRepository.findByTeamAndFirstNameAndLastName(
+                existingPlayer = playerRepository.findByTeamsAndFirstNameAndLastName(
                         team, firstName, lastName);
             }
 
             if (!existingPlayer.isPresent()) {
-                existingPlayer = playerRepository.findByTeamAndLastName(
+                existingPlayer = playerRepository.findByTeamsAndLastName(
                         team, lastName);
             }
         }
@@ -87,17 +86,21 @@ abstract class ProcessWorker {
                 updated = true;
             }
 
-            if(team != null && !team.getId().equals(p.getTeamId())) {
-                p.setTeam(team);
-                updated = true;
-            }
+            // TODO: Solve hibernate issue
+            //if(team != null && !p.getTeams().contains(team)) {
+            //    p.getTeams().add(team);
+            //    updated = true;
+            //}
 
             if(updated) {
                 playerRepository.save(p);
             }
         });
 
-        return existingPlayer.orElseGet(() -> playerRepository.save(player));
+        return existingPlayer.orElseGet(() -> {
+            player.getTeams().add(team);
+            return playerRepository.save(player);
+        });
     }
 
     Team processTeam(Map<String, String> teamMap, League league) {

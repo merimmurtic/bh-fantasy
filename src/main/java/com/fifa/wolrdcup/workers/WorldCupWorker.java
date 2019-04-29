@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.ResourceUtils;
 
+import javax.transaction.Transactional;
 import java.io.FileNotFoundException;
 import java.util.HashMap;
 import java.util.List;
@@ -69,7 +70,8 @@ public class WorldCupWorker extends ProcessWorker {
     }
 
     @SuppressWarnings("unchecked")
-    private void processMatches(List<HashMap<String, Object>> matches, Round round, League league) {
+    @Transactional
+    public void processMatches(List<HashMap<String, Object>> matches, Round round, League league) {
         for (HashMap<String, Object> matchMap : matches) {
             Match match = new Match();
             match.setRound(round);
