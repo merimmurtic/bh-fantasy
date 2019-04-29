@@ -1,8 +1,10 @@
 package com.fifa.wolrdcup.controller;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import com.fifa.wolrdcup.exception.InvalidLeagueIdException;
 import com.fifa.wolrdcup.exception.InvalidPlayerIdException;
 import com.fifa.wolrdcup.exception.InvalidTeamIdException;
+import com.fifa.wolrdcup.model.DefaultView;
 import com.fifa.wolrdcup.model.League;
 import com.fifa.wolrdcup.model.Team;
 import com.fifa.wolrdcup.model.players.Player;
@@ -31,11 +33,13 @@ public class TeamController {
     }
 
     @GetMapping
+    @JsonView(DefaultView.class)
     public Iterable<Team> getTeams() throws Exception{
         return teamRepository.findAll();
     }
 
     @GetMapping("/{teamId}")
+    @JsonView(Team.PlayersView.class)
     public ResponseEntity<Team> getTeam(@PathVariable("teamId") Long teamId) throws Exception {
         return ResponseEntity.of(teamRepository.findById(teamId));
     }

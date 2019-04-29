@@ -2,6 +2,7 @@ package com.fifa.wolrdcup.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonView;
 import com.fifa.wolrdcup.model.players.Player;
 
 import javax.persistence.*;
@@ -16,15 +17,16 @@ public class Team{
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotNull // Make sure that name exist!
+    @NotNull
     private String name;
 
     @Column(unique = true)
-    @NotNull // Make sure that code exist!
+    @NotNull
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String code;
 
     @ManyToMany(mappedBy = "team", cascade = CascadeType.ALL)
+    @JsonView(PlayersView.class)
     private List<Player> players = new ArrayList<>();
 
     @JsonIgnore
@@ -78,4 +80,5 @@ public class Team{
         this.leagues = leagues;
     }
 
+    public interface PlayersView{}
 }
