@@ -14,6 +14,9 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.URL;
+import java.sql.Date;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -27,6 +30,8 @@ public class TransferMarktWorker extends ProcessWorker {
     private static final String FORMATION_REGEX = "(?:\\d-)+\\d";
 
     private static final String POSITION_REGEX = "(?:Position: (.*))";
+
+    private static final String DATE_REGEX = "(\\d\\d.\\d\\d.\\d\\d\\d\\d)";
 
     private final String transfermarktUrl;
 
@@ -141,10 +146,22 @@ public class TransferMarktWorker extends ProcessWorker {
             lineupRepository.save(lineup);
 
             if(formation != null) {
-                Elements playerElements = lineupElement.select(".aufstellung-spieler-container a");
+                Elements playerElements = lineupElement.select(".aufstellung-spieler-container");
 
                 for (Element playerElement : playerElements) {
-                    Player player = processPlayerUrl(playerElement.text(), playerElement.attr("href"), team);
+                    Element playerElementA = playerElement.selectFirst("a");
+
+                    Integer numberOnDress = null;
+
+                    try {
+                        numberOnDress = Integer.parseInt(
+                                playerElement.selectFirst(".aufstellung-rueckennummer-box").text());
+                    } catch (Exception e) {
+                        logger.error("Error while parsing number on dress: ", e);
+                    }
+
+                    Player player = processPlayerUrl(
+                            playerElementA.text(), playerElementA.attr("href"), team, numberOnDress);
 
                     lineup.getStartingPlayers().add(player);
                 }
@@ -152,7 +169,8 @@ public class TransferMarktWorker extends ProcessWorker {
                 Elements playerElements = lineupElement.select(".spielprofil_tooltip");
 
                 for(Element playerElement : playerElements) {
-                    Player player = processPlayerUrl(playerElement.text(), playerElement.attr("href"), team);
+                    Player player = processPlayerUrl(
+                            playerElement.text(), playerElement.attr("href"), team, null);
 
                     lineup.getStartingPlayers().add(player);
                 }
@@ -164,7 +182,7 @@ public class TransferMarktWorker extends ProcessWorker {
         }
     }
 
-    private Player processPlayerUrl(String playerName, String playerInfoUrl, Team team) {
+    private Player processPlayerUrl(String playerName, String playerInfoUrl, Team team, Integer numberOnDress) {
         Long transferMarktId = getTransferMarktId(playerInfoUrl);
 
         Optional<Player> optionalPlayer = playerRepository.findByTransferMarktId(transferMarktId);
@@ -189,6 +207,19 @@ public class TransferMarktWorker extends ProcessWorker {
 
             player = Player.getInstance(position);
             player.setPosition(position);
+
+            String marketValueRaw = document.selectFirst(".kurzprofil-marktwert")
+                    .text().replace("Market Value: ", "");
+
+            LocalDate dateBirth = parseDate(document.selectFirst(".kurzprofil-infos-text")
+                    .selectFirst("br").previousSibling().toString());
+
+            String profilePicture = document.selectFirst(".bilderrahmen").attr("src");
+
+            player.setProfilePicture(profilePicture);
+            player.setBirthDate(dateBirth != null ? Date.valueOf(dateBirth) : null);
+            player.setMarketValueRaw(marketValueRaw);
+            player.setNumberoOnDress(numberOnDress);
         } catch (IOException e) {
             logger.error("Error while loading player info.", e);
         }
@@ -229,6 +260,19 @@ public class TransferMarktWorker extends ProcessWorker {
             return Position.getPosition(position);
         } else {
             return Position.UNKNOWN;
+        }
+    }
+
+    private LocalDate parseDate(String dateText) {
+        final Pattern pattern = Pattern.compile(DATE_REGEX, Pattern.MULTILINE);
+        final Matcher matcher = pattern.matcher(dateText);
+
+        if(matcher.find()) {
+            String date = matcher.group(0);
+
+            return LocalDate.parse(date, DateTimeFormatter.ofPattern("dd.MM.yyyy"));
+        } else {
+            return null;
         }
     }
 

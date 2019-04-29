@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonView;
 import com.fifa.wolrdcup.model.Team;
 
 import javax.persistence.*;
+import java.sql.Date;
 import java.util.*;
 
 @Entity
@@ -29,6 +30,12 @@ public abstract class Player implements Comparable<Player> {
     private String firstName;
     private String lastName;
     private Integer numberoOnDress;
+
+    private String marketValueRaw;
+
+    private String profilePicture;
+
+    private Date birthDate;
 
     private Long transferMarktId;
 
@@ -97,6 +104,30 @@ public abstract class Player implements Comparable<Player> {
         } else {
             return lastName;
         }
+    }
+
+    public String getMarketValueRaw() {
+        return marketValueRaw;
+    }
+
+    public void setMarketValueRaw(String marketValueRaw) {
+        this.marketValueRaw = marketValueRaw;
+    }
+
+    public String getProfilePicture() {
+        return profilePicture;
+    }
+
+    public void setProfilePicture(String profilePicture) {
+        this.profilePicture = profilePicture;
+    }
+
+    public Date getBirthDate() {
+        return birthDate;
+    }
+
+    public void setBirthDate(Date birthDate) {
+        this.birthDate = birthDate;
     }
 
     public Long getId() {
