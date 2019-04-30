@@ -37,6 +37,7 @@ public abstract class Player implements Comparable<Player> {
 
     private Date birthDate;
 
+    @Column(unique = true)
     private Long transferMarktId;
 
     @Enumerated(EnumType.STRING)
@@ -87,7 +88,7 @@ public abstract class Player implements Comparable<Player> {
     }
 
     public String getPositionName() {
-        return position.getName();
+        return position != null ? position.getName() : null;
     }
 
     public void setPosition(Player.Position position) {

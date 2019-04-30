@@ -1,6 +1,8 @@
 package com.fifa.wolrdcup.workers;
 
 import com.fifa.wolrdcup.model.*;
+import com.fifa.wolrdcup.model.league.League;
+import com.fifa.wolrdcup.model.league.RegularLeague;
 import com.fifa.wolrdcup.model.players.Player;
 import com.fifa.wolrdcup.model.players.Player.Position;
 import com.fifa.wolrdcup.model.players.Unknown;
@@ -57,7 +59,7 @@ public class TransferMarktWorker extends ProcessWorker {
         String leagueLevel = document.select(
                 ".box-personeninfos tr").first().select("td").text();
 
-        League league = new League();
+        League league = new RegularLeague();
         league.setName(leagueName);
 
         leagueRepository.save(league);

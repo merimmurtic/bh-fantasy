@@ -2,6 +2,7 @@ package com.fifa.wolrdcup.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
+import com.fifa.wolrdcup.model.league.League;
 import com.fifa.wolrdcup.model.players.Player;
 
 import javax.persistence.*;

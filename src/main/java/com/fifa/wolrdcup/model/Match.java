@@ -1,6 +1,7 @@
 package com.fifa.wolrdcup.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonView;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -24,18 +25,22 @@ public class Match {
     private Round round;
 
     @OneToMany(mappedBy = "match", cascade = CascadeType.ALL)
+    @JsonView(MatchGoalsView.class)
     private List<Goal> goals = new ArrayList<>();
 
     @OneToOne
     private Stadium stadium;
 
     @OneToMany(mappedBy = "match", cascade = CascadeType.ALL)
+    @JsonView(MatchLineupsView.class)
     private List<Lineup> lineup1 = new ArrayList<>();
 
     @OneToMany(mappedBy = "match", cascade = CascadeType.ALL)
+    @JsonView(MatchLineupsView.class)
     private List<Lineup> lineup2 = new ArrayList<>();
 
     @OneToMany(mappedBy = "match", cascade = CascadeType.ALL)
+    @JsonView(MatchCardsView.class)
     private List<Card> cards = new ArrayList<>();
 
     private Integer score1;
@@ -110,4 +115,35 @@ public class Match {
         this.score2 = score2;
     }
 
+    public List<Lineup> getLineup1() {
+        return lineup1;
+    }
+
+    public void setLineup1(List<Lineup> lineup1) {
+        this.lineup1 = lineup1;
+    }
+
+    public List<Lineup> getLineup2() {
+        return lineup2;
+    }
+
+    public void setLineup2(List<Lineup> lineup2) {
+        this.lineup2 = lineup2;
+    }
+
+    public List<Card> getCards() {
+        return cards;
+    }
+
+    public void setCards(List<Card> cards) {
+        this.cards = cards;
+    }
+
+    public interface MatchGoalsView {}
+
+    public interface MatchLineupsView {}
+
+    public interface MatchCardsView {}
+
+    public interface DetailedView extends MatchGoalsView, MatchLineupsView, MatchCardsView {}
 }

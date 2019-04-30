@@ -3,6 +3,8 @@ package com.fifa.wolrdcup.workers;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fifa.wolrdcup.model.*;
+import com.fifa.wolrdcup.model.league.League;
+import com.fifa.wolrdcup.model.league.RegularLeague;
 import com.fifa.wolrdcup.model.players.Player;
 import com.fifa.wolrdcup.repository.*;
 import org.slf4j.Logger;
@@ -36,7 +38,7 @@ public class WorldCupWorker extends ProcessWorker {
         ObjectMapper objectMapper = new ObjectMapper();
 
         try {
-            League league = new League();
+            League league = new RegularLeague();
 
             HashMap<String, Object> map = objectMapper.readValue(
                     ResourceUtils.getFile("classpath:worldcup.json"),

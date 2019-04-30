@@ -1,6 +1,6 @@
 package com.fifa.wolrdcup.workers;
 
-import com.fifa.wolrdcup.model.League;
+import com.fifa.wolrdcup.model.league.League;
 import com.fifa.wolrdcup.model.Team;
 import com.fifa.wolrdcup.model.players.Player;
 import com.fifa.wolrdcup.model.players.Unknown;

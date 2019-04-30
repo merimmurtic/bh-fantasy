@@ -3,8 +3,10 @@ package com.fifa.wolrdcup.controller;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.fifa.wolrdcup.exception.InvalidLeagueIdException;
 import com.fifa.wolrdcup.exception.InvalidTeamIdException;
+import com.fifa.wolrdcup.model.league.FantasyLeague;
+import com.fifa.wolrdcup.model.league.RegularLeague;
 import com.fifa.wolrdcup.model.views.DefaultView;
-import com.fifa.wolrdcup.model.League;
+import com.fifa.wolrdcup.model.league.League;
 import com.fifa.wolrdcup.model.Team;
 import com.fifa.wolrdcup.repository.LeagueRepository;
 import com.fifa.wolrdcup.repository.TeamRepository;
@@ -45,6 +47,26 @@ public class LeagueController {
         league.setId(null);
 
         try {
+            if(league instanceof FantasyLeague) {
+                FantasyLeague fantasyLeague = (FantasyLeague) league;
+
+                Long regularLeagueId = fantasyLeague.getRegularLeague().getId();
+
+                Optional<League> regularLeagueOptional = leagueRepository.findById(regularLeagueId);
+
+                if(!regularLeagueOptional.isPresent()) {
+                    throw new InvalidLeagueIdException();
+                }
+
+                League regularLeague = regularLeagueOptional.get();
+
+                if(regularLeague instanceof RegularLeague) {
+                    fantasyLeague.setRegularLeague((RegularLeague) regularLeague);
+                } else {
+                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Provided league is not Regular League!");
+                }
+            }
+
             league = leagueRepository.save(league);
 
             //TODO: This is the right way to handle creation of model, try to do same for player and team creation
@@ -53,7 +75,7 @@ public class LeagueController {
             ).body(league);
         } catch (DataIntegrityViolationException e) {
             // DataIntegrityViolationException is thrown in case unique constraint fails!
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "League with provided name already exist!");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "league with provided name already exist!");
         } catch (ConstraintViolationException e) {
             // In case validation of model fail ConstraintViolationException is thrown (for example, name is null)
             // in this case throw ResponseStatusException with details about contstraint violations

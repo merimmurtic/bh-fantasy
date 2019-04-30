@@ -1,6 +1,7 @@
 package com.fifa.wolrdcup.model;
 
 import com.fasterxml.jackson.annotation.JsonView;
+import com.fifa.wolrdcup.model.league.League;
 
 import javax.persistence.*;
 import java.util.ArrayList;
