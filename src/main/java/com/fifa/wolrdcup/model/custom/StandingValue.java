@@ -1,7 +1,5 @@
 package com.fifa.wolrdcup.model.custom;
 
-import com.fifa.wolrdcup.model.Team;
-
 public class StandingValue{
 
     private Long teamId;
@@ -83,14 +81,5 @@ public class StandingValue{
 
     public Long getGoalsDifference() {
         return goalsScored - goalsConceded;
-    }
-
-
-    public void setTeamStats(Team team, Long value) {
-        this.goalsScored = goalsScored;
-        this.goalsConceded = goalsConceded;
-        this.won = won;
-        this.lose = lose;
-        this.draw = draw;
     }
 }
