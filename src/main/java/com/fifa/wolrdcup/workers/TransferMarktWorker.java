@@ -165,6 +165,30 @@ public class TransferMarktWorker extends ProcessWorker {
 
                     lineup.getStartingPlayers().add(player);
                 }
+
+                Elements substitutionElements = lineupElement.select(".aufstellung-ersatzbank-box tr");
+
+                for(Element substitutionElement : substitutionElements) {
+                    if(substitutionElement.selectFirst(".spielprofil_tooltip") == null)  {
+                        continue;
+                    }
+
+                    Integer numberOnDress = null;
+
+                    try {
+                        numberOnDress = Integer.parseInt(
+                                substitutionElement.selectFirst("td").text());
+                    } catch (Exception e) {
+                        logger.error("Error while parsing number on dress: ", e);
+                    }
+
+                    Element playerElement = substitutionElement.select("tr").last().selectFirst("a");
+
+                    Player player = processPlayerUrl(
+                            playerElement.text(), playerElement.attr("href"), team, numberOnDress);
+
+                    lineup.getAvailableSupstitutions().add(player);
+                }
             } else {
                 Elements playerElements = lineupElement.select(".spielprofil_tooltip");
 
