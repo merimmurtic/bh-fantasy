@@ -2,9 +2,12 @@ package com.fifa.wolrdcup.controller;
 
 import com.fifa.wolrdcup.model.*;
 import com.fifa.wolrdcup.model.custom.StandingValue;
+import com.fifa.wolrdcup.model.league.League;
+import com.fifa.wolrdcup.repository.LeagueRepository;
 import com.fifa.wolrdcup.repository.MatchRepository;
 import com.fifa.wolrdcup.repository.TeamRepository;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -13,33 +16,46 @@ import java.util.List;
 
 
 @RestController
-@RequestMapping("/standings")
+@RequestMapping("/leagues/{leagueId}/standings")
 public class StandingController {
 
     private final TeamRepository teamRepository;
     private final MatchRepository matchRepository;
+    private final LeagueRepository leagueRepository;
 
-    public StandingController(TeamRepository teamRepository, MatchRepository matchRepository) {
+    public StandingController(TeamRepository teamRepository, MatchRepository matchRepository,
+                              LeagueRepository leagueRepository) {
         this.teamRepository = teamRepository;
         this.matchRepository = matchRepository;
+        this.leagueRepository = leagueRepository;
     }
 
     @GetMapping
-    public Iterable<StandingValue> getStandings() {
+    public Iterable<StandingValue> getStandings(
+            @PathVariable("leagueId") Long leagueId
+    ) {
         List<StandingValue> result = new ArrayList<>();
+
+        Iterable<League> leagues = leagueRepository.findAll();
 
         Iterable<Team> teams = teamRepository.findAll();
 
-        for(Team team : teams){
-            StandingValue value = new StandingValue();
-            value.setTeamId(team.getId());
-            value.setTeamName(team.getName());
+        for(League league : leagues) {
 
-            // TODO: Think about this and let me know if something is not clear, this is basic thing.
-            // value is provided to method where it is updated with stats
-            setTeamStats(team, value);
+            if(league.getId().equals(leagueId)) {
 
-            result.add(value);
+                for (Team team : teams) {
+                    StandingValue value = new StandingValue();
+                    value.setTeamId(team.getId());
+                    value.setTeamName(team.getName());
+
+                    // TODO: Think about this and let me know if something is not clear, this is basic thing.
+                    // value is provided to method where it is updated with stats
+                    setTeamStats(team, value);
+
+                    result.add(value);
+                }
+            }
         }
 
         result.sort((StandingValue o1, StandingValue o2) -> {

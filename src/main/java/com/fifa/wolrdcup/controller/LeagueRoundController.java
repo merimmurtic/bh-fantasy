@@ -6,7 +6,6 @@ import com.fifa.wolrdcup.model.Round;
 import com.fifa.wolrdcup.model.views.DefaultView;
 import com.fifa.wolrdcup.repository.MatchRepository;
 import com.fifa.wolrdcup.repository.RoundRepository;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
