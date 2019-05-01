@@ -25,7 +25,6 @@ import java.util.Optional;
 public class LeagueController {
 
     private final LeagueRepository leagueRepository;
-
     private final TeamRepository teamRepository;
 
     public LeagueController(TeamRepository teamRepository,

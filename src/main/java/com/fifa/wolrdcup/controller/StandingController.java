@@ -31,11 +31,12 @@ public class StandingController {
     @GetMapping
     public Iterable<StandingValue> getStandings(
             @PathVariable("leagueId") Long leagueId) {
-        List<StandingValue> result = new ArrayList<>();
 
+        List<StandingValue> result = new ArrayList<>();
         Iterable<Team> teams = teamRepository.findByLeagues_Id(leagueId);
 
         for (Team team : teams) {
+
             StandingValue value = new StandingValue();
             value.setTeamId(team.getId());
             value.setTeamName(team.getName());
