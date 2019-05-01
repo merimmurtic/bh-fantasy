@@ -21,41 +21,27 @@ public class StandingController {
 
     private final TeamRepository teamRepository;
     private final MatchRepository matchRepository;
-    private final LeagueRepository leagueRepository;
 
     public StandingController(TeamRepository teamRepository, MatchRepository matchRepository,
                               LeagueRepository leagueRepository) {
         this.teamRepository = teamRepository;
         this.matchRepository = matchRepository;
-        this.leagueRepository = leagueRepository;
     }
 
     @GetMapping
     public Iterable<StandingValue> getStandings(
-            @PathVariable("leagueId") Long leagueId
-    ) {
+            @PathVariable("leagueId") Long leagueId) {
         List<StandingValue> result = new ArrayList<>();
 
-        Iterable<League> leagues = leagueRepository.findAll();
+        Iterable<Team> teams = teamRepository.findByLeagues_Id(leagueId);
 
-        Iterable<Team> teams = teamRepository.findAll();
+        for (Team team : teams) {
+            StandingValue value = new StandingValue();
+            value.setTeamId(team.getId());
+            value.setTeamName(team.getName());
+            setTeamStats(team, value);
 
-        for(League league : leagues) {
-
-            if(league.getId().equals(leagueId)) {
-
-                for (Team team : teams) {
-                    StandingValue value = new StandingValue();
-                    value.setTeamId(team.getId());
-                    value.setTeamName(team.getName());
-
-                    // TODO: Think about this and let me know if something is not clear, this is basic thing.
-                    // value is provided to method where it is updated with stats
-                    setTeamStats(team, value);
-
-                    result.add(value);
-                }
-            }
+            result.add(value);
         }
 
         result.sort((StandingValue o1, StandingValue o2) -> {
