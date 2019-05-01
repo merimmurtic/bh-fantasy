@@ -35,6 +35,8 @@ public class TransferMarktWorker extends ProcessWorker {
 
     private static final String DATE_REGEX = "(\\d\\d.\\d\\d.\\d\\d\\d\\d)";
 
+    private static final String BACKGROUND_POSITIONS_REGEX = "(-\\d*)px";
+
     private final String transfermarktUrl;
 
     public TransferMarktWorker(StadiumRepository stadiumRepository,
@@ -132,8 +134,117 @@ public class TransferMarktWorker extends ProcessWorker {
                 processLineup(lineupDocuments.first(), match, match.getTeam1());
                 processLineup(lineupDocuments.last(), match, match.getTeam2());
             }
+
+            Elements goalElements = document.select("#sb-tore ul li");
+
+            processGoals(goalElements, match);
         } catch (IOException e) {
             logger.error("Error while processing match {}.", matchUrl);
+        }
+    }
+
+    private void processGoals(Elements goalElements, Match match) {
+        List<Goal> goals = new ArrayList<>();
+
+        for(Element goalElement : goalElements) {
+            Goal goal = new Goal();
+            goal.setMatch(match);
+
+            Team team = match.getTeam1();
+
+            if(goalElement.hasClass("sb-aktion-gast")) {
+                team = match.getTeam2();
+            }
+
+            Elements playerElements = goalElement.select(".sb-aktion-aktion a");
+
+            if(playerElements.size() > 0) {
+                Element playerElement = playerElements.get(0);
+
+                Long transferMarktId = Long.parseLong(playerElement.attr("id"));
+
+                Player player = new Unknown();
+                player.setTransferMarktId(transferMarktId);
+
+                populateFirstAndLastName(playerElement.text(), player);
+
+                player = processPlayer(player, team);
+
+                goal.setPlayer(player);
+            }
+
+            if(playerElements.size() > 1) {
+                Element playerElement = playerElements.get(1);
+
+                Long transferMarktId = Long.parseLong(playerElement.attr("id"));
+
+                Player player = new Unknown();
+                player.setTransferMarktId(transferMarktId);
+
+                populateFirstAndLastName(playerElement.text(), player);
+
+                player = processPlayer(player, team);
+
+                goal.setAssist(player);
+            }
+
+            goal.setMinute(calculateMinute(goalElement.selectFirst(".sb-sprite-uhr-klein")));
+
+            String[] scoreParts = goalElement.selectFirst(".sb-aktion-spielstand").text().split(":");
+
+            if(scoreParts.length == 2) {
+                goal.setScore1(Integer.parseInt(scoreParts[0]));
+                goal.setScore2(Integer.parseInt(scoreParts[1]));
+            }
+
+            goal.setPenalty(goalElement.text().contains("Penalty"));
+            goal.setOwnGoal(goalElement.text().contains("Own-goal"));
+
+            goals.add(goal);
+        }
+
+        goalRepository.saveAll(goals);
+    }
+
+    private Integer calculateMinute(Element minuteElement) {
+        String minuteStyle = minuteElement.attr("style");
+
+        final Pattern pattern = Pattern.compile(BACKGROUND_POSITIONS_REGEX, Pattern.MULTILINE);
+        final Matcher matcher = pattern.matcher(minuteStyle);
+
+        int x, y;
+
+        if(matcher.find()) {
+            x = Integer.parseInt(matcher.group(1));
+        } else {
+            return null;
+        }
+
+        if(matcher.find()) {
+            y = Integer.parseInt(matcher.group(1));
+        } else {
+            return null;
+        }
+
+        int minute = (1 + (Math.abs(x) / 36)) + 10*((Math.abs(y) / 36));
+
+        try {
+            minute += Integer.parseInt(minuteElement.text());
+        } catch (NumberFormatException e) {
+            //
+        }
+
+        return minute;
+    }
+
+    private void populateFirstAndLastName(String fullName, Player player) {
+        String[] nameParts = fullName.split(" ", 2);
+
+        if(nameParts.length == 1) {
+            player.setLastName(nameParts[0]);
+        } else {
+            player.setFirstName(nameParts[0]);
+            player.setLastName(nameParts[1]);
         }
     }
 
@@ -181,7 +292,7 @@ public class TransferMarktWorker extends ProcessWorker {
                         numberOnDress = Integer.parseInt(
                                 substitutionElement.selectFirst("td").text());
                     } catch (Exception e) {
-                        logger.error("Error while parsing number on dress: ", e);
+                        //
                     }
 
                     Element playerElement = substitutionElement.select("tr").last().selectFirst("a");
@@ -250,20 +361,13 @@ public class TransferMarktWorker extends ProcessWorker {
             logger.error("Error while loading player info.", e);
         }
 
-        String[] nameParts = playerName.split(" ", 2);
-
         if(player == null) {
             player = new Unknown();
         }
 
         player.setTransferMarktId(transferMarktId);
 
-        if(nameParts.length == 1) {
-            player.setLastName(playerName);
-        } else {
-            player.setFirstName(nameParts[0]);
-            player.setLastName(nameParts[1]);
-        }
+        populateFirstAndLastName(playerName, player);
 
         return processPlayer(player, team);
     }
