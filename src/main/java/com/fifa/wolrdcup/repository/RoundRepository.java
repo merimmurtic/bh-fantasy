@@ -12,5 +12,7 @@ public interface RoundRepository extends CrudRepository<Round, Long> {
 
     Iterable<Round> findByLeagueId(Long leagueId);
 
+    Iterable<Round> findByIdAndLeague_Id(Long id, Long leagueId);
+
 
 }
