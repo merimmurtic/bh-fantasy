@@ -31,13 +31,13 @@ public class Match {
     @OneToOne
     private Stadium stadium;
 
-    @OneToMany(mappedBy = "match", cascade = CascadeType.ALL)
+    @OneToOne
     @JsonView(MatchLineupsView.class)
-    private List<Lineup> lineup1 = new ArrayList<>();
+    private Lineup lineup1;
 
-    @OneToMany(mappedBy = "match", cascade = CascadeType.ALL)
+    @OneToOne
     @JsonView(MatchLineupsView.class)
-    private List<Lineup> lineup2 = new ArrayList<>();
+    private Lineup lineup2;
 
     @OneToMany(mappedBy = "match", cascade = CascadeType.ALL)
     @JsonView(MatchCardsView.class)
@@ -115,19 +115,19 @@ public class Match {
         this.score2 = score2;
     }
 
-    public List<Lineup> getLineup1() {
+    public Lineup getLineup1() {
         return lineup1;
     }
 
-    public void setLineup1(List<Lineup> lineup1) {
+    public void setLineup1(Lineup lineup1) {
         this.lineup1 = lineup1;
     }
 
-    public List<Lineup> getLineup2() {
+    public Lineup getLineup2() {
         return lineup2;
     }
 
-    public void setLineup2(List<Lineup> lineup2) {
+    public void setLineup2(Lineup lineup2) {
         this.lineup2 = lineup2;
     }
 

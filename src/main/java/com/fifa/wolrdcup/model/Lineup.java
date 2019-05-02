@@ -23,7 +23,7 @@ public class Lineup {
     @OneToMany(mappedBy = "lineup", cascade = CascadeType.ALL)
     private List<Substitution> substitutionChanges = new ArrayList<>();
 
-    @ManyToOne
+    @OneToOne
     @JsonIgnore
     private Match match;
 
