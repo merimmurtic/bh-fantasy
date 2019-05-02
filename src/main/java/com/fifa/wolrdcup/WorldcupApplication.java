@@ -32,6 +32,8 @@ public class WorldcupApplication {
 
     private final LineupRepository lineupRepository;
 
+    private final SubstitutionRepository substitutionRepository;
+
     private final FantasyService fantasyService;
 
     public WorldcupApplication(
@@ -43,7 +45,8 @@ public class WorldcupApplication {
             RoundRepository roundRepository,
             LeagueRepository leagueRepository,
             PlayerRepository playerRepository,
-            LineupRepository lineupRepository) {
+            LineupRepository lineupRepository,
+            SubstitutionRepository substitutionRepository) {
         this.leagueRepository = leagueRepository;
         this.roundRepository = roundRepository;
         this.teamRepository = teamRepository;
@@ -53,6 +56,7 @@ public class WorldcupApplication {
         this.stadiumRepository = stadiumRepository;
         this.lineupRepository = lineupRepository;
         this.fantasyService = fantasyService;
+        this.substitutionRepository = substitutionRepository;
     }
 
     public static void main(String[] args) {
@@ -74,12 +78,14 @@ public class WorldcupApplication {
 
         TransferMarktWorker premijerLigaWorker = new TransferMarktWorker(
             stadiumRepository, goalRepository, matchRepository,
-            teamRepository, roundRepository, leagueRepository, playerRepository, lineupRepository,
+            teamRepository, roundRepository, leagueRepository,
+                playerRepository, lineupRepository, substitutionRepository,
             "/premijer-liga/gesamtspielplan/wettbewerb/BOS1/saison_id/2018");
 
         TransferMarktWorker premierLeagueWorker = new TransferMarktWorker(
             stadiumRepository, goalRepository, matchRepository,
-            teamRepository, roundRepository, leagueRepository, playerRepository, lineupRepository,
+            teamRepository, roundRepository, leagueRepository,
+                playerRepository, lineupRepository, substitutionRepository,
             "/premier-league/gesamtspielplan/wettbewerb/GB1/saison_id/2018");
 
         Long leagueId = worldCupWorker.process();

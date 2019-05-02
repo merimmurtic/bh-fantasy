@@ -1,14 +1,12 @@
 package com.fifa.wolrdcup.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fifa.wolrdcup.model.players.Player;
 
 import javax.persistence.*;
 
 @Entity
 public class Substitution {
-
-
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -17,9 +15,11 @@ public class Substitution {
     @JsonIgnore
     private Lineup lineup;
 
-    private Long playerId;
+    @ManyToOne
+    private Player player;
 
-    private Long substittuionPlayerId;
+    @ManyToOne
+    private Player substitutePlayer;
 
     private Integer minute;
 
@@ -32,27 +32,35 @@ public class Substitution {
         this.id = id;
     }
 
-    public Long getPlayerId() {
-        return playerId;
-    }
-
-    public void setPlayerId(Long playerId) {
-        this.playerId = playerId;
-    }
-
-    public Long getSubstittuionPlayerId() {
-        return substittuionPlayerId;
-    }
-
-    public void setSubstittuionPlayerId(Long substittuionPlayerId) {
-        this.substittuionPlayerId = substittuionPlayerId;
-    }
-
     public Integer getMinute() {
         return minute;
     }
 
     public void setMinute(Integer minute) {
         this.minute = minute;
+    }
+
+    public Lineup getLineup() {
+        return lineup;
+    }
+
+    public void setLineup(Lineup lineup) {
+        this.lineup = lineup;
+    }
+
+    public Player getPlayer() {
+        return player;
+    }
+
+    public void setPlayer(Player player) {
+        this.player = player;
+    }
+
+    public Player getSubstitutePlayer() {
+        return substitutePlayer;
+    }
+
+    public void setSubstitutePlayer(Player substitutePlayer) {
+        this.substitutePlayer = substitutePlayer;
     }
 }

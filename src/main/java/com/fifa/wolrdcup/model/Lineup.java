@@ -1,6 +1,5 @@
 package com.fifa.wolrdcup.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fifa.wolrdcup.model.players.Player;
 
 import javax.persistence.*;
@@ -22,10 +21,6 @@ public class Lineup {
 
     @OneToMany(mappedBy = "lineup", cascade = CascadeType.ALL)
     private List<Substitution> substitutionChanges = new ArrayList<>();
-
-    @OneToOne
-    @JsonIgnore
-    private Match match;
 
     @OneToOne
     private Player capiten;
@@ -84,14 +79,6 @@ public class Lineup {
 
     public void setSubstitutionChanges(List<Substitution> substitutionChanges) {
         this.substitutionChanges = substitutionChanges;
-    }
-
-    public Match getMatch() {
-        return match;
-    }
-
-    public void setMatch(Match match) {
-        this.match = match;
     }
 
     public Formation getFormation() {

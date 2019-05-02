@@ -6,6 +6,7 @@ import com.fifa.wolrdcup.model.players.Player;
 import com.fifa.wolrdcup.model.players.Unknown;
 import com.fifa.wolrdcup.repository.*;
 
+import javax.transaction.Transactional;
 import java.util.Map;
 import java.util.Optional;
 
@@ -26,6 +27,8 @@ abstract class ProcessWorker {
 
     final LineupRepository lineupRepository;
 
+    final SubstitutionRepository substitutionRepository;
+
     ProcessWorker(
             StadiumRepository stadiumRepository,
             GoalRepository goalRepository,
@@ -34,7 +37,9 @@ abstract class ProcessWorker {
             RoundRepository roundRepository,
             LeagueRepository leagueRepository,
             PlayerRepository playerRepository,
-            LineupRepository lineupRepository) {
+            LineupRepository lineupRepository,
+            SubstitutionRepository substitutionRepository
+    ) {
         this.leagueRepository = leagueRepository;
         this.roundRepository = roundRepository;
         this.teamRepository = teamRepository;
@@ -43,6 +48,7 @@ abstract class ProcessWorker {
         this.goalRepository = goalRepository;
         this.stadiumRepository = stadiumRepository;
         this.lineupRepository = lineupRepository;
+        this.substitutionRepository = substitutionRepository;
     }
 
     abstract Long process() throws Exception;
@@ -60,6 +66,7 @@ abstract class ProcessWorker {
         return processPlayer(player, team);
     }
 
+    @Transactional
     Player processPlayer(Player player, Team team) {
         Optional<Player> existingPlayer = Optional.empty();
 

@@ -47,9 +47,11 @@ public class TransferMarktWorker extends ProcessWorker {
                         LeagueRepository leagueRepository,
                         PlayerRepository playerRepository,
                         LineupRepository lineupRepository,
+                        SubstitutionRepository substitutionRepository,
                         String transfermarktUrl) {
         super(stadiumRepository, goalRepository, matchRepository,
-                teamRepository, roundRepository, leagueRepository, playerRepository, lineupRepository);
+                teamRepository, roundRepository, leagueRepository,
+                playerRepository, lineupRepository, substitutionRepository);
 
         this.transfermarktUrl = transfermarktUrl;
     }
@@ -131,16 +133,64 @@ public class TransferMarktWorker extends ProcessWorker {
             Elements lineupDocuments = document.select("#main .box .large-6");
 
             if(lineupDocuments.size() == 2) {
-                processLineup(lineupDocuments.first(), match, match.getTeam1());
-                processLineup(lineupDocuments.last(), match, match.getTeam2());
+                match.setLineup1(processLineup(lineupDocuments.first(), match.getTeam1()));
+                match.setLineup2(processLineup(lineupDocuments.last(), match.getTeam2()));
             }
+
+            matchRepository.save(match);
 
             Elements goalElements = document.select("#sb-tore ul li");
 
             processGoals(goalElements, match);
+
+            Elements substitutionElements = document.select("#sb-wechsel ul li");
+
+            processSubstitutions(substitutionElements, match);
         } catch (IOException e) {
             logger.error("Error while processing match {}.", matchUrl);
         }
+    }
+
+    private void processSubstitutions(Elements substitutionElements, Match match) {
+        List<Substitution> substitutions = new ArrayList<>();
+
+        for(Element substitutionElement : substitutionElements) {
+            Substitution substitution = new Substitution();
+
+            Team team = match.getTeam1();
+
+            Lineup lineup = match.getLineup1();
+
+            if(substitutionElement.hasClass("sb-aktion-gast")) {
+                lineup = match.getLineup2();
+
+                team = match.getTeam2();
+            }
+
+            substitution.setLineup(lineup);
+            substitution.setMinute(calculateMinute(substitutionElement.selectFirst(".sb-sprite-uhr-klein")));
+
+            Element playerInElement = substitutionElement.selectFirst(".sb-aktion-wechsel-ein a");
+
+            Player playerIn = new Unknown();
+            playerIn.setTransferMarktId(Long.parseLong(playerInElement.attr("id")));
+
+            populateFirstAndLastName(playerInElement.text(), playerIn);
+
+            Element playerOutElement = substitutionElement.selectFirst(".sb-aktion-wechsel-aus a");
+
+            Player playerOut = new Unknown();
+            playerOut.setTransferMarktId(Long.parseLong(playerOutElement.attr("id")));
+
+            populateFirstAndLastName(playerOutElement.text(), playerOut);
+
+            substitution.setPlayer(processPlayer(playerIn, team));
+            substitution.setSubstitutePlayer(processPlayer(playerOut, team));
+
+            substitutions.add(substitution);
+        }
+
+        substitutionRepository.saveAll(substitutions);
     }
 
     private void processGoals(Elements goalElements, Match match) {
@@ -248,12 +298,11 @@ public class TransferMarktWorker extends ProcessWorker {
         }
     }
 
-    private void processLineup(Element lineupElement, Match match, Team team) {
+    private Lineup processLineup(Element lineupElement, Team team) {
         try {
             Lineup.Formation formation = parseFormation(lineupElement);
 
             Lineup lineup = new Lineup();
-            lineup.setMatch(match);
             lineup.setFormation(formation);
 
             lineupRepository.save(lineup);
@@ -314,9 +363,13 @@ public class TransferMarktWorker extends ProcessWorker {
             }
 
             lineupRepository.save(lineup);
+
+            return lineup;
         } catch (Exception e) {
             logger.error("Error while processing lineup.", e);
         }
+
+        return null;
     }
 
     private Player processPlayerUrl(String playerName, String playerInfoUrl, Team team, Integer numberOnDress) {

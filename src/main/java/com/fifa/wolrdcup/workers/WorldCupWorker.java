@@ -30,7 +30,8 @@ public class WorldCupWorker extends ProcessWorker {
             LeagueRepository leagueRepository,
             PlayerRepository playerRepository) {
         super(stadiumRepository, goalRepository, matchRepository,
-                teamRepository, roundRepository, leagueRepository, playerRepository, null);
+                teamRepository, roundRepository, leagueRepository,
+                playerRepository, null, null);
     }
 
     @SuppressWarnings("unchecked")
