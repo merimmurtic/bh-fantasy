@@ -16,8 +16,6 @@ public class PointsValue {
 
     private Integer minutesPlayed = 0;
 
-    private Boolean captain = false;
-
     public PointsValue(Player player) {
         this.player = player;
     }
@@ -28,10 +26,6 @@ public class PointsValue {
 
     public void addOwnGoal() {
         ownGoalsScored += 1;
-    }
-
-    public void markAsCaptain() {
-        captain = true;
     }
 
     public void addAssist() {
@@ -51,10 +45,6 @@ public class PointsValue {
 
         if(minutesPlayed >= 60) {
             result += 1;
-        }
-
-        if(captain) {
-            result *= 2;
         }
 
         return result;
