@@ -48,10 +48,11 @@ public class TransferMarktWorker extends ProcessWorker {
                         PlayerRepository playerRepository,
                         LineupRepository lineupRepository,
                         SubstitutionRepository substitutionRepository,
+                        CardRepository cardRepository,
                         String transfermarktUrl) {
         super(stadiumRepository, goalRepository, matchRepository,
                 teamRepository, roundRepository, leagueRepository,
-                playerRepository, lineupRepository, substitutionRepository);
+                playerRepository, lineupRepository, substitutionRepository, cardRepository);
 
         this.transfermarktUrl = transfermarktUrl;
     }
@@ -146,9 +147,51 @@ public class TransferMarktWorker extends ProcessWorker {
             Elements substitutionElements = document.select("#sb-wechsel ul li");
 
             processSubstitutions(substitutionElements, match);
+
+            Elements cardElements = document.select("#sb-karten ul li");
+
+            processCards(cardElements, match);
         } catch (IOException e) {
             logger.error("Error while processing match {}.", matchUrl);
         }
+    }
+
+    private void processCards(Elements cardElements, Match match) {
+        List<Card> cards = new ArrayList<>();
+
+        for(Element cardElement : cardElements) {
+            Card card = new Card();
+
+            card.setMinute(calculateMinute(cardElement.selectFirst(".sb-sprite-uhr-klein")));
+
+            Team team = match.getTeam1();
+
+            if(cardElement.hasClass("sb-aktion-gast")) {
+                team = match.getTeam2();
+            }
+
+            Element playerElement = cardElement.selectFirst(".sb-aktion-aktion a");
+
+            Player player = new Unknown();
+            player.setTransferMarktId(Long.parseLong(playerElement.attr("id")));
+
+            populateFirstAndLastName(playerElement.text(), player);
+
+            card.setPlayer(processPlayer(player, team));
+
+            Card.CardType cardType = Card.CardType.YELLOW;
+
+            if(cardElement.selectFirst(".sb-rot") != null) {
+                cardType = Card.CardType.RED;
+            }
+
+            card.setCardType(cardType);
+            card.setMatch(match);
+
+            cards.add(card);
+        }
+
+        cardRepository.saveAll(cards);
     }
 
     private void processSubstitutions(Elements substitutionElements, Match match) {
@@ -326,6 +369,10 @@ public class TransferMarktWorker extends ProcessWorker {
                             playerElementA.text(), playerElementA.attr("href"), team, numberOnDress);
 
                     lineup.getStartingPlayers().add(player);
+
+                    if(playerElement.selectFirst(".kapitaenicon-formation") != null) {
+                        lineup.setCapiten(player);
+                    }
                 }
 
                 Elements substitutionElements = lineupElement.select(".aufstellung-ersatzbank-box tr");

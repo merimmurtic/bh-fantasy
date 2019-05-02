@@ -1,6 +1,7 @@
 package com.fifa.wolrdcup.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fifa.wolrdcup.model.players.Player;
 
 import javax.persistence.*;
 
@@ -18,14 +19,10 @@ public class Card {
     @JsonIgnore
     private Match match;
 
-    private Long playerId;
+    @ManyToOne
+    private Player player;
 
     private Integer minute;
-
-    public enum CardType{
-        YELLOW,
-        RED
-    }
 
     public Long getId() {
         return id;
@@ -51,12 +48,12 @@ public class Card {
         this.match = match;
     }
 
-    public Long getPlayerId() {
-        return playerId;
+    public Player getPlayer() {
+        return player;
     }
 
-    public void setPlayerId(Long playerId) {
-        this.playerId = playerId;
+    public void setPlayer(Player player) {
+        this.player = player;
     }
 
     public Integer getMinute() {
@@ -65,5 +62,10 @@ public class Card {
 
     public void setMinute(Integer minute) {
         this.minute = minute;
+    }
+
+    public enum CardType{
+        YELLOW,
+        RED
     }
 }

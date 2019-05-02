@@ -29,6 +29,8 @@ abstract class ProcessWorker {
 
     final SubstitutionRepository substitutionRepository;
 
+    final CardRepository cardRepository;
+
     ProcessWorker(
             StadiumRepository stadiumRepository,
             GoalRepository goalRepository,
@@ -38,7 +40,8 @@ abstract class ProcessWorker {
             LeagueRepository leagueRepository,
             PlayerRepository playerRepository,
             LineupRepository lineupRepository,
-            SubstitutionRepository substitutionRepository
+            SubstitutionRepository substitutionRepository,
+            CardRepository cardRepository
     ) {
         this.leagueRepository = leagueRepository;
         this.roundRepository = roundRepository;
@@ -49,6 +52,7 @@ abstract class ProcessWorker {
         this.stadiumRepository = stadiumRepository;
         this.lineupRepository = lineupRepository;
         this.substitutionRepository = substitutionRepository;
+        this.cardRepository = cardRepository;
     }
 
     abstract Long process() throws Exception;

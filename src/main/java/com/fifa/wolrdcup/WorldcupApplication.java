@@ -34,6 +34,8 @@ public class WorldcupApplication {
 
     private final SubstitutionRepository substitutionRepository;
 
+    private final CardRepository cardRepository;
+
     private final FantasyService fantasyService;
 
     public WorldcupApplication(
@@ -46,7 +48,8 @@ public class WorldcupApplication {
             LeagueRepository leagueRepository,
             PlayerRepository playerRepository,
             LineupRepository lineupRepository,
-            SubstitutionRepository substitutionRepository) {
+            SubstitutionRepository substitutionRepository,
+            CardRepository cardRepository) {
         this.leagueRepository = leagueRepository;
         this.roundRepository = roundRepository;
         this.teamRepository = teamRepository;
@@ -57,6 +60,7 @@ public class WorldcupApplication {
         this.lineupRepository = lineupRepository;
         this.fantasyService = fantasyService;
         this.substitutionRepository = substitutionRepository;
+        this.cardRepository = cardRepository;
     }
 
     public static void main(String[] args) {
@@ -79,16 +83,16 @@ public class WorldcupApplication {
         TransferMarktWorker premijerLigaWorker = new TransferMarktWorker(
             stadiumRepository, goalRepository, matchRepository,
             teamRepository, roundRepository, leagueRepository,
-                playerRepository, lineupRepository, substitutionRepository,
+                playerRepository, lineupRepository, substitutionRepository, cardRepository,
             "/premijer-liga/gesamtspielplan/wettbewerb/BOS1/saison_id/2018");
 
         TransferMarktWorker premierLeagueWorker = new TransferMarktWorker(
             stadiumRepository, goalRepository, matchRepository,
             teamRepository, roundRepository, leagueRepository,
-                playerRepository, lineupRepository, substitutionRepository,
+                playerRepository, lineupRepository, substitutionRepository, cardRepository,
             "/premier-league/gesamtspielplan/wettbewerb/GB1/saison_id/2018");
 
-        Long leagueId = worldCupWorker.process();
+        Long leagueId = premijerLigaWorker.process();
 
         if(leagueId != null) {
             this.fantasyService.process(leagueId);
