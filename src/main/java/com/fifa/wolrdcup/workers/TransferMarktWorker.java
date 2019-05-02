@@ -54,14 +54,14 @@ public class TransferMarktWorker extends ProcessWorker {
         this.transfermarktUrl = transfermarktUrl;
     }
 
-    public void process() throws Exception {
+    public Long process() throws Exception {
         Document document = Jsoup.parse(new URL(BASE_URL.concat(transfermarktUrl)), 10000);
 
         String leagueName = document.select(".spielername-profil").text();
         String leagueLevel = document.select(
                 ".box-personeninfos tr").first().select("td").text();
 
-        League league = new RegularLeague();
+        RegularLeague league = new RegularLeague();
         league.setName(leagueName);
 
         leagueRepository.save(league);
@@ -69,6 +69,8 @@ public class TransferMarktWorker extends ProcessWorker {
         Elements matchDays = document.select(".row .large-6 .box");
 
         processRounds(matchDays, league);
+
+        return league.getId();
     }
 
     private void processRounds(Elements matchDays, League league) {
@@ -87,8 +89,6 @@ public class TransferMarktWorker extends ProcessWorker {
             Elements matchElements = matchDayElement.select("tr");
 
             processMatches(matchElements, round, league);
-
-            break;
         }
     }
 

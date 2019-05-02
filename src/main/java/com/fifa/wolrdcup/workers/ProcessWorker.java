@@ -45,7 +45,7 @@ abstract class ProcessWorker {
         this.lineupRepository = lineupRepository;
     }
 
-    abstract void process() throws Exception;
+    abstract Long process() throws Exception;
 
     Player processPlayer(String firstName, String lastName, Team team) {
         return processPlayer(firstName, lastName, team, null);

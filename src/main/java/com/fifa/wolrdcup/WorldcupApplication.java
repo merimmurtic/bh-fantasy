@@ -1,6 +1,7 @@
 package com.fifa.wolrdcup;
 
 import com.fifa.wolrdcup.repository.*;
+import com.fifa.wolrdcup.service.FantasyService;
 import com.fifa.wolrdcup.workers.TransferMarktWorker;
 import com.fifa.wolrdcup.workers.WorldCupWorker;
 import org.slf4j.Logger;
@@ -31,7 +32,10 @@ public class WorldcupApplication {
 
     private final LineupRepository lineupRepository;
 
+    private final FantasyService fantasyService;
+
     public WorldcupApplication(
+            FantasyService fantasyService,
             StadiumRepository stadiumRepository,
             GoalRepository goalRepository,
             MatchRepository matchRepository,
@@ -48,6 +52,7 @@ public class WorldcupApplication {
         this.goalRepository = goalRepository;
         this.stadiumRepository = stadiumRepository;
         this.lineupRepository = lineupRepository;
+        this.fantasyService = fantasyService;
     }
 
     public static void main(String[] args) {
@@ -62,23 +67,25 @@ public class WorldcupApplication {
     }
 
     private void startWorkers() throws Exception {
-        new WorldCupWorker(
+        WorldCupWorker worldCupWorker = new WorldCupWorker(
                 stadiumRepository, goalRepository, matchRepository,
                 teamRepository, roundRepository, leagueRepository, playerRepository
-        ).process();
+        );
 
-        // Premijer liga
-        //new TransferMarktWorker(
-          //  stadiumRepository, goalRepository, matchRepository,
-            //teamRepository, roundRepository, leagueRepository, playerRepository, lineupRepository,
-            //"/premijer-liga/gesamtspielplan/wettbewerb/BOS1/saison_id/2018")
-              //  .process();
+        TransferMarktWorker premijerLigaWorker = new TransferMarktWorker(
+            stadiumRepository, goalRepository, matchRepository,
+            teamRepository, roundRepository, leagueRepository, playerRepository, lineupRepository,
+            "/premijer-liga/gesamtspielplan/wettbewerb/BOS1/saison_id/2018");
 
-        // Premier liga
-        //new TransferMarktWorker(
-        //    stadiumRepository, goalRepository, matchRepository,
-        //    teamRepository, roundRepository, leagueRepository, playerRepository, lineupRepository,
-        //    "/premier-league/gesamtspielplan/wettbewerb/GB1/saison_id/2018")
-        //    .process();
+        TransferMarktWorker premierLeagueWorker = new TransferMarktWorker(
+            stadiumRepository, goalRepository, matchRepository,
+            teamRepository, roundRepository, leagueRepository, playerRepository, lineupRepository,
+            "/premier-league/gesamtspielplan/wettbewerb/GB1/saison_id/2018");
+
+        Long leagueId = worldCupWorker.process();
+
+        if(leagueId != null) {
+            this.fantasyService.process(leagueId);
+        }
     }
 }

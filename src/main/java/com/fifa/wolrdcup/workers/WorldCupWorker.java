@@ -34,11 +34,11 @@ public class WorldCupWorker extends ProcessWorker {
     }
 
     @SuppressWarnings("unchecked")
-    public void process() throws Exception {
+    public Long process() throws Exception {
         ObjectMapper objectMapper = new ObjectMapper();
 
         try {
-            League league = new RegularLeague();
+            RegularLeague league = new RegularLeague();
 
             HashMap<String, Object> map = objectMapper.readValue(
                     ResourceUtils.getFile("classpath:worldcup.json"),
@@ -48,6 +48,8 @@ public class WorldCupWorker extends ProcessWorker {
             leagueRepository.save(league);
 
             processRounds((List<HashMap<String, Object>>) map.get("rounds"), league);
+
+            return league.getId();
         } catch (Exception e) {
             if (e instanceof FileNotFoundException) {
                 logger.warn("World cup file not found");
@@ -55,6 +57,8 @@ public class WorldCupWorker extends ProcessWorker {
                 throw e;
             }
         }
+
+        return null;
     }
 
     @SuppressWarnings("unchecked")
