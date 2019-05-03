@@ -34,7 +34,7 @@ public class TopPlayerController {
             @PathVariable("leagueId") Long leagueId) {
 
         List<TopPlayerValue> result = new ArrayList<>();
-        Iterable<Player> players = playerRepository.findByTeams_Leagues_Id(leagueId);
+        Iterable<Player> players = playerRepository.findDistinctByTeams_Leagues_Id(leagueId);
 
         for (Player player : players) {
 
