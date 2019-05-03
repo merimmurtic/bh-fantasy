@@ -137,6 +137,8 @@ public abstract class League {
 
     public interface LeaguePlayersView {}
 
-    public interface DetailedView extends LeagueTeamsView, LeaguePlayersView {}
+    public interface LeagueLineupsView {}
+
+    public interface DetailedView extends LeagueTeamsView, LeaguePlayersView, LeagueLineupsView {}
 }
 

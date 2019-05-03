@@ -7,6 +7,7 @@ import com.fifa.wolrdcup.model.league.League;
 import com.fifa.wolrdcup.model.league.RegularLeague;
 import com.fifa.wolrdcup.model.players.Player;
 import com.fifa.wolrdcup.repository.*;
+import com.fifa.wolrdcup.service.PlayerService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.ResourceUtils;
@@ -28,10 +29,10 @@ public class WorldCupWorker extends ProcessWorker {
             TeamRepository teamRepository,
             RoundRepository roundRepository,
             LeagueRepository leagueRepository,
-            PlayerRepository playerRepository) {
+            PlayerService playerService) {
         super(stadiumRepository, goalRepository, matchRepository,
                 teamRepository, roundRepository, leagueRepository,
-                playerRepository, null, null, null);
+                playerService, null, null, null);
     }
 
     @SuppressWarnings("unchecked")

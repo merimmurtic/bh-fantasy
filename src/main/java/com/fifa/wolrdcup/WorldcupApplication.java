@@ -2,6 +2,7 @@ package com.fifa.wolrdcup;
 
 import com.fifa.wolrdcup.repository.*;
 import com.fifa.wolrdcup.service.FantasyService;
+import com.fifa.wolrdcup.service.PlayerService;
 import com.fifa.wolrdcup.workers.TransferMarktWorker;
 import com.fifa.wolrdcup.workers.WorldCupWorker;
 import org.slf4j.Logger;
@@ -26,7 +27,7 @@ public class WorldcupApplication {
 
     private final MatchRepository matchRepository;
 
-    private final PlayerRepository playerRepository;
+    private final PlayerService playerService;
 
     private final GoalRepository goalRepository;
 
@@ -46,7 +47,7 @@ public class WorldcupApplication {
             TeamRepository teamRepository,
             RoundRepository roundRepository,
             LeagueRepository leagueRepository,
-            PlayerRepository playerRepository,
+            PlayerService playerService,
             LineupRepository lineupRepository,
             SubstitutionRepository substitutionRepository,
             CardRepository cardRepository) {
@@ -54,7 +55,7 @@ public class WorldcupApplication {
         this.roundRepository = roundRepository;
         this.teamRepository = teamRepository;
         this.matchRepository = matchRepository;
-        this.playerRepository = playerRepository;
+        this.playerService = playerService;
         this.goalRepository = goalRepository;
         this.stadiumRepository = stadiumRepository;
         this.lineupRepository = lineupRepository;
@@ -77,25 +78,27 @@ public class WorldcupApplication {
     private void startWorkers() throws Exception {
         WorldCupWorker worldCupWorker = new WorldCupWorker(
                 stadiumRepository, goalRepository, matchRepository,
-                teamRepository, roundRepository, leagueRepository, playerRepository
+                teamRepository, roundRepository, leagueRepository, playerService
         );
 
         TransferMarktWorker premijerLigaWorker = new TransferMarktWorker(
             stadiumRepository, goalRepository, matchRepository,
             teamRepository, roundRepository, leagueRepository,
-                playerRepository, lineupRepository, substitutionRepository, cardRepository,
+                playerService, lineupRepository, substitutionRepository, cardRepository,
             "/premijer-liga/gesamtspielplan/wettbewerb/BOS1/saison_id/2018");
 
         TransferMarktWorker premierLeagueWorker = new TransferMarktWorker(
             stadiumRepository, goalRepository, matchRepository,
             teamRepository, roundRepository, leagueRepository,
-                playerRepository, lineupRepository, substitutionRepository, cardRepository,
+                playerService, lineupRepository, substitutionRepository, cardRepository,
             "/premier-league/gesamtspielplan/wettbewerb/GB1/saison_id/2018");
 
-        Long leagueId = premijerLigaWorker.process();
+        Long leagueId = premierLeagueWorker.process();
 
         if(leagueId != null) {
             this.fantasyService.process(leagueId);
         }
+
+        fantasyService.seedFantasyPlayerLeague(leagueId);
     }
 }

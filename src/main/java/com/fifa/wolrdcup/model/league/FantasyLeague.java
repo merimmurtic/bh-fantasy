@@ -1,15 +1,22 @@
 package com.fifa.wolrdcup.model.league;
 
-import javax.persistence.DiscriminatorValue;
-import javax.persistence.Entity;
-import javax.persistence.OneToOne;
+import com.fasterxml.jackson.annotation.JsonView;
+import com.fifa.wolrdcup.model.FantasyLineup;
+
+import javax.persistence.*;
+import java.util.LinkedList;
+import java.util.List;
 
 @Entity
 @DiscriminatorValue("FantasyLeague")
-public class FantasyLeague extends League{
+public class FantasyLeague extends League {
 
     @OneToOne
     private RegularLeague regularLeague;
+
+    @OneToMany(mappedBy = "league", cascade = CascadeType.ALL)
+    @JsonView(LeagueLineupsView.class)
+    private List<FantasyLineup> lineups = new LinkedList<>();
 
     public FantasyLeague(){}
 
@@ -19,5 +26,13 @@ public class FantasyLeague extends League{
 
     public void setRegularLeague(RegularLeague regularLeague) {
         this.regularLeague = regularLeague;
+    }
+
+    public List<FantasyLineup> getLineups() {
+        return lineups;
+    }
+
+    public void setLineups(List<FantasyLineup> lineups) {
+        this.lineups = lineups;
     }
 }

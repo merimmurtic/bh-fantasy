@@ -4,9 +4,13 @@ package com.fifa.wolrdcup.service;
 import com.fifa.wolrdcup.exception.InvalidLeagueIdException;
 import com.fifa.wolrdcup.model.*;
 import com.fifa.wolrdcup.model.custom.PointsValue;
+import com.fifa.wolrdcup.model.league.FantasyLeague;
 import com.fifa.wolrdcup.model.league.League;
 import com.fifa.wolrdcup.model.league.RegularLeague;
+import com.fifa.wolrdcup.repository.FantasyLineupRepository;
 import com.fifa.wolrdcup.repository.LeagueRepository;
+import com.fifa.wolrdcup.repository.LineupRepository;
+import com.fifa.wolrdcup.repository.TeamRepository;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -19,8 +23,18 @@ public class FantasyService {
 
     private final LeagueRepository leagueRepository;
 
-    public FantasyService(LeagueRepository leagueRepository) {
+    private final TeamRepository teamRepository;
+
+    private final FantasyLineupRepository fantasyLineupRepository;
+
+    private final LineupRepository lineupRepository;
+
+    public FantasyService(LeagueRepository leagueRepository, TeamRepository teamRepository,
+                          FantasyLineupRepository fantasyLineupRepository, LineupRepository lineupRepository) {
         this.leagueRepository = leagueRepository;
+        this.teamRepository = teamRepository;
+        this.fantasyLineupRepository = fantasyLineupRepository;
+        this.lineupRepository = lineupRepository;
     }
 
     @Transactional
@@ -68,5 +82,37 @@ public class FantasyService {
         //TODO: Merim, add all other points (feel free to update PointsValue)
 
         return pointsMap;
+    }
+
+    @Transactional
+    public void seedFantasyPlayerLeague(Long leagueId) {
+        FantasyLeague fantasyLeague = new FantasyLeague();
+        fantasyLeague.setName("Fantasy Premijer Liga");
+
+        leagueRepository.findById(leagueId).ifPresent((league -> {
+            fantasyLeague.setRegularLeague((RegularLeague) league);
+        }));
+
+        leagueRepository.save(fantasyLeague);
+
+        Team fantasyTeam = new Team();
+        fantasyTeam.setCode("VUCKO");
+        fantasyTeam.setName("Vucko");
+
+        teamRepository.save(fantasyTeam);
+
+        FantasyLineup fantasyLineup = new FantasyLineup();
+        fantasyLineup.setLeague(fantasyLeague);
+        fantasyLineup.setTeam(fantasyTeam);
+        fantasyLineup.setRound(fantasyLeague.getRegularLeague().getRounds().get(0));
+
+        Lineup lineup = new Lineup();
+        lineup.setFormation(Lineup.Formation.F_4_3_3);
+
+        lineupRepository.save(lineup);
+
+        fantasyLineup.setLineup(lineup);
+
+        fantasyLineupRepository.save(fantasyLineup);
     }
 }

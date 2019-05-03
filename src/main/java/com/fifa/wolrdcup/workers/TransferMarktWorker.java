@@ -7,6 +7,7 @@ import com.fifa.wolrdcup.model.players.Player;
 import com.fifa.wolrdcup.model.players.Player.Position;
 import com.fifa.wolrdcup.model.players.Unknown;
 import com.fifa.wolrdcup.repository.*;
+import com.fifa.wolrdcup.service.PlayerService;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -45,14 +46,14 @@ public class TransferMarktWorker extends ProcessWorker {
                         TeamRepository teamRepository,
                         RoundRepository roundRepository,
                         LeagueRepository leagueRepository,
-                        PlayerRepository playerRepository,
+                        PlayerService playerService,
                         LineupRepository lineupRepository,
                         SubstitutionRepository substitutionRepository,
                         CardRepository cardRepository,
                         String transfermarktUrl) {
         super(stadiumRepository, goalRepository, matchRepository,
                 teamRepository, roundRepository, leagueRepository,
-                playerRepository, lineupRepository, substitutionRepository, cardRepository);
+                playerService, lineupRepository, substitutionRepository, cardRepository);
 
         this.transfermarktUrl = transfermarktUrl;
     }
@@ -177,7 +178,7 @@ public class TransferMarktWorker extends ProcessWorker {
 
             populateFirstAndLastName(playerElement.text(), player);
 
-            card.setPlayer(processPlayer(player, team));
+            card.setPlayer(playerService.processPlayer(player, team));
 
             Card.CardType cardType = Card.CardType.YELLOW;
 
@@ -215,22 +216,29 @@ public class TransferMarktWorker extends ProcessWorker {
 
             Element playerInElement = substitutionElement.selectFirst(".sb-aktion-wechsel-ein a");
 
-            Player playerIn = new Unknown();
-            playerIn.setTransferMarktId(Long.parseLong(playerInElement.attr("id")));
+            try {
+                if(playerInElement != null) {
+                    Player playerIn = new Unknown();
+                    playerIn.setTransferMarktId(Long.parseLong(playerInElement.attr("id")));
 
-            populateFirstAndLastName(playerInElement.text(), playerIn);
+                    populateFirstAndLastName(playerInElement.text(), playerIn);
 
-            Element playerOutElement = substitutionElement.selectFirst(".sb-aktion-wechsel-aus a");
+                    substitution.setPlayer(playerService.processPlayer(playerIn, team));
+                }
 
-            Player playerOut = new Unknown();
-            playerOut.setTransferMarktId(Long.parseLong(playerOutElement.attr("id")));
+                Element playerOutElement = substitutionElement.selectFirst(".sb-aktion-wechsel-aus a");
 
-            populateFirstAndLastName(playerOutElement.text(), playerOut);
+                Player playerOut = new Unknown();
+                playerOut.setTransferMarktId(Long.parseLong(playerOutElement.attr("id")));
 
-            substitution.setPlayer(processPlayer(playerIn, team));
-            substitution.setSubstitutePlayer(processPlayer(playerOut, team));
+                populateFirstAndLastName(playerOutElement.text(), playerOut);
 
-            substitutions.add(substitution);
+                substitution.setSubstitutePlayer(playerService.processPlayer(playerOut, team));
+
+                substitutions.add(substitution);
+            } catch (Exception e) {
+                logger.error("error", e);
+            }
         }
 
         substitutionRepository.saveAll(substitutions);
@@ -261,7 +269,7 @@ public class TransferMarktWorker extends ProcessWorker {
 
                 populateFirstAndLastName(playerElement.text(), player);
 
-                player = processPlayer(player, team);
+                player = playerService.processPlayer(player, team);
 
                 goal.setPlayer(player);
             }
@@ -276,7 +284,7 @@ public class TransferMarktWorker extends ProcessWorker {
 
                 populateFirstAndLastName(playerElement.text(), player);
 
-                player = processPlayer(player, team);
+                player = playerService.processPlayer(player, team);
 
                 goal.setAssist(player);
             }
@@ -422,7 +430,7 @@ public class TransferMarktWorker extends ProcessWorker {
     private Player processPlayerUrl(String playerName, String playerInfoUrl, Team team, Integer numberOnDress) {
         Long transferMarktId = getTransferMarktId(playerInfoUrl);
 
-        Optional<Player> optionalPlayer = playerRepository.findByTransferMarktId(transferMarktId);
+        Optional<Player> optionalPlayer = playerService.getPlayerRepository().findByTransferMarktId(transferMarktId);
 
         if(optionalPlayer.isPresent()) {
             Player player = optionalPlayer.get();
@@ -469,7 +477,7 @@ public class TransferMarktWorker extends ProcessWorker {
 
         populateFirstAndLastName(playerName, player);
 
-        return processPlayer(player, team);
+        return playerService.processPlayer(player, team);
     }
 
     private Long getTransferMarktId(String playerInfoUrl) {
