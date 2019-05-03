@@ -40,13 +40,22 @@ public class WorldCupWorker extends ProcessWorker {
         ObjectMapper objectMapper = new ObjectMapper();
 
         try {
-            RegularLeague league = new RegularLeague();
-
             HashMap<String, Object> map = objectMapper.readValue(
                     ResourceUtils.getFile("classpath:worldcup.json"),
                     new TypeReference<HashMap<String,Object>>() {});
 
-            league.setName((String) map.get("name"));
+            String leagueName = (String) map.get("name");
+
+            Optional<League> optionalLeague = leagueRepository.findByName(leagueName);
+
+            if(optionalLeague.isPresent()) {
+                // If it exist, json file is already processed, just return league id
+                return optionalLeague.get().getId();
+            }
+
+            RegularLeague league = new RegularLeague();
+            league.setName(leagueName);
+
             leagueRepository.save(league);
 
             processRounds((List<HashMap<String, Object>>) map.get("rounds"), league);
