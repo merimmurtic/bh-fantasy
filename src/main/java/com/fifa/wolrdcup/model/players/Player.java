@@ -1,8 +1,11 @@
 package com.fifa.wolrdcup.model.players;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonView;
+import com.fifa.wolrdcup.MissedPenalty;
+import com.fifa.wolrdcup.PlayerPoints;
 import com.fifa.wolrdcup.model.Team;
 
 import javax.persistence.*;
@@ -46,6 +49,14 @@ public abstract class Player implements Comparable<Player> {
     @ManyToMany
     @JsonView(PlayerTeamsView.class)
     private List<Team> teams = new ArrayList<>();
+
+    @ManyToOne
+    @JsonIgnore
+    private PlayerPoints playerPoints;
+
+    @ManyToOne
+    @JsonIgnore
+    private MissedPenalty missedPenalty;
 
     public Player(){
     }
@@ -174,6 +185,22 @@ public abstract class Player implements Comparable<Player> {
         this.teams = teams;
     }
 
+    public PlayerPoints getPlayerPoints() {
+        return playerPoints;
+    }
+
+    public void setPlayerPoints(PlayerPoints playerPoints) {
+        this.playerPoints = playerPoints;
+    }
+
+    public MissedPenalty getMissedPenalty() {
+        return missedPenalty;
+    }
+
+    public void setMissedPenalty(MissedPenalty missedPenalty) {
+        this.missedPenalty = missedPenalty;
+    }
+
     public enum Position{
         SS("Second Striker"),
         CF("Centre-Forward"),
@@ -220,7 +247,10 @@ public abstract class Player implements Comparable<Player> {
         } else return new Unknown();
     }
 
+
     public interface PlayerTeamsView {}
 
     public interface DetailedView extends PlayerTeamsView {}
+
+
 }

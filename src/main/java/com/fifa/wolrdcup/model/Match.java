@@ -2,6 +2,8 @@ package com.fifa.wolrdcup.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonView;
+import com.fifa.wolrdcup.MissedPenalty;
+import com.fifa.wolrdcup.PlayerPoints;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -42,6 +44,14 @@ public class Match {
     @OneToMany(mappedBy = "match", cascade = CascadeType.ALL)
     @JsonView(MatchCardsView.class)
     private List<Card> cards = new ArrayList<>();
+
+    @ManyToOne
+    @JsonIgnore
+    private PlayerPoints playerPoints;
+
+    @ManyToOne
+    @JsonIgnore
+    private MissedPenalty missedPenalty;
 
     private Integer score1;
 
@@ -137,6 +147,22 @@ public class Match {
 
     public void setCards(List<Card> cards) {
         this.cards = cards;
+    }
+
+    public PlayerPoints getPlayerPoints() {
+        return playerPoints;
+    }
+
+    public void setPlayerPoints(PlayerPoints playerPoints) {
+        this.playerPoints = playerPoints;
+    }
+
+    public MissedPenalty getMissedPenalty() {
+        return missedPenalty;
+    }
+
+    public void setMissedPenalty(MissedPenalty missedPenalty) {
+        this.missedPenalty = missedPenalty;
     }
 
     public interface MatchGoalsView {}

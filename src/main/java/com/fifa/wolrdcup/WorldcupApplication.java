@@ -81,24 +81,25 @@ public class WorldcupApplication {
                 teamRepository, roundRepository, leagueRepository, playerService
         );
 
-        TransferMarktWorker premijerLigaWorker = new TransferMarktWorker(
-            stadiumRepository, goalRepository, matchRepository,
-            teamRepository, roundRepository, leagueRepository,
-                playerService, lineupRepository, substitutionRepository, cardRepository,
-            "/premijer-liga/gesamtspielplan/wettbewerb/BOS1/saison_id/2018");
+        //TransferMarktWorker premijerLigaWorker = new TransferMarktWorker(
+           // stadiumRepository, goalRepository, matchRepository,
+           // teamRepository, roundRepository, leagueRepository,
+           //     playerService, lineupRepository, substitutionRepository, cardRepository,
+         //   "/premijer-liga/gesamtspielplan/wettbewerb/BOS1/saison_id/2018");
 
-        TransferMarktWorker premierLeagueWorker = new TransferMarktWorker(
-            stadiumRepository, goalRepository, matchRepository,
-            teamRepository, roundRepository, leagueRepository,
-                playerService, lineupRepository, substitutionRepository, cardRepository,
-            "/premier-league/gesamtspielplan/wettbewerb/GB1/saison_id/2018");
+      //  TransferMarktWorker premierLeagueWorker = new TransferMarktWorker(
+           // stadiumRepository, goalRepository, matchRepository,
+          //  teamRepository, roundRepository, leagueRepository,
+           //     playerService, lineupRepository, substitutionRepository, cardRepository,
+        //   "/premier-league/gesamtspielplan/wettbewerb/GB1/saison_id/2018");
 
-        Long leagueId = premierLeagueWorker.process();
+       // Long leagueId = premierLeagueWorker.process();
 
-        if(leagueId != null) {
-            this.fantasyService.process(leagueId);
-        }
+      //  if(leagueId != null) {
+      //      this.fantasyService.process(leagueId);
+      //  }
 
-        fantasyService.seedFantasyPlayerLeague(leagueId);
+       // fantasyService.seedFantasyPlayerLeague(leagueId);
     }
+
 }
