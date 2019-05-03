@@ -123,7 +123,11 @@ public class TransferMarktWorker extends ProcessWorker {
                 Long transferMarktId = null;
 
                 if(matchDetailsElement.attr("id") != null) {
-                    transferMarktId = Long.parseLong(matchDetailsElement.attr("id"));
+                    try {
+                        transferMarktId = Long.parseLong(matchDetailsElement.attr("id"));
+                    } catch (NumberFormatException e) {
+                        //
+                    }
                 }
 
                 if(transferMarktId != null) {
