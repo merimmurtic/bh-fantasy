@@ -86,8 +86,14 @@ public class FantasyService {
 
     @Transactional
     public void seedFantasyPlayerLeague(Long leagueId) {
+        String leagueName = "Fantasy Premijer Liga";
+
+        if(leagueRepository.findByName(leagueName).isPresent()) {
+            return;
+        }
+
         FantasyLeague fantasyLeague = new FantasyLeague();
-        fantasyLeague.setName("Fantasy Premijer Liga");
+        fantasyLeague.setName(leagueName);
 
         leagueRepository.findById(leagueId).ifPresent((league -> {
             fantasyLeague.setRegularLeague((RegularLeague) league);

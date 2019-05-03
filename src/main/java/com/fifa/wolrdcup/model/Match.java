@@ -16,6 +16,9 @@ public class Match {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(unique = true)
+    private Long transfermarktId;
+
     @OneToOne
     private Team team1;
 
@@ -56,8 +59,6 @@ public class Match {
     private Integer score1;
 
     private Integer score2;
-
-
     
     public Match(){}
 
@@ -163,6 +164,14 @@ public class Match {
 
     public void setMissedPenalty(MissedPenalty missedPenalty) {
         this.missedPenalty = missedPenalty;
+    }
+
+    public Long getTransfermarktId() {
+        return transfermarktId;
+    }
+
+    public void setTransfermarktId(Long transfermarktId) {
+        this.transfermarktId = transfermarktId;
     }
 
     public interface MatchGoalsView {}

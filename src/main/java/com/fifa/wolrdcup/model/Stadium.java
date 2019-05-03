@@ -1,5 +1,7 @@
 package com.fifa.wolrdcup.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import javax.persistence.*;
 
 @Entity
@@ -13,6 +15,7 @@ public class Stadium {
 
     // This field should be unique (same as key inside Team), you're searching per it in unique way!
     @Column(unique = true)
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String key;
 
     public Stadium(){}

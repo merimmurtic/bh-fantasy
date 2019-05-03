@@ -65,10 +65,18 @@ public class TransferMarktWorker extends ProcessWorker {
         String leagueLevel = document.select(
                 ".box-personeninfos tr").first().select("td").text();
 
-        RegularLeague league = new RegularLeague();
-        league.setName(leagueName);
+        Optional<League> optionalLeague = leagueRepository.findByName(leagueName);
 
-        leagueRepository.save(league);
+        RegularLeague league = null;
+
+        if(optionalLeague.isPresent()) {
+            league = (RegularLeague) optionalLeague.get();
+        } else {
+            league = new RegularLeague();
+            league.setName(leagueName);
+
+            leagueRepository.save(league);
+        }
 
         Elements matchDays = document.select(".row .large-6 .box");
 
@@ -79,16 +87,23 @@ public class TransferMarktWorker extends ProcessWorker {
 
     private void processRounds(Elements matchDays, League league) {
         for(Element matchDayElement : matchDays) {
-            Round round = new Round();
+            Round round = null;
 
             String matchDay = matchDayElement.select(".table-header").first().text();
 
-            round.setName(matchDay);
-            round.setLeague(league);
+            Optional<Round> optionalRound = roundRepository.findByLeagueIdAndName(league.getId(), matchDay);
 
-            roundRepository.save(round);
+            if(optionalRound.isPresent()) {
+                round = optionalRound.get();
+            } else {
+                round = new Round();
+                round.setName(matchDay);
+                round.setLeague(league);
 
-            logger.info("Round '{}' saved.", round.getName());
+                roundRepository.save(round);
+
+                logger.info("Round '{}' saved.", round.getName());
+            }
 
             Elements matchElements = matchDayElement.select("tr");
 
@@ -101,12 +116,35 @@ public class TransferMarktWorker extends ProcessWorker {
             Elements elements = matchElement.select("td");
 
             if (elements.size() == 7) {
-                Match match = new Match();
-
-                match.setTeam1(processTeam(processTeamMap(elements.get(2).select("a").text()), league));
-                match.setTeam2(processTeam(processTeamMap(elements.get(6).select("a").text()), league));
-
                 Element matchDetailsElement = elements.get(4).selectFirst("a");
+
+                Match match = null;
+
+                Long transferMarktId = null;
+
+                if(matchDetailsElement.attr("id") != null) {
+                    transferMarktId = Long.parseLong(matchDetailsElement.attr("id"));
+                }
+
+                if(transferMarktId != null) {
+                    Optional<Match> optionalMatch = matchRepository.findByTransfermarktId(transferMarktId);
+
+                    if(optionalMatch.isPresent()) {
+                        match = optionalMatch.get();
+                    }
+                }
+
+                if(match == null) {
+                    match = new Match();
+                    match.setTransfermarktId(transferMarktId);
+
+                    match.setTeam1(processTeam(processTeamMap(elements.get(2).select("a").text()), league));
+                    match.setTeam2(processTeam(processTeamMap(elements.get(6).select("a").text()), league));
+                    match.setRound(round);
+                } else if(match.getLineup1() != null) {
+                    //TODO: Find better way to figure out if match has updates
+                    continue;
+                }
 
                 String[] scores = matchDetailsElement.text().split(":");
 
@@ -116,8 +154,6 @@ public class TransferMarktWorker extends ProcessWorker {
                 } catch (NumberFormatException e) {
                     // Match is not played
                 }
-
-                match.setRound(round);
 
                 matchRepository.save(match);
 
@@ -139,6 +175,8 @@ public class TransferMarktWorker extends ProcessWorker {
                 match.setLineup2(processLineup(lineupDocuments.last(), match.getTeam2()));
             }
 
+            match.setStadium(processStadium(document.selectFirst("#main .box .sb-zusatzinfos")));
+
             matchRepository.save(match);
 
             Elements goalElements = document.select("#sb-tore ul li");
@@ -155,6 +193,34 @@ public class TransferMarktWorker extends ProcessWorker {
         } catch (IOException e) {
             logger.error("Error while processing match {}.", matchUrl);
         }
+    }
+
+    private Stadium processStadium(Element stadiumElement) {
+        Elements elements = stadiumElement.select("a");
+
+        String stadionName = null;
+
+        for(Element element : elements) {
+            if(element.attr("href") != null && element.attr("href").startsWith("/stadion")) {
+                stadionName = element.text();
+            }
+        }
+
+        if(stadionName != null) {
+            Optional<Stadium> optionalStadium = stadiumRepository.findByKey(stadionName);
+
+            if(optionalStadium.isPresent()) {
+                return optionalStadium.get();
+            }
+
+            Stadium stadium = new Stadium();
+            stadium.setKey(stadionName);
+            stadium.setName(stadionName);
+
+            return stadiumRepository.save(stadium);
+        }
+
+        return null;
     }
 
     private void processCards(Elements cardElements, Match match) {
