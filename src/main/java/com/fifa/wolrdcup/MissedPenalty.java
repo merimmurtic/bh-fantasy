@@ -4,8 +4,6 @@ import com.fifa.wolrdcup.model.Match;
 import com.fifa.wolrdcup.model.players.Player;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 public class MissedPenalty {
@@ -14,14 +12,14 @@ public class MissedPenalty {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
-    @OneToMany(mappedBy = "missedPenalty", cascade = CascadeType.ALL)
-    private List<Match> match = new ArrayList<>();
+    @ManyToOne
+    private Match match;
 
-    @OneToMany(mappedBy = "missedPenalty", cascade = CascadeType.ALL)
-    private List<Player> player = new ArrayList<>();
+    @ManyToOne
+    private Player player;
 
-    @OneToMany(mappedBy = "missedPenalty", cascade = CascadeType.ALL)
-    private List<Player> concededBy  = new ArrayList<>();
+    @ManyToOne
+    private Player concededBy;
 
     Integer minute;
 
@@ -35,27 +33,27 @@ public class MissedPenalty {
         this.id = id;
     }
 
-    public List<Match> getMatch() {
+    public Match getMatch() {
         return match;
     }
 
-    public void setMatch(List<Match> match) {
+    public void setMatch(Match match) {
         this.match = match;
     }
 
-    public List<Player> getPlayer() {
+    public Player getPlayer() {
         return player;
     }
 
-    public void setPlayer(List<Player> player) {
+    public void setPlayer(Player player) {
         this.player = player;
     }
 
-    public List<Player> getConcededBy() {
+    public Player getConcededBy() {
         return concededBy;
     }
 
-    public void setConcededBy(List<Player> concededBy) {
+    public void setConcededBy(Player concededBy) {
         this.concededBy = concededBy;
     }
 

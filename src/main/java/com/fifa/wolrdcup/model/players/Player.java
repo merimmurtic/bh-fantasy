@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonView;
-import com.fifa.wolrdcup.MissedPenalty;
 import com.fifa.wolrdcup.PlayerPoints;
 import com.fifa.wolrdcup.model.Team;
 
@@ -53,10 +52,6 @@ public abstract class Player implements Comparable<Player> {
     @ManyToOne
     @JsonIgnore
     private PlayerPoints playerPoints;
-
-    @ManyToOne
-    @JsonIgnore
-    private MissedPenalty missedPenalty;
 
     public Player(){
     }
@@ -191,14 +186,6 @@ public abstract class Player implements Comparable<Player> {
 
     public void setPlayerPoints(PlayerPoints playerPoints) {
         this.playerPoints = playerPoints;
-    }
-
-    public MissedPenalty getMissedPenalty() {
-        return missedPenalty;
-    }
-
-    public void setMissedPenalty(MissedPenalty missedPenalty) {
-        this.missedPenalty = missedPenalty;
     }
 
     public enum Position{
