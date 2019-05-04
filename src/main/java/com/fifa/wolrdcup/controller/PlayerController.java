@@ -16,11 +16,12 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.validation.ConstraintViolationException;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/players")
+@RequestMapping("leagues/{leagueId}/players")
 public class PlayerController {
     private final PlayerRepository playerRepository;
 
@@ -35,18 +36,20 @@ public class PlayerController {
 
     @GetMapping("/{playerId}")
     @JsonView(Player.DetailedView.class)
-    public ResponseEntity<Player> getPlayer(@PathVariable("playerId") Long playerId){
-        return ResponseEntity.of(playerRepository.findById(playerId));
+    public Optional<Player> getPlayer(@PathVariable("playerId") Long playerId, @PathVariable("leagueId") Long leagueId){
+        return playerRepository.findByIdAndTeams_Leagues_Id(playerId, leagueId);
     }
 
     @GetMapping
     @JsonView(DefaultView.class)
-    public Iterable<Player> getPlayers(@RequestParam(value = "teamId", required = false) Long teamId) {
-        if(teamId != null){
-            return playerRepository.findByTeams(teamId);
-        }else{
-            return playerRepository.findAll();
-        }
+    public Iterable<Player> getPlayers(@PathVariable("leagueId") Long leagueId){
+        return playerRepository.findByTeams_Leagues_Id(leagueId);
+    }
+
+    @GetMapping("/all")
+    @JsonView(DefaultView.class)
+    public Iterable<Player> getAllPlayers(){
+        return playerRepository.findAll();
     }
 
     @PostMapping
