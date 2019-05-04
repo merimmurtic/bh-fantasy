@@ -49,10 +49,6 @@ public abstract class Player implements Comparable<Player> {
     @JsonView(PlayerTeamsView.class)
     private List<Team> teams = new ArrayList<>();
 
-    @OneToMany
-    @JsonIgnore
-    private List<PlayerPoints> playerPoints = new ArrayList<>();
-
     public Player(){
     }
 
@@ -178,14 +174,6 @@ public abstract class Player implements Comparable<Player> {
 
     public void setTeams(List<Team> teams) {
         this.teams = teams;
-    }
-
-    public List<PlayerPoints> getPlayerPoints() {
-        return playerPoints;
-    }
-
-    public void setPlayerPoints(List<PlayerPoints> playerPoints) {
-        this.playerPoints = playerPoints;
     }
 
     public enum Position{

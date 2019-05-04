@@ -21,7 +21,7 @@ public class MissedPenalty {
     @ManyToOne
     private Player concededBy;
 
-    Integer minute;
+    private Integer minute;
 
    public MissedPenalty(){}
 

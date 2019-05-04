@@ -18,4 +18,7 @@ public interface PlayerRepository extends CrudRepository<Player, Long> {
 
     List<Player> findDistinctByTeams_Leagues_Id(Long leagueId);
 
+
+
+
 }

@@ -13,4 +13,6 @@ public interface TeamRepository extends CrudRepository<Team, Long> {
     Optional<Team> findByCodeAndLeagues(String code, League league);
 
     List<Team> findByLeagues_Id(Long id);
+
+
 }

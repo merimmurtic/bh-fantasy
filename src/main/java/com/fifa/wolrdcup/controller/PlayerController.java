@@ -35,7 +35,7 @@ public class PlayerController {
 
     @GetMapping("/{playerId}")
     @JsonView(Player.DetailedView.class)
-    public ResponseEntity<Player> getPlayer(@PathVariable("playerId") Long playerId) {
+    public ResponseEntity<Player> getPlayer(@PathVariable("playerId") Long playerId){
         return ResponseEntity.of(playerRepository.findById(playerId));
     }
 
