@@ -48,13 +48,13 @@ public class Match {
     @JsonView(MatchCardsView.class)
     private List<Card> cards = new ArrayList<>();
 
-    @ManyToOne
+    @OneToMany(mappedBy = "match", cascade = CascadeType.ALL)
     @JsonIgnore
-    private PlayerPoints playerPoints;
+    private List<PlayerPoints> playerPoints = new ArrayList<>();
 
-    @ManyToOne
+    @OneToMany(mappedBy = "match", cascade = CascadeType.ALL)
     @JsonIgnore
-    private MissedPenalty missedPenalty;
+    private List<MissedPenalty> missedPenalty = new ArrayList<>();
 
     private Integer score1;
 
@@ -150,19 +150,19 @@ public class Match {
         this.cards = cards;
     }
 
-    public PlayerPoints getPlayerPoints() {
+    public List<PlayerPoints> getPlayerPoints() {
         return playerPoints;
     }
 
-    public void setPlayerPoints(PlayerPoints playerPoints) {
+    public void setPlayerPoints(List<PlayerPoints> playerPoints) {
         this.playerPoints = playerPoints;
     }
 
-    public MissedPenalty getMissedPenalty() {
+    public List<MissedPenalty> getMissedPenalty() {
         return missedPenalty;
     }
 
-    public void setMissedPenalty(MissedPenalty missedPenalty) {
+    public void setMissedPenalty(List<MissedPenalty> missedPenalty) {
         this.missedPenalty = missedPenalty;
     }
 

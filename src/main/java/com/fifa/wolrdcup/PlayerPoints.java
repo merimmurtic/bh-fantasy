@@ -4,8 +4,6 @@ import com.fifa.wolrdcup.model.Match;
 import com.fifa.wolrdcup.model.players.Player;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 public class PlayerPoints {
@@ -16,13 +14,14 @@ public class PlayerPoints {
 
     private Integer points;
 
-    @OneToMany(mappedBy = "playerPoints", cascade = CascadeType.ALL)
-    private List<Match> match = new ArrayList<>();
+    @ManyToOne
+    private Match match;
 
-    @OneToMany(mappedBy = "playerPoints", cascade = CascadeType.ALL)
-    private List<Player> player = new ArrayList<>();
+    @ManyToOne
+    private Player player;
 
-    public PlayerPoints(){}
+    public PlayerPoints() {
+    }
 
     public Long getId() {
         return id;
@@ -40,19 +39,19 @@ public class PlayerPoints {
         this.points = points;
     }
 
-    public List<Match> getMatch() {
+    public Match getMatch() {
         return match;
     }
 
-    public void setMatch(List<Match> match) {
+    public void setMatch(Match match) {
         this.match = match;
     }
 
-    public List<Player> getPlayer() {
+    public Player getPlayer() {
         return player;
     }
 
-    public void setPlayer(List<Player> player) {
+    public void setPlayer(Player player) {
         this.player = player;
     }
 }

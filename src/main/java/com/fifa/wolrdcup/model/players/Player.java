@@ -49,9 +49,9 @@ public abstract class Player implements Comparable<Player> {
     @JsonView(PlayerTeamsView.class)
     private List<Team> teams = new ArrayList<>();
 
-    @ManyToOne
+    @OneToMany
     @JsonIgnore
-    private PlayerPoints playerPoints;
+    private List<PlayerPoints> playerPoints = new ArrayList<>();
 
     public Player(){
     }
@@ -180,11 +180,11 @@ public abstract class Player implements Comparable<Player> {
         this.teams = teams;
     }
 
-    public PlayerPoints getPlayerPoints() {
+    public List<PlayerPoints> getPlayerPoints() {
         return playerPoints;
     }
 
-    public void setPlayerPoints(PlayerPoints playerPoints) {
+    public void setPlayerPoints(List<PlayerPoints> playerPoints) {
         this.playerPoints = playerPoints;
     }
 
