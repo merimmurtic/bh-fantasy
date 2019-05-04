@@ -36,19 +36,20 @@ public class PlayerController {
 
     @GetMapping("/{playerId}")
     @JsonView(Player.DetailedView.class)
-    public Optional<Player> getPlayer(@PathVariable("playerId") Long playerId, @PathVariable("leagueId") Long leagueId){
+    public Optional<Player> getPlayer(@PathVariable("playerId") Long playerId,
+                                      @PathVariable("leagueId") Long leagueId) throws Exception{
         return playerRepository.findByIdAndTeams_Leagues_Id(playerId, leagueId);
     }
 
     @GetMapping
     @JsonView(DefaultView.class)
-    public Iterable<Player> getPlayers(@PathVariable("leagueId") Long leagueId){
+    public Iterable<Player> getPlayers(@PathVariable("leagueId") Long leagueId) throws Exception{
         return playerRepository.findByTeams_Leagues_Id(leagueId);
     }
 
     @GetMapping("/all")
     @JsonView(DefaultView.class)
-    public Iterable<Player> getAllPlayers(){
+    public Iterable<Player> getAllPlayers() throws Exception{
         return playerRepository.findAll();
     }
 

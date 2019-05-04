@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/teams")
+@RequestMapping("leagues/{leagueId}/teams")
 public class TeamController {
 
     private final TeamRepository teamRepository;
@@ -33,14 +33,20 @@ public class TeamController {
 
     @GetMapping
     @JsonView(DefaultView.class)
-    public Iterable<Team> getTeams() throws Exception{
+    public Iterable<Team> getLeagueTeams(@PathVariable("leagueId") Long leagueId) throws Exception{
+        return teamRepository.findByLeagues_Id(leagueId);
+    }
+
+    @GetMapping("/all")
+    @JsonView(DefaultView.class)
+    public Iterable<Team> getAllTeams() throws Exception{
         return teamRepository.findAll();
     }
 
     @GetMapping("/{teamId}")
     @JsonView(value = {Team.DetailedView.class})
-    public ResponseEntity<Team> getTeam(@PathVariable("teamId") Long teamId) throws Exception {
-        return ResponseEntity.of(teamRepository.findById(teamId));
+    public List<Team> getTeam(@PathVariable("teamId") Long teamId, @PathVariable("leagueId") Long leagueId) throws Exception {
+        return teamRepository.findByIdAndLeagues_Id(teamId, leagueId);
     }
 
     @GetMapping("/search/{query}")
