@@ -79,6 +79,16 @@ public class FantasyService {
             }
         }
 
+        for(Card card : match.getCards()) {
+            pointsMap.putIfAbsent(card.getPlayer().getId(), new PointsValue(card.getPlayer()));
+
+            if(card.getCardType() == Card.CardType.RED) {
+                pointsMap.get(card.getPlayer().getId()).addRedCard();
+            } else if(card.getCardType() == Card.CardType.YELLOW) {
+                pointsMap.get(card.getPlayer().getId()).addYellowCard();
+            }
+        }
+
         //TODO: Merim, add all other points (feel free to update PointsValue)
 
         return pointsMap;

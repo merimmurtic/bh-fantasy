@@ -16,9 +16,9 @@ public class PointsValue {
 
     private Integer minutesPlayed = 0;
 
-    private Integer yellowCard = 0;
+    private boolean yellowCard = false;
 
-    private Integer redCard = 0;
+    private boolean redCard = false;
 
     public PointsValue(Player player) {
         this.player = player;
@@ -36,9 +36,9 @@ public class PointsValue {
         goalsAssisted += 1;
     }
 
-    public void addYellowCard(){ yellowCard += 1;}
+    public void addYellowCard(){ yellowCard = true; }
 
-    public void addRedCard(){ redCard += 1;}
+    public void addRedCard(){ redCard = true;}
 
     public void setMinutesPlayed(Integer minutes) {
         minutesPlayed = minutes;
@@ -50,8 +50,14 @@ public class PointsValue {
         result += goalsScored * getGoalScoredCoefficient();
         result += goalsAssisted * 3;
         result += ownGoalsScored * -2;
-        result += yellowCard * -1;
-        result += redCard * -3;
+
+        // Player can get only 1 yellow card or red card, so it's boolean value
+        // If user get yellow card and then red card, only red card is calculated
+        if(redCard) {
+            result += -3;
+        } else if(yellowCard) {
+            result += -1;
+        }
 
         if(minutesPlayed >= 60) {
             result += 1;
