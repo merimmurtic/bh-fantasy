@@ -1,5 +1,6 @@
 package com.fifa.wolrdcup.model.league;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonView;
@@ -50,7 +51,7 @@ public abstract class League {
         return teams;
     }
 
-    @JsonView(LeaguePlayersView.class)
+    @JsonIgnore
     public List<Player> getAllPlayers(){
         List<Player> allPlayers = new ArrayList<>();
 

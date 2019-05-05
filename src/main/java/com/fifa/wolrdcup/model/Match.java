@@ -2,8 +2,6 @@ package com.fifa.wolrdcup.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonView;
-import com.fifa.wolrdcup.MissedPenalty;
-import com.fifa.wolrdcup.PlayerPoints;
 
 import javax.persistence.*;
 import java.util.ArrayList;

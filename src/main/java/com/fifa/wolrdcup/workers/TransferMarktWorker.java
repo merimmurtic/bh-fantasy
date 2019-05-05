@@ -50,10 +50,11 @@ public class TransferMarktWorker extends ProcessWorker {
                         LineupRepository lineupRepository,
                         SubstitutionRepository substitutionRepository,
                         CardRepository cardRepository,
+                        MissedPenaltyRepository missedPenaltyRepository,
                         String transfermarktUrl) {
         super(stadiumRepository, goalRepository, matchRepository,
                 teamRepository, roundRepository, leagueRepository,
-                playerService, lineupRepository, substitutionRepository, cardRepository);
+                playerService, lineupRepository, substitutionRepository, cardRepository, missedPenaltyRepository);
 
         this.transfermarktUrl = transfermarktUrl;
     }
@@ -194,6 +195,10 @@ public class TransferMarktWorker extends ProcessWorker {
             Elements cardElements = document.select("#sb-karten ul li");
 
             processCards(cardElements, match);
+
+            Elements missedPenaltyELements = document.select("#sb-verschossene ul li");
+
+            processMissedPenalties(missedPenaltyELements, match);
         } catch (IOException e) {
             logger.error("Error while processing match {}.", matchUrl);
         }
@@ -225,6 +230,53 @@ public class TransferMarktWorker extends ProcessWorker {
         }
 
         return null;
+    }
+
+    private void processMissedPenalties(Elements missedPenaltyElements, Match match) {
+        List<MissedPenalty> missedPenalties = new ArrayList<>();
+
+        for(Element misserPenaltyElement : missedPenaltyElements) {
+            MissedPenalty missedPenalty = new MissedPenalty();
+
+            missedPenalty.setMinute(calculateMinute(misserPenaltyElement.selectFirst(".sb-sprite-uhr-klein")));
+
+            Team team = match.getTeam1();
+            Team otherTeam = match.getTeam2();
+
+            if(misserPenaltyElement.hasClass("sb-aktion-gast")) {
+                team = match.getTeam2();
+                otherTeam = match.getTeam1();
+            }
+
+            Elements playerElements = misserPenaltyElement.select(".sb-aktion-aktion span");
+
+            for(Element playerElementSpan : playerElements) {
+                Element playerElement = playerElementSpan.selectFirst("a");
+
+                if(playerElement == null) {
+                    continue;
+                }
+
+                Player player = new Unknown();
+                player.setTransferMarktId(Long.parseLong(playerElement.attr("id")));
+
+                populateFirstAndLastName(playerElement.text(), player);
+
+                if(playerElementSpan.text().contains("Missed")) {
+                    continue;
+                } else if(playerElementSpan.text().contains("Saved")) {
+                    missedPenalty.setSavedBy(playerService.processPlayer(player, otherTeam));
+                } else {
+                    missedPenalty.setPlayer(playerService.processPlayer(player, team));
+                }
+            }
+
+            missedPenalty.setMatch(match);
+
+            missedPenalties.add(missedPenalty);
+        }
+
+        missedPenaltyRepository.saveAll(missedPenalties);
     }
 
     private void processCards(Elements cardElements, Match match) {

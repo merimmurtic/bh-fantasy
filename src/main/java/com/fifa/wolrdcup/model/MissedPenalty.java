@@ -1,6 +1,5 @@
-package com.fifa.wolrdcup;
+package com.fifa.wolrdcup.model;
 
-import com.fifa.wolrdcup.model.Match;
 import com.fifa.wolrdcup.model.players.Player;
 
 import javax.persistence.*;
@@ -10,7 +9,7 @@ public class MissedPenalty {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Long id;
+    private Long id;
 
     @ManyToOne
     private Match match;
@@ -21,9 +20,12 @@ public class MissedPenalty {
     @ManyToOne
     private Player concededBy;
 
+    @ManyToOne
+    private Player savedBy;
+
     private Integer minute;
 
-   public MissedPenalty(){}
+    public MissedPenalty(){}
 
     public Long getId() {
         return id;
@@ -63,5 +65,13 @@ public class MissedPenalty {
 
     public void setMinute(Integer minute) {
         this.minute = minute;
+    }
+
+    public Player getSavedBy() {
+        return savedBy;
+    }
+
+    public void setSavedBy(Player savedBy) {
+        this.savedBy = savedBy;
     }
 }

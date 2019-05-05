@@ -1,10 +1,8 @@
 package com.fifa.wolrdcup.model.players;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonView;
-import com.fifa.wolrdcup.PlayerPoints;
 import com.fifa.wolrdcup.model.Team;
 
 import javax.persistence.*;

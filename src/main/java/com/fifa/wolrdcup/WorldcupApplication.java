@@ -39,6 +39,8 @@ public class WorldcupApplication {
 
     private final FantasyService fantasyService;
 
+    private final MissedPenaltyRepository missedPenaltyRepository;
+
     public WorldcupApplication(
             FantasyService fantasyService,
             StadiumRepository stadiumRepository,
@@ -50,7 +52,8 @@ public class WorldcupApplication {
             PlayerService playerService,
             LineupRepository lineupRepository,
             SubstitutionRepository substitutionRepository,
-            CardRepository cardRepository) {
+            CardRepository cardRepository,
+            MissedPenaltyRepository missedPenaltyRepository) {
         this.leagueRepository = leagueRepository;
         this.roundRepository = roundRepository;
         this.teamRepository = teamRepository;
@@ -62,6 +65,7 @@ public class WorldcupApplication {
         this.fantasyService = fantasyService;
         this.substitutionRepository = substitutionRepository;
         this.cardRepository = cardRepository;
+        this.missedPenaltyRepository = missedPenaltyRepository;
     }
 
     public static void main(String[] args) {
@@ -84,13 +88,13 @@ public class WorldcupApplication {
         TransferMarktWorker premijerLigaWorker = new TransferMarktWorker(
             stadiumRepository, goalRepository, matchRepository,
             teamRepository, roundRepository, leagueRepository,
-                playerService, lineupRepository, substitutionRepository, cardRepository,
-            "/premijer-liga/gesamtspielplan/wettbewerb/BOS1/saison_id/2018");
+                playerService, lineupRepository, substitutionRepository, cardRepository, missedPenaltyRepository,
+                "/premijer-liga/gesamtspielplan/wettbewerb/BOS1/saison_id/2018");
 
         TransferMarktWorker premierLeagueWorker = new TransferMarktWorker(
             stadiumRepository, goalRepository, matchRepository,
             teamRepository, roundRepository, leagueRepository,
-                playerService, lineupRepository, substitutionRepository, cardRepository,
+                playerService, lineupRepository, substitutionRepository, cardRepository, missedPenaltyRepository,
            "/premier-league/gesamtspielplan/wettbewerb/GB1/saison_id/2018");
 
         Long leagueId = worldCupWorker.process();
@@ -101,5 +105,4 @@ public class WorldcupApplication {
 
         fantasyService.seedFantasyPlayerLeague(leagueId);
     }
-
 }

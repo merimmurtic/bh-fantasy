@@ -16,12 +16,11 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.validation.ConstraintViolationException;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("leagues/{leagueId}/players")
+@RequestMapping("/players")
 public class PlayerController {
     private final PlayerRepository playerRepository;
 
@@ -36,21 +35,24 @@ public class PlayerController {
 
     @GetMapping("/{playerId}")
     @JsonView(Player.DetailedView.class)
-    public Optional<Player> getPlayer(@PathVariable("playerId") Long playerId,
-                                      @PathVariable("leagueId") Long leagueId) throws Exception{
-        return playerRepository.findByIdAndTeams_Leagues_Id(playerId, leagueId);
+    public ResponseEntity<Player> getPlayer(@PathVariable("playerId") Long playerId){
+        return ResponseEntity.of(playerRepository.findById(playerId));
     }
 
     @GetMapping
     @JsonView(DefaultView.class)
-    public Iterable<Player> getPlayers(@PathVariable("leagueId") Long leagueId) throws Exception{
-        return playerRepository.findByTeams_Leagues_Id(leagueId);
-    }
-
-    @GetMapping("/all")
-    @JsonView(DefaultView.class)
-    public Iterable<Player> getAllPlayers() throws Exception{
-        return playerRepository.findAll();
+    public Iterable<Player> getPlayers(
+            @RequestParam(value = "leagueId", required = false) Long leagueId,
+            @RequestParam(value = "teamId", required = false) Long teamId) {
+        if(teamId != null && leagueId != null) {
+            return playerRepository.findByTeamsAndTeams_Leagues_Id(teamId, leagueId);
+        } else if(teamId != null){
+            return playerRepository.findByTeams(teamId);
+        } else if(leagueId != null){
+            return playerRepository.findDistinctByTeams_Leagues_Id(leagueId);
+        } else {
+            return playerRepository.findAll();
+        }
     }
 
     @PostMapping

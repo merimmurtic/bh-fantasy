@@ -1,6 +1,5 @@
-package com.fifa.wolrdcup;
+package com.fifa.wolrdcup.model;
 
-import com.fifa.wolrdcup.model.Match;
 import com.fifa.wolrdcup.model.players.Player;
 
 import javax.persistence.*;
@@ -10,7 +9,7 @@ public class PlayerPoints {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Long id;
+    private Long id;
 
     private Integer points;
 
