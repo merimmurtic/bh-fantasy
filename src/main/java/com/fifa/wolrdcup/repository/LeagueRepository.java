@@ -8,4 +8,6 @@ import java.util.Optional;
 public interface LeagueRepository extends CrudRepository<League, Long> {
     Optional<League> findByName(String name);
 
+    Iterable<League> findLeagueById(Long id);
+
 }
