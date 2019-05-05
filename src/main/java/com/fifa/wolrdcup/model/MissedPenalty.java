@@ -18,9 +18,6 @@ public class MissedPenalty {
     private Player player;
 
     @ManyToOne
-    private Player concededBy;
-
-    @ManyToOne
     private Player savedBy;
 
     private Integer minute;
@@ -49,14 +46,6 @@ public class MissedPenalty {
 
     public void setPlayer(Player player) {
         this.player = player;
-    }
-
-    public Player getConcededBy() {
-        return concededBy;
-    }
-
-    public void setConcededBy(Player concededBy) {
-        this.concededBy = concededBy;
     }
 
     public Integer getMinute() {
