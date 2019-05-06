@@ -17,7 +17,7 @@ public class Lineup {
     private List<Player> startingPlayers = new ArrayList<>();
 
     @ManyToMany(cascade = CascadeType.ALL)
-    private List<Player> availableSupstitutions = new ArrayList<>();
+    private List<Player> availableSubstitutions = new ArrayList<>();
 
     @OneToMany(mappedBy = "lineup", cascade = CascadeType.ALL)
     private List<Substitution> substitutionChanges = new ArrayList<>();
@@ -65,12 +65,12 @@ public class Lineup {
         this.startingPlayers = startingPlayers;
     }
 
-    public List<Player> getAvailableSupstitutions() {
-        return availableSupstitutions;
+    public List<Player> getAvailableSubstitutions() {
+        return availableSubstitutions;
     }
 
-    public void setAvailableSupstitutions(List<Player> availableSupstitutions) {
-        this.availableSupstitutions = availableSupstitutions;
+    public void setAvailableSubstitutions(List<Player> availableSubstitutions) {
+        this.availableSubstitutions = availableSubstitutions;
     }
 
     public List<Substitution> getSubstitutionChanges() {

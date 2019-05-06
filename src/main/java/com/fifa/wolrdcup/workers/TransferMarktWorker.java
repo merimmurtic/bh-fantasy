@@ -526,7 +526,7 @@ public class TransferMarktWorker extends ProcessWorker {
                     Player player = processPlayerUrl(
                             playerElement.text(), playerElement.attr("href"), team, numberOnDress);
 
-                    lineup.getAvailableSupstitutions().add(player);
+                    lineup.getAvailableSubstitutions().add(player);
                 }
             } else {
                 Elements playerElements = lineupElement.select(".spielprofil_tooltip");

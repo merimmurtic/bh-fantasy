@@ -7,10 +7,8 @@ import com.fifa.wolrdcup.model.custom.PointsValue;
 import com.fifa.wolrdcup.model.league.FantasyLeague;
 import com.fifa.wolrdcup.model.league.League;
 import com.fifa.wolrdcup.model.league.RegularLeague;
-import com.fifa.wolrdcup.repository.FantasyLineupRepository;
-import com.fifa.wolrdcup.repository.LeagueRepository;
-import com.fifa.wolrdcup.repository.LineupRepository;
-import com.fifa.wolrdcup.repository.TeamRepository;
+import com.fifa.wolrdcup.model.players.Player;
+import com.fifa.wolrdcup.repository.*;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -29,12 +27,16 @@ public class FantasyService {
 
     private final LineupRepository lineupRepository;
 
+    private final PlayerRepository playerRepository;
+
     public FantasyService(LeagueRepository leagueRepository, TeamRepository teamRepository,
-                          FantasyLineupRepository fantasyLineupRepository, LineupRepository lineupRepository) {
+                          FantasyLineupRepository fantasyLineupRepository,
+                          LineupRepository lineupRepository, PlayerRepository playerRepository) {
         this.leagueRepository = leagueRepository;
         this.teamRepository = teamRepository;
         this.fantasyLineupRepository = fantasyLineupRepository;
         this.lineupRepository = lineupRepository;
+        this.playerRepository = playerRepository;
     }
 
     @Transactional
@@ -114,6 +116,18 @@ public class FantasyService {
         Team fantasyTeam = new Team();
         fantasyTeam.setCode("VUCKO");
         fantasyTeam.setName("Vucko");
+
+        teamRepository.save(fantasyTeam);
+
+        fantasyTeam.getLeagues().add(fantasyLeague);
+
+        teamRepository.save(fantasyTeam);
+
+        for(long playerId = 1L; playerId <= 14; playerId++) {
+            Optional<Player> optionalPlayer = playerRepository.findById(playerId);
+
+            optionalPlayer.ifPresent(player -> fantasyTeam.getPlayers().add(player));
+        }
 
         teamRepository.save(fantasyTeam);
 
