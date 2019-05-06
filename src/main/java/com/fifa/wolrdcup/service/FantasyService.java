@@ -123,13 +123,17 @@ public class FantasyService {
 
         teamRepository.save(fantasyTeam);
 
-        for(long playerId = 1L; playerId <= 14; playerId++) {
+        for(long playerId = 1L; playerId <= 15; playerId++) {
             Optional<Player> optionalPlayer = playerRepository.findById(playerId);
 
-            optionalPlayer.ifPresent(player -> fantasyTeam.getPlayers().add(player));
-        }
+            if(optionalPlayer.isPresent()) {
+                Player player = optionalPlayer.get();
 
-        teamRepository.save(fantasyTeam);
+                player.getTeams().add(fantasyTeam);
+
+                playerRepository.save(player);
+            }
+        }
 
         FantasyLineup fantasyLineup = new FantasyLineup();
         fantasyLineup.setLeague(fantasyLeague);
