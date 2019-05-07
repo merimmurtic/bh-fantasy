@@ -61,6 +61,10 @@ public class TransferMarktWorker extends ProcessWorker {
         this.transfermarktUrl = transfermarktUrl;
     }
 
+    public String getTransfermarktUrl() {
+        return transfermarktUrl;
+    }
+
     public Long process() throws Exception {
         Document document = Jsoup.parse(new URL(BASE_URL.concat(transfermarktUrl)), 10000);
 

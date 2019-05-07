@@ -8,10 +8,11 @@ import com.fifa.wolrdcup.workers.TransferMarktWorker;
 import com.fifa.wolrdcup.workers.WorldCupWorker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
@@ -20,9 +21,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.Executors;
 
 @SpringBootApplication
+@EnableScheduling
 public class WorldcupApplication {
 
     private static Logger logger = LoggerFactory.getLogger(WorldcupApplication.class);
@@ -51,8 +52,15 @@ public class WorldcupApplication {
 
     private final MissedPenaltyRepository missedPenaltyRepository;
 
+    private static boolean WORKERS_RUNNING = false;
+
+    private final String PREMIJER_LIGA_URL = "/premijer-liga/gesamtspielplan/wettbewerb/BOS1/saison_id/2018";
+
     private final String[] TRANSFERMARKT_URLS = new String[] {
-        "/premijer-liga/gesamtspielplan/wettbewerb/BOS1/saison_id/2018",
+        PREMIJER_LIGA_URL,
+        "/serie-a/gesamtspielplan/wettbewerb/IT1/saison_id/2018",
+        "/1-bundesliga/gesamtspielplan/wettbewerb/L1/saison_id/2018",
+        "/premier-league/startseite/wettbewerb/GB1/saison_id/2018",
         "/primera-division/gesamtspielplan/wettbewerb/ES1/saison_id/2018"
     };
 
@@ -99,44 +107,49 @@ public class WorldcupApplication {
         return new CorsFilter(source);
     }
 
-    @Bean
-    InitializingBean seedDatabase() {
-        return () -> {
-            Executors.newSingleThreadExecutor().execute(() -> {
-                try {
-                    startWorkers();
-                } catch (Exception e) {
-                    logger.error("Error while processing workers.", e);
-                }
-            });
-        };
-    }
-
-    private void startWorkers() throws Exception {
-        List<ProcessWorker> workers = new ArrayList<>();
-
-        workers.add(new WorldCupWorker(
-                stadiumRepository, goalRepository, matchRepository,
-                teamRepository, roundRepository, leagueRepository, playerService
-        ));
-
-
-        for(String url : TRANSFERMARKT_URLS) {
-            workers.add(new TransferMarktWorker(
-                stadiumRepository, goalRepository, matchRepository,
-                teamRepository, roundRepository, leagueRepository,
-                playerService, lineupRepository, substitutionRepository, cardRepository, missedPenaltyRepository,
-                url));
+    @Scheduled(fixedRate = 60 * 60 * 1000)
+    // Method will be executed each hour to refresh leagues
+    public void startWorkers() throws Exception {
+        if(WORKERS_RUNNING) {
+            return;
         }
 
-        for(ProcessWorker worker : workers) {
-            Long leagueId = worker.process();
+        try {
+            WORKERS_RUNNING = true;
 
-            if(leagueId != null) {
-                this.fantasyService.process(leagueId);
+            List<ProcessWorker> workers = new ArrayList<>();
+
+            workers.add(new WorldCupWorker(
+                    stadiumRepository, goalRepository, matchRepository,
+                    teamRepository, roundRepository, leagueRepository, playerService
+            ));
+
+
+            for (String url : TRANSFERMARKT_URLS) {
+                workers.add(new TransferMarktWorker(
+                        stadiumRepository, goalRepository, matchRepository,
+                        teamRepository, roundRepository, leagueRepository,
+                        playerService, lineupRepository, substitutionRepository, cardRepository, missedPenaltyRepository,
+                        url));
             }
 
-            fantasyService.seedFantasyPlayerLeague(leagueId);
+            for (ProcessWorker worker : workers) {
+                Long leagueId = worker.process();
+
+                if (leagueId != null) {
+                    this.fantasyService.process(leagueId);
+                }
+
+                if(worker instanceof TransferMarktWorker) {
+                    if(((TransferMarktWorker) worker).getTransfermarktUrl().equals(PREMIJER_LIGA_URL)) {
+                        fantasyService.seedFantasyPlayerLeague(leagueId);
+                    }
+                }
+
+                Thread.sleep(10000);
+            }
+        } finally {
+            WORKERS_RUNNING = false;
         }
     }
 }
