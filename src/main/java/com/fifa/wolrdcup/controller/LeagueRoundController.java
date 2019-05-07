@@ -6,6 +6,7 @@ import com.fifa.wolrdcup.model.Round;
 import com.fifa.wolrdcup.model.views.DefaultView;
 import com.fifa.wolrdcup.repository.MatchRepository;
 import com.fifa.wolrdcup.repository.RoundRepository;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -22,8 +23,8 @@ public class LeagueRoundController {
 
     @GetMapping
     @JsonView(DefaultView.class)
-    public Iterable<Round> getLeagueRounds(@PathVariable("leagueId") Long leagueId) throws Exception{
-        return roundRepository.findByLeagueId(leagueId);
+    public ResponseEntity<Round> getLeagueRounds(@PathVariable("leagueId") Long leagueId) throws Exception{
+        return ResponseEntity.of(roundRepository.findByLeagueId(leagueId));
     }
 
     @GetMapping("/{roundId}")
