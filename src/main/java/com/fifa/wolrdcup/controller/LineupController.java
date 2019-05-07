@@ -1,13 +1,8 @@
 package com.fifa.wolrdcup.controller;
 
 import com.fasterxml.jackson.annotation.JsonView;
-import com.fifa.wolrdcup.exception.InvalidLeagueIdException;
-import com.fifa.wolrdcup.exception.InvalidRoundIdException;
-import com.fifa.wolrdcup.exception.InvalidTeamIdException;
-import com.fifa.wolrdcup.model.FantasyLineup;
-import com.fifa.wolrdcup.model.Lineup;
-import com.fifa.wolrdcup.model.Round;
-import com.fifa.wolrdcup.model.Team;
+import com.fifa.wolrdcup.exception.*;
+import com.fifa.wolrdcup.model.*;
 import com.fifa.wolrdcup.model.league.FantasyLeague;
 import com.fifa.wolrdcup.model.league.League;
 import com.fifa.wolrdcup.model.players.Player;
@@ -53,19 +48,19 @@ public class LineupController {
 
         Optional<League> optionalLeague = leagueRepository.findById(leagueId);
 
-        if(!optionalLeague.isPresent()) {
+        if (!optionalLeague.isPresent()) {
             throw new InvalidLeagueIdException();
         }
 
         Optional<Round> optionalRound = roundRepository.findById(roundId);
 
-        if(!optionalRound.isPresent()) {
+        if (!optionalRound.isPresent()) {
             throw new InvalidRoundIdException();
         }
 
         Optional<Team> optionalTeam = teamRepository.findById(teamId);
 
-        if(!optionalTeam.isPresent()) {
+        if (!optionalTeam.isPresent()) {
             throw new InvalidTeamIdException();
         }
 
@@ -79,14 +74,14 @@ public class LineupController {
 
             Map<Long, Player> playerMap = new HashMap<>();
 
-            for(Player player : team.getPlayers()) {
+            for (Player player : team.getPlayers()) {
                 playerMap.put(player.getId(), player);
             }
 
             List<Player> startingPlayers = new ArrayList<>();
 
-            for(Player player : lineup.getStartingPlayers()) {
-                if(!playerMap.containsKey(player.getId())) {
+            for (Player player : lineup.getStartingPlayers()) {
+                if (!playerMap.containsKey(player.getId())) {
                     throwInvalidPlayerIdException(player.getId());
                 }
 
@@ -95,8 +90,8 @@ public class LineupController {
 
             List<Player> availableSubstitutions = new ArrayList<>();
 
-            for(Player player : lineup.getAvailableSubstitutions()) {
-                if(!playerMap.containsKey(player.getId())) {
+            for (Player player : lineup.getAvailableSubstitutions()) {
+                if (!playerMap.containsKey(player.getId())) {
                     throwInvalidPlayerIdException(player.getId());
                 }
 
@@ -106,8 +101,8 @@ public class LineupController {
             lineup.getAvailableSubstitutions().clear();
             lineup.getStartingPlayers().clear();
 
-            if(lineup.getCapiten() != null && lineup.getCapiten().getId() != null) {
-                if(!playerMap.containsKey(lineup.getCapiten().getId())) {
+            if (lineup.getCapiten() != null && lineup.getCapiten().getId() != null) {
+                if (!playerMap.containsKey(lineup.getCapiten().getId())) {
                     throwInvalidPlayerIdException(lineup.getCapiten().getId());
                 }
 
@@ -116,12 +111,12 @@ public class LineupController {
                 lineup.setCapiten(null);
             }
 
-            if(lineup.getViceCapiten() != null && lineup.getViceCapiten().getId() != null) {
-                if(!playerMap.containsKey(lineup.getViceCapiten().getId())) {
+            if (lineup.getViceCapiten() != null && lineup.getViceCapiten().getId() != null) {
+                if (!playerMap.containsKey(lineup.getViceCapiten().getId())) {
                     throwInvalidPlayerIdException(lineup.getViceCapiten().getId());
                 }
 
-               lineup.setViceCapiten(playerMap.get(lineup.getViceCapiten().getId()));
+                lineup.setViceCapiten(playerMap.get(lineup.getViceCapiten().getId()));
             } else {
                 lineup.setViceCapiten(null);
             }
@@ -148,7 +143,7 @@ public class LineupController {
             } catch (ConstraintViolationException e) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getConstraintViolations().toString());
             }
-        } else{
+        } else {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Regular League is not supported!");
         }
     }
@@ -157,5 +152,52 @@ public class LineupController {
         throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format(
                 "Invalid player id %s!", playerId));
     }
+
+    @PutMapping("/teams/{teamId}")
+    @JsonView(FantasyLineup.DetailedView.class)
+    public Lineup putLineup(@RequestBody Lineup lineup,
+                            @PathVariable("leagueId") Long leagueId,
+                            @PathVariable("roundId") Long roundId,
+                            @PathVariable("teamId") Long teamId) {
+
+        if(lineup.getId() == null) {
+            throw new LineupNotFoundException();
+        }
+
+        Optional<Lineup> existingLineupOptional = lineupRepository.findById(lineup.getId());
+
+        if (existingLineupOptional.isPresent()) {
+            Lineup existingLineup = existingLineupOptional.get();
+
+            if (lineup.getStartingPlayers() != null) {
+                existingLineup.setStartingPlayers(lineup.getStartingPlayers());
+            }
+
+            if (lineup.getAvailableSubstitutions() != null) {
+                existingLineup.setAvailableSubstitutions(lineup.getAvailableSubstitutions());
+            }
+
+            if (lineup.getCapiten() != null) {
+                existingLineup.setCapiten(lineup.getCapiten());
+            }
+
+            if (lineup.getViceCapiten() != null) {
+                existingLineup.setViceCapiten(lineup.getViceCapiten());
+            }
+
+            if (lineup.getFormation() != null) {
+                existingLineup.setFormation(lineup.getFormation());
+            }
+
+            if (lineup.getSubstitutionChanges() != null) {
+                existingLineup.setSubstitutionChanges(lineup.getSubstitutionChanges());
+            }
+
+            return lineupRepository.save(existingLineup);
+        }
+        return lineup;
+    }
+
+
 }
 
