@@ -54,6 +54,8 @@ public class WorldCupWorker extends ProcessWorker {
                 return optionalLeague.get().getId();
             }
 
+            logger.info("Processing league {}.", leagueName);
+
             RegularLeague league = new RegularLeague();
             league.setName(leagueName);
 

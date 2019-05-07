@@ -3,6 +3,7 @@ package com.fifa.wolrdcup;
 import com.fifa.wolrdcup.repository.*;
 import com.fifa.wolrdcup.service.FantasyService;
 import com.fifa.wolrdcup.service.PlayerService;
+import com.fifa.wolrdcup.workers.ProcessWorker;
 import com.fifa.wolrdcup.workers.TransferMarktWorker;
 import com.fifa.wolrdcup.workers.WorldCupWorker;
 import org.slf4j.Logger;
@@ -15,8 +16,11 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.Executors;
 
 @SpringBootApplication
 public class WorldcupApplication {
@@ -46,6 +50,11 @@ public class WorldcupApplication {
     private final FantasyService fantasyService;
 
     private final MissedPenaltyRepository missedPenaltyRepository;
+
+    private final String[] TRANSFERMARKT_URLS = new String[] {
+        "/premijer-liga/gesamtspielplan/wettbewerb/BOS1/saison_id/2018",
+        "/primera-division/gesamtspielplan/wettbewerb/ES1/saison_id/2018"
+    };
 
     public WorldcupApplication(
             FantasyService fantasyService,
@@ -93,34 +102,41 @@ public class WorldcupApplication {
     @Bean
     InitializingBean seedDatabase() {
         return () -> {
-            startWorkers();
+            Executors.newSingleThreadExecutor().execute(() -> {
+                try {
+                    startWorkers();
+                } catch (Exception e) {
+                    logger.error("Error while processing workers.", e);
+                }
+            });
         };
     }
 
     private void startWorkers() throws Exception {
-        WorldCupWorker worldCupWorker = new WorldCupWorker(
+        List<ProcessWorker> workers = new ArrayList<>();
+
+        workers.add(new WorldCupWorker(
                 stadiumRepository, goalRepository, matchRepository,
                 teamRepository, roundRepository, leagueRepository, playerService
-        );
+        ));
 
-        TransferMarktWorker premijerLigaWorker = new TransferMarktWorker(
-            stadiumRepository, goalRepository, matchRepository,
-            teamRepository, roundRepository, leagueRepository,
+
+        for(String url : TRANSFERMARKT_URLS) {
+            workers.add(new TransferMarktWorker(
+                stadiumRepository, goalRepository, matchRepository,
+                teamRepository, roundRepository, leagueRepository,
                 playerService, lineupRepository, substitutionRepository, cardRepository, missedPenaltyRepository,
-                "/premijer-liga/gesamtspielplan/wettbewerb/BOS1/saison_id/2018");
-
-        TransferMarktWorker premierLeagueWorker = new TransferMarktWorker(
-            stadiumRepository, goalRepository, matchRepository,
-            teamRepository, roundRepository, leagueRepository,
-                playerService, lineupRepository, substitutionRepository, cardRepository, missedPenaltyRepository,
-           "/premier-league/gesamtspielplan/wettbewerb/GB1/saison_id/2018");
-
-        Long leagueId = worldCupWorker.process();
-
-        if(leagueId != null) {
-            this.fantasyService.process(leagueId);
+                url));
         }
 
-        fantasyService.seedFantasyPlayerLeague(leagueId);
+        for(ProcessWorker worker : workers) {
+            Long leagueId = worker.process();
+
+            if(leagueId != null) {
+                this.fantasyService.process(leagueId);
+            }
+
+            fantasyService.seedFantasyPlayerLeague(leagueId);
+        }
     }
 }

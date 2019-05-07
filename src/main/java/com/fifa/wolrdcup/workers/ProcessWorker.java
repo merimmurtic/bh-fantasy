@@ -7,11 +7,10 @@ import com.fifa.wolrdcup.model.players.Unknown;
 import com.fifa.wolrdcup.repository.*;
 import com.fifa.wolrdcup.service.PlayerService;
 
-import javax.transaction.Transactional;
 import java.util.Map;
 import java.util.Optional;
 
-abstract class ProcessWorker {
+public abstract class ProcessWorker {
     final StadiumRepository stadiumRepository;
 
     final LeagueRepository leagueRepository;
@@ -60,7 +59,7 @@ abstract class ProcessWorker {
         this.missedPenaltyRepository = missedPenaltyRepository;
     }
 
-    abstract Long process() throws Exception;
+    public abstract Long process() throws Exception;
 
     Player processPlayer(String firstName, String lastName, Team team) {
         return processPlayer(firstName, lastName, team, null);

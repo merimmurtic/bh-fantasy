@@ -19,7 +19,9 @@ import java.io.IOException;
 import java.net.URL;
 import java.sql.Date;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -65,6 +67,8 @@ public class TransferMarktWorker extends ProcessWorker {
         String leagueName = document.select(".spielername-profil").text();
         String leagueLevel = document.select(
                 ".box-personeninfos tr").first().select("td").text();
+
+        logger.info("Processing league {}.", leagueName);
 
         Optional<League> optionalLeague = leagueRepository.findByName(leagueName);
 
@@ -113,6 +117,8 @@ public class TransferMarktWorker extends ProcessWorker {
     }
 
     private void processMatches(Elements matchElements, Round round, League league) {
+        LocalDateTime matchDate = null;
+
         for(Element matchElement : matchElements) {
             Elements elements = matchElement.select("td");
 
@@ -121,15 +127,7 @@ public class TransferMarktWorker extends ProcessWorker {
 
                 Match match = null;
 
-                Long transferMarktId = null;
-
-                if(matchDetailsElement.attr("id") != null) {
-                    try {
-                        transferMarktId = Long.parseLong(matchDetailsElement.attr("id"));
-                    } catch (NumberFormatException e) {
-                        //
-                    }
-                }
+                Long transferMarktId = getTransferMarktId(matchDetailsElement.attr("href"));
 
                 if(transferMarktId != null) {
                     Optional<Match> optionalMatch = matchRepository.findByTransfermarktId(transferMarktId);
@@ -142,6 +140,33 @@ public class TransferMarktWorker extends ProcessWorker {
                 if(match == null) {
                     match = new Match();
                     match.setTransfermarktId(transferMarktId);
+
+                    Element dateElement = elements.get(0).selectFirst("a");
+
+                    String dateTimeRaw = "";
+
+                    if(dateElement != null) {
+                        String[] parts = dateElement.attr("href").split("/");
+
+                        if(parts.length > 0) {
+                            dateTimeRaw = dateTimeRaw.concat(parts[parts.length - 1]);
+                        }
+                    }
+
+                    String timeRaw = elements.get(1).text().trim();
+
+                    if(!timeRaw.isEmpty()) {
+                        dateTimeRaw = dateTimeRaw.concat(" ").concat(timeRaw);
+
+                        try {
+                            matchDate = LocalDateTime.parse(dateTimeRaw, DateTimeFormatter.ofPattern("yyyy-MM-dd h:mm a"));
+                        } catch (DateTimeParseException e) {
+                            logger.error("Error while parsing datetime.", e);
+                            matchDate = null;
+                        }
+                    }
+
+                    match.setDateTime(matchDate);
 
                     String profilePictureTeam1 = elements.get(3).select("img")
                             .attr("src").replace("tiny", "normal");
@@ -608,10 +633,14 @@ public class TransferMarktWorker extends ProcessWorker {
         return playerService.processPlayer(player, team);
     }
 
-    private Long getTransferMarktId(String playerInfoUrl) {
-        String[] parts = playerInfoUrl.split("/");
+    private Long getTransferMarktId(String url) {
+        String[] parts = url.split("/");
 
-        return Long.parseLong(parts[parts.length - 1]);
+        try {
+            return Long.parseLong(parts[parts.length - 1]);
+        } catch (NumberFormatException e) {
+            return null;
+        }
     }
 
     private Position parsePosition(Element element) {

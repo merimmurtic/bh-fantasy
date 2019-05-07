@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonView;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -49,6 +50,8 @@ public class Match {
     private Integer score1;
 
     private Integer score2;
+
+    private LocalDateTime dateTime;
     
     public Match(){}
 
@@ -146,6 +149,14 @@ public class Match {
 
     public void setTransfermarktId(Long transfermarktId) {
         this.transfermarktId = transfermarktId;
+    }
+
+    public LocalDateTime getDateTime() {
+        return dateTime;
+    }
+
+    public void setDateTime(LocalDateTime dateTime) {
+        this.dateTime = dateTime;
     }
 
     public interface MatchGoalsView {}
