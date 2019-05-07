@@ -29,7 +29,7 @@ public class LeagueRoundController {
 
     @GetMapping("/{roundId}")
     @JsonView(Round.DetailedView.class)
-    public ResponseEntity<Round> getRounds(
+    public ResponseEntity<Round> getRound(
             @PathVariable("leagueId") Long leagueId,
             @PathVariable("roundId") Long roundId) throws Exception{
         return ResponseEntity.of(roundRepository.findByIdAndLeague_Id(roundId, leagueId));
