@@ -155,7 +155,7 @@ public class TransferMarktWorker extends ProcessWorker {
 
                     String timeRaw = elements.get(1).text().trim();
 
-                    if(!timeRaw.isEmpty()) {
+                    if(!timeRaw.isEmpty() && !timeRaw.equals("-")) {
                         dateTimeRaw = dateTimeRaw.concat(" ").concat(timeRaw);
 
                         try {
