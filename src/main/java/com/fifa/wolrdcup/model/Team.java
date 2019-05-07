@@ -20,6 +20,8 @@ public class Team{
     @NotNull
     private String name;
 
+    private String profilePicture;
+
     @Column(unique = true)
     @NotNull
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
@@ -78,6 +80,14 @@ public class Team{
 
     public void setLeagues(List<League> leagues) {
         this.leagues = leagues;
+    }
+
+    public String getProfilePicture() {
+        return profilePicture;
+    }
+
+    public void setProfilePicture(String profilePicture) {
+        this.profilePicture = profilePicture;
     }
 
     public interface TeamPlayersView {}

@@ -143,8 +143,14 @@ public class TransferMarktWorker extends ProcessWorker {
                     match = new Match();
                     match.setTransfermarktId(transferMarktId);
 
-                    match.setTeam1(processTeam(processTeamMap(elements.get(2).select("a").text()), league));
-                    match.setTeam2(processTeam(processTeamMap(elements.get(6).select("a").text()), league));
+                    String profilePictureTeam1 = elements.get(3).select("img")
+                            .attr("src").replace("tiny", "normal");
+
+                    String profilePictureTeam2 = elements.get(5).select("img")
+                            .attr("src").replace("tiny", "normal");
+
+                    match.setTeam1(processTeam(processTeamMap(elements.get(2).select("a").text(), profilePictureTeam1), league));
+                    match.setTeam2(processTeam(processTeamMap(elements.get(6).select("a").text(), profilePictureTeam2), league));
                     match.setRound(round);
                 } else if(match.getLineup1() != null) {
                     //TODO: Find better way to figure out if match has updates
@@ -663,10 +669,11 @@ public class TransferMarktWorker extends ProcessWorker {
         }
     }
 
-    private Map<String, String> processTeamMap(String teamName) {
+    private Map<String, String> processTeamMap(String teamName, String profilePicture) {
         Map<String, String> teamMap = new HashMap<>();
         teamMap.put("name", teamName);
         teamMap.put("code", teamName);
+        teamMap.put("picture", profilePicture);
 
         return teamMap;
     }

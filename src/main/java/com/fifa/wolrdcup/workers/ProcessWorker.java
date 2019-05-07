@@ -79,6 +79,7 @@ abstract class ProcessWorker {
         Team team = new Team();
         team.setCode(teamMap.get("code"));
         team.setName(teamMap.get("name"));
+        team.setProfilePicture(teamMap.get("picture"));
         team.getLeagues().add(league);
 
         Optional<Team> existingTeam = teamRepository.findByCodeAndLeagues(team.getCode(), league);
