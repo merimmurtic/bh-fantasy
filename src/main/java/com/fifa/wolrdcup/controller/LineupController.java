@@ -25,17 +25,16 @@ public class LineupController {
     private final TeamRepository teamRepository;
     private final FantasyLineupRepository fantasyLineupRepository;
 
-    public LineupController(LeagueRepository leagueRepository,
-                            LineupRepository lineupRepository,
-                            RoundRepository roundRepository,
-                            TeamRepository teamRepository,
+    public LineupController(LeagueRepository leagueRepository, LineupRepository lineupRepository,
+                            RoundRepository roundRepository, TeamRepository teamRepository,
                             FantasyLineupRepository fantasyLineupRepository) {
         this.leagueRepository = leagueRepository;
         this.lineupRepository = lineupRepository;
-        this.teamRepository = teamRepository;
         this.roundRepository = roundRepository;
+        this.teamRepository = teamRepository;
         this.fantasyLineupRepository = fantasyLineupRepository;
     }
+
 
     @PostMapping("/teams/{teamId}")
     @JsonView(FantasyLineup.DetailedView.class)
@@ -197,7 +196,5 @@ public class LineupController {
         }
         return lineup;
     }
-
-
 }
 
