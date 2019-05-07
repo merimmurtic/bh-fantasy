@@ -60,7 +60,7 @@ public class WorldcupApplication {
         PREMIJER_LIGA_URL,
         "/serie-a/gesamtspielplan/wettbewerb/IT1/saison_id/2018",
         "/1-bundesliga/gesamtspielplan/wettbewerb/L1/saison_id/2018",
-        "/premier-league/startseite/wettbewerb/GB1/saison_id/2018",
+        "/premier-league/gesamtspielplan/wettbewerb/GB1/saison_id/2018",
         "/primera-division/gesamtspielplan/wettbewerb/ES1/saison_id/2018"
     };
 
