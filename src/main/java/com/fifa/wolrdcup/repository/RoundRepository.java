@@ -9,9 +9,9 @@ import java.util.Optional;
 public interface RoundRepository extends CrudRepository<Round, Long> {
     List<Round> findByNameContaining(String name);
 
-    Optional<Round> findByLeagueId(Long leagueId);
+    Iterable<Round> findByLeagueId(Long leagueId);
 
-    Iterable<Round> findByIdAndLeague_Id(Long id, Long leagueId);
+    Optional<Round> findByIdAndLeague_Id(Long id, Long leagueId);
 
     Optional<Round> findByLeagueIdAndName(Long leagueId, String name);
 }
