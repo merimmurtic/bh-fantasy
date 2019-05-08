@@ -37,6 +37,9 @@ public abstract class League {
     @JsonView(LeagueTeamsView.class)
     private List<Team> teams = new LinkedList<>();
 
+    @Transient
+    private Long currentRoundId = null;
+
     public League() {}
 
     public League(String name) {
@@ -130,6 +133,14 @@ public abstract class League {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public Long getCurrentRoundId() {
+        return currentRoundId;
+    }
+
+    public void setCurrentRoundId(Long currentRoundId) {
+        this.currentRoundId = currentRoundId;
     }
 
     public interface LeagueTeamsView {}

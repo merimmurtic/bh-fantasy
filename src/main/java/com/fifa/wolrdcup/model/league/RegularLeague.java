@@ -15,9 +15,6 @@ public class RegularLeague extends League{
     @JsonView(LeagueRoundsView.class)
     private List<Round> rounds = new LinkedList<>();
 
-    @Transient
-    private Long currentRoundId = null;
-
     public RegularLeague(){}
 
     public List<Round> getRounds() {
@@ -26,13 +23,5 @@ public class RegularLeague extends League{
 
     public void setRounds(List<Round> rounds) {
         this.rounds = rounds;
-    }
-
-    public Long getCurrentRoundId() {
-        return currentRoundId;
-    }
-
-    public void setCurrentRoundId(Long currentRoundId) {
-        this.currentRoundId = currentRoundId;
     }
 }

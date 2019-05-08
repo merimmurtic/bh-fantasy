@@ -137,7 +137,7 @@ public class LeagueController {
                         findFirstByLeagueIdAndMatches_Score1IsNotNullOrderByMatches_DateTimeDesc(leagueId);
 
                 optionalRound.ifPresent(round -> {
-                    ((RegularLeague) league).setCurrentRoundId(round.getId());
+                    league.setCurrentRoundId(round.getId());
                 });
             }
         });
