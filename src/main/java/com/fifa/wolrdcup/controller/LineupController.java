@@ -70,6 +70,7 @@ public class LineupController {
         if (league instanceof FantasyLeague) {
 
             lineup.setId(null);
+            validateLineup(lineup);
 
             Map<Long, Player> playerMap = new HashMap<>();
 
@@ -100,30 +101,26 @@ public class LineupController {
             lineup.getAvailableSubstitutions().clear();
             lineup.getStartingPlayers().clear();
 
-            if (lineup.getCapiten() != null && lineup.getCapiten().getId() != null) {
-                if (!playerMap.containsKey(lineup.getCapiten().getId())) {
-                    throwInvalidPlayerIdException(lineup.getCapiten().getId());
-                }
-
-                lineup.setCapiten(playerMap.get(lineup.getCapiten().getId()));
-            } else {
-                lineup.setCapiten(null);
+            if (!playerMap.containsKey(lineup.getCapiten().getId())) {
+                throwInvalidPlayerIdException(lineup.getCapiten().getId());
             }
 
-            if (lineup.getViceCapiten() != null && lineup.getViceCapiten().getId() != null) {
-                if (!playerMap.containsKey(lineup.getViceCapiten().getId())) {
-                    throwInvalidPlayerIdException(lineup.getViceCapiten().getId());
-                }
+            lineup.setCapiten(playerMap.get(lineup.getCapiten().getId()));
 
-                lineup.setViceCapiten(playerMap.get(lineup.getViceCapiten().getId()));
-            } else {
-                lineup.setViceCapiten(null);
+            if (!playerMap.containsKey(lineup.getViceCapiten().getId())) {
+                throwInvalidPlayerIdException(lineup.getViceCapiten().getId());
             }
+
+            lineup.setViceCapiten(playerMap.get(lineup.getViceCapiten().getId()));
 
             try {
                 lineup = lineupRepository.save(lineup);
                 lineup.getStartingPlayers().addAll(startingPlayers);
                 lineup.getAvailableSubstitutions().addAll(availableSubstitutions);
+
+                // Validate again to make sure there is no duplicate player ids in
+                // starting players or available substitutions lists
+                validateLineup(lineup);
 
                 lineupRepository.save(lineup);
 
@@ -147,54 +144,125 @@ public class LineupController {
         }
     }
 
+    private void validateLineup(Lineup lineup) {
+        if(lineup.getCapiten() == null || lineup.getCapiten().getId() == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Valid Captain is not provided!");
+        }
+
+        if(lineup.getViceCapiten() == null || lineup.getViceCapiten().getId() == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Valid Vice-Captain is not provided!");
+        }
+
+        if(lineup.getStartingPlayers() == null || lineup.getStartingPlayers().size() != 11) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "There should be 11 starting players!");
+        }
+
+        if(lineup.getAvailableSubstitutions() == null || lineup.getAvailableSubstitutions().size() != 4) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "There should be 4 available substitutions!");
+        }
+
+        if(lineup.getFormation() == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Valid formation needs to be provided!");
+        }
+    }
+
     private void throwInvalidPlayerIdException(Long playerId) {
         throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format(
                 "Invalid player id %s!", playerId));
     }
 
-    @PutMapping("/teams/{teamId}")
+    @PutMapping("/teams/{teamId}/fantasy-lineups/{fantasyLineupId}/lineups/{lineupId}")
     @JsonView(FantasyLineup.DetailedView.class)
     public Lineup putLineup(@RequestBody Lineup lineup,
                             @PathVariable("leagueId") Long leagueId,
                             @PathVariable("roundId") Long roundId,
-                            @PathVariable("teamId") Long teamId) {
+                            @PathVariable("teamId") Long teamId,
+                            @PathVariable("fantasyLineupId") Long fantasyLineupId,
+                            @PathVariable("lineupId") Long lineupId) {
 
-        if(lineup.getId() == null) {
+        // Load FantasyLineup by using provided params to make sure it exist
+        // FantasyLineup can be loaded by fantasyLineupId only but other params are added to
+        // make sure leagueId, roundId, teamId are match with fantasy lineup
+        Optional<FantasyLineup> fantasyLineupOptional = fantasyLineupRepository.findByIdAndLeague_IdAndTeam_IdAndRound_Id(
+                fantasyLineupId, leagueId, teamId, roundId);
+
+        // Check if fantasy lineup exist and if referenced lineup is one which is provided in request path
+        if(!fantasyLineupOptional.isPresent() ||
+                fantasyLineupOptional.get().getLineup() == null ||
+                !fantasyLineupOptional.get().getLineup().getId().equals(lineupId)) {
             throw new LineupNotFoundException();
         }
 
-        Optional<Lineup> existingLineupOptional = lineupRepository.findById(lineup.getId());
+        // Validate lineup provided in request to make sure all fields are provided in expected way
+        validateLineup(lineup);
 
-        if (existingLineupOptional.isPresent()) {
-            Lineup existingLineup = existingLineupOptional.get();
+        FantasyLineup fantasyLineup = fantasyLineupOptional.get();
 
-            if (lineup.getStartingPlayers() != null) {
-                existingLineup.setStartingPlayers(lineup.getStartingPlayers());
-            }
+        // Populate playerMap with all available players in team
+        Map<Long, Player> playerMap = new HashMap<>();
 
-            if (lineup.getAvailableSubstitutions() != null) {
-                existingLineup.setAvailableSubstitutions(lineup.getAvailableSubstitutions());
-            }
-
-            if (lineup.getCapiten() != null) {
-                existingLineup.setCapiten(lineup.getCapiten());
-            }
-
-            if (lineup.getViceCapiten() != null) {
-                existingLineup.setViceCapiten(lineup.getViceCapiten());
-            }
-
-            if (lineup.getFormation() != null) {
-                existingLineup.setFormation(lineup.getFormation());
-            }
-
-            if (lineup.getSubstitutionChanges() != null) {
-                existingLineup.setSubstitutionChanges(lineup.getSubstitutionChanges());
-            }
-
-            return lineupRepository.save(existingLineup);
+        for (Player player : fantasyLineup.getTeam().getPlayers()) {
+            playerMap.put(player.getId(), player);
         }
-        return lineup;
+
+        Lineup existingLineup = fantasyLineup.getLineup();
+
+        // Populate startingPlayers list with players loaded to Map from database through fantasyLineup.getTeam()
+        List<Player> startingPlayers = new ArrayList<>();
+
+        for (Player player : lineup.getStartingPlayers()) {
+            if (!playerMap.containsKey(player.getId())) {
+                throwInvalidPlayerIdException(player.getId());
+            }
+
+            startingPlayers.add(playerMap.get(player.getId()));
+        }
+
+        // Populate availableSubstitutions in same way
+        List<Player> availableSubstitutions = new ArrayList<>();
+
+        for (Player player : lineup.getAvailableSubstitutions()) {
+            if (!playerMap.containsKey(player.getId())) {
+                throwInvalidPlayerIdException(player.getId());
+            }
+
+            availableSubstitutions.add(playerMap.get(player.getId()));
+        }
+
+        // Clear all existing references from availableSubstitutions and startingPlayers
+        existingLineup.getAvailableSubstitutions().clear();
+        existingLineup.getStartingPlayers().clear();
+
+        // Adding new set of startingPlayers and availableSubstitutions
+        existingLineup.getStartingPlayers().addAll(startingPlayers);
+        existingLineup.getAvailableSubstitutions().addAll(availableSubstitutions);
+
+        // Set capiten if it's valid
+        if (!playerMap.containsKey(lineup.getCapiten().getId())) {
+            throwInvalidPlayerIdException(lineup.getCapiten().getId());
+        }
+
+        existingLineup.setCapiten(playerMap.get(lineup.getCapiten().getId()));
+
+        // Set vice-capiten if it's valid
+        if (!playerMap.containsKey(lineup.getViceCapiten().getId())) {
+            throwInvalidPlayerIdException(lineup.getViceCapiten().getId());
+        }
+
+        existingLineup.setViceCapiten(playerMap.get(lineup.getViceCapiten().getId()));
+
+        // Set formation
+        existingLineup.setFormation(lineup.getFormation());
+
+        // Validate again to make sure there is no duplicate player ids in
+        // starting players or available substitutions lists
+        validateLineup(existingLineup);
+
+        try {
+            return lineupRepository.save(existingLineup);
+        } catch (ConstraintViolationException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getConstraintViolations().toString());
+        }
     }
 }
 
