@@ -3,12 +3,14 @@ package com.fifa.wolrdcup.controller;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.fifa.wolrdcup.exception.InvalidLeagueIdException;
 import com.fifa.wolrdcup.exception.InvalidTeamIdException;
+import com.fifa.wolrdcup.model.Round;
 import com.fifa.wolrdcup.model.league.FantasyLeague;
 import com.fifa.wolrdcup.model.league.RegularLeague;
 import com.fifa.wolrdcup.model.views.DefaultView;
 import com.fifa.wolrdcup.model.league.League;
 import com.fifa.wolrdcup.model.Team;
 import com.fifa.wolrdcup.repository.LeagueRepository;
+import com.fifa.wolrdcup.repository.RoundRepository;
 import com.fifa.wolrdcup.repository.TeamRepository;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
@@ -26,11 +28,15 @@ public class LeagueController {
 
     private final LeagueRepository leagueRepository;
     private final TeamRepository teamRepository;
+    private final RoundRepository roundRepository;
 
-    public LeagueController(TeamRepository teamRepository,
-            LeagueRepository leagueRepository) {
+    public LeagueController(
+            TeamRepository teamRepository,
+            LeagueRepository leagueRepository,
+            RoundRepository roundRepository) {
         this.leagueRepository = leagueRepository;
         this.teamRepository = teamRepository;
+        this.roundRepository = roundRepository;
     }
 
     @GetMapping
@@ -123,6 +129,19 @@ public class LeagueController {
     @GetMapping("/{leagueId}")
     @JsonView(value = {League.DetailedView.class})
     public ResponseEntity<League> getLeague(@PathVariable("leagueId") Long leagueId) throws Exception {
-        return ResponseEntity.of(leagueRepository.findById(leagueId));
+        Optional<League> optionalLeague = leagueRepository.findById(leagueId);
+
+        optionalLeague.ifPresent(league -> {
+            if(league instanceof RegularLeague) {
+                Optional<Round> optionalRound = roundRepository.
+                        findFirstByLeagueIdAndMatches_Score1IsNotNullOrderByMatches_DateTimeDesc(leagueId);
+
+                optionalRound.ifPresent(round -> {
+                    ((RegularLeague) league).setCurrentRoundId(round.getId());
+                });
+            }
+        });
+
+        return ResponseEntity.of(optionalLeague);
     }
 }

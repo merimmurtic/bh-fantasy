@@ -14,4 +14,6 @@ public interface RoundRepository extends CrudRepository<Round, Long> {
     Optional<Round> findByIdAndLeague_Id(Long id, Long leagueId);
 
     Optional<Round> findByLeagueIdAndName(Long leagueId, String name);
+
+    Optional<Round> findFirstByLeagueIdAndMatches_Score1IsNotNullOrderByMatches_DateTimeDesc(Long leagueId);
 }
