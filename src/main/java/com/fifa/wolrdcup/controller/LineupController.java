@@ -172,7 +172,6 @@ public class LineupController {
     }
 
     @PutMapping("/teams/{teamId}/fantasy-lineups/{fantasyLineupId}/lineups/{lineupId}")
-    @JsonView(FantasyLineup.DetailedView.class)
     public Lineup putLineup(@RequestBody Lineup lineup,
                             @PathVariable("leagueId") Long leagueId,
                             @PathVariable("roundId") Long roundId,
