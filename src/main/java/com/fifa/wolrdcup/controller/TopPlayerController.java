@@ -38,11 +38,14 @@ public class TopPlayerController {
 
         for (Player player : players) {
 
-            if(getGoalsScored(player) >= 1) {
+            Long goal = getGoalsScored(player);
+
+            if(goal >= 1) {
+
                 TopPlayerValue stats = new TopPlayerValue();
                 stats.setPlayerId(player.getId());
                 stats.setFullName(player.getFullName());
-                stats.setGoalsScored(getGoalsScored(player));
+                stats.setGoalsScored(goal);
 
                 result.add(stats);
             }
