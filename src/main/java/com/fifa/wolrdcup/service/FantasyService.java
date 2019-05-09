@@ -109,7 +109,7 @@ public class FantasyService {
         fantasyLeague.setName(leagueName);
 
         leagueRepository.findById(leagueId).ifPresent((league -> {
-            fantasyLeague.setRegularLeagues((List<RegularLeague>) league);
+            fantasyLeague.setRegularLeague((RegularLeague) league);
         }));
 
         leagueRepository.save(fantasyLeague);
@@ -139,7 +139,7 @@ public class FantasyService {
         FantasyLineup fantasyLineup = new FantasyLineup();
         fantasyLineup.setLeague(fantasyLeague);
         fantasyLineup.setTeam(fantasyTeam);
-        fantasyLineup.setRound(fantasyLeague.getRegularLeagues().get(Math.toIntExact(leagueId)).getRounds().get(0));
+        fantasyLineup.setRound(fantasyLeague.getRegularLeague().getRounds().get(0));
 
         Lineup lineup = new Lineup();
         lineup.setFormation(Lineup.Formation.F_4_3_3);

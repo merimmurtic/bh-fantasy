@@ -3,6 +3,8 @@ package com.fifa.wolrdcup.controller;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.fifa.wolrdcup.exception.InvalidPlayerIdException;
 import com.fifa.wolrdcup.exception.InvalidTeamIdException;
+import com.fifa.wolrdcup.model.league.FantasyLeague;
+import com.fifa.wolrdcup.model.league.League;
 import com.fifa.wolrdcup.model.players.Player;
 import com.fifa.wolrdcup.model.views.DefaultView;
 import com.fifa.wolrdcup.model.Team;
@@ -76,6 +78,7 @@ public class TeamController {
     public void referenceTeam(
             @PathVariable("teamId") Long teamId,
             @RequestBody Player player) {
+
         if(player.getId() != null){
             Optional<Player> existingPlayerOptional = playerRepository.findById(player.getId());
 
@@ -94,10 +97,40 @@ public class TeamController {
             player = existingPlayerOptional.get();
 
             if(!player.getTeams().contains(team)) {
+
                 player.getTeams().add(team);
             } else {
                 throw new ResponseStatusException(
                         HttpStatus.BAD_REQUEST, "Player is already referenced with provided team!");
+            }
+
+            if (!(team.getLeagues() instanceof FantasyLeague)) {
+                int countGoalkeeper = 0;
+                int countDefender = 0;
+                int countMiddle = 0;
+                int countStriker = 0;
+
+                for(Player player1 : team.getPlayers()) {
+
+                    if (player1.getType().equals("Goalkeaper")) {
+                        countGoalkeeper += 1;
+                    } else if (player1.getType().equals("Defender")) {
+                        countDefender += 1;
+                    } else if (player1.getType().equals("Middle")) {
+                        countMiddle += 1;
+                    } else if (player1.getType().equals("Striker")) {
+                        countStriker += 1;
+                    }
+                    if (countGoalkeeper > 2) {
+                        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Maximum Goalkeepers!");
+                    } else if (countDefender > 5) {
+                        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Maximum Defenders!");
+                    } else if (countMiddle > 5) {
+                        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Maximum Middlers!");
+                    } else if (countStriker > 3) {
+                        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Maximum Strikers!");
+                    }
+                }
             }
 
             playerRepository.save(player);
@@ -106,4 +139,3 @@ public class TeamController {
         }
     }
 }
-

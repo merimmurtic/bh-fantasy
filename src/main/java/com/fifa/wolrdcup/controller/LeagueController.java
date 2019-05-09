@@ -56,7 +56,7 @@ public class LeagueController {
             if(league instanceof FantasyLeague) {
                 FantasyLeague fantasyLeague = (FantasyLeague) league;
 
-                Long regularLeagueId = fantasyLeague.getId();
+                Long regularLeagueId = fantasyLeague.getRegularLeague().getId();
 
                 Optional<League> regularLeagueOptional = leagueRepository.findById(regularLeagueId);
 
@@ -67,7 +67,7 @@ public class LeagueController {
                 League regularLeague = regularLeagueOptional.get();
 
                 if(regularLeague instanceof RegularLeague) {
-                    fantasyLeague.setRegularLeagues((List<RegularLeague>) regularLeague);
+                    fantasyLeague.setRegularLeague((RegularLeague) regularLeague);
                 } else {
                     throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Provided league is not Regular League!");
                 }
