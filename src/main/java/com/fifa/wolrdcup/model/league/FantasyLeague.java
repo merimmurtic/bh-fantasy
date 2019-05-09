@@ -12,8 +12,8 @@ import java.util.List;
 @DiscriminatorValue("FantasyLeague")
 public class FantasyLeague extends League {
 
-    @OneToOne
-    private RegularLeague regularLeague;
+    @ManyToMany
+    private List<RegularLeague> regularLeagues = new ArrayList<>();
 
     @OneToMany(mappedBy = "league", cascade = CascadeType.ALL)
     @JsonView(LeagueLineupsView.class)
@@ -21,12 +21,12 @@ public class FantasyLeague extends League {
 
     public FantasyLeague(){}
 
-    public RegularLeague getRegularLeague() {
-        return regularLeague;
+    public List<RegularLeague> getRegularLeagues() {
+        return regularLeagues;
     }
 
-    public void setRegularLeague(RegularLeague regularLeague) {
-        this.regularLeague = regularLeague;
+    public void setRegularLeagues(List<RegularLeague> regularLeagues) {
+        this.regularLeagues = regularLeagues;
     }
 
     public List<FantasyLineup> getLineups() {

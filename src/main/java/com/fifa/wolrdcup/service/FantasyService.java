@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -108,7 +109,7 @@ public class FantasyService {
         fantasyLeague.setName(leagueName);
 
         leagueRepository.findById(leagueId).ifPresent((league -> {
-            fantasyLeague.setRegularLeague((RegularLeague) league);
+            fantasyLeague.setRegularLeagues((List<RegularLeague>) league);
         }));
 
         leagueRepository.save(fantasyLeague);
@@ -138,7 +139,7 @@ public class FantasyService {
         FantasyLineup fantasyLineup = new FantasyLineup();
         fantasyLineup.setLeague(fantasyLeague);
         fantasyLineup.setTeam(fantasyTeam);
-        fantasyLineup.setRound(fantasyLeague.getRegularLeague().getRounds().get(0));
+        fantasyLineup.setRound(fantasyLeague.getRegularLeagues().get(Math.toIntExact(leagueId)).getRounds().get(0));
 
         Lineup lineup = new Lineup();
         lineup.setFormation(Lineup.Formation.F_4_3_3);

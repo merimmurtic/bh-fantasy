@@ -20,6 +20,7 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.validation.ConstraintViolationException;
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -55,7 +56,7 @@ public class LeagueController {
             if(league instanceof FantasyLeague) {
                 FantasyLeague fantasyLeague = (FantasyLeague) league;
 
-                Long regularLeagueId = fantasyLeague.getRegularLeague().getId();
+                Long regularLeagueId = fantasyLeague.getId();
 
                 Optional<League> regularLeagueOptional = leagueRepository.findById(regularLeagueId);
 
@@ -66,7 +67,7 @@ public class LeagueController {
                 League regularLeague = regularLeagueOptional.get();
 
                 if(regularLeague instanceof RegularLeague) {
-                    fantasyLeague.setRegularLeague((RegularLeague) regularLeague);
+                    fantasyLeague.setRegularLeagues((List<RegularLeague>) regularLeague);
                 } else {
                     throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Provided league is not Regular League!");
                 }
