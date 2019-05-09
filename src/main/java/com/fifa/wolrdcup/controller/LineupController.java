@@ -164,17 +164,6 @@ public class LineupController {
         if(lineup.getFormation() == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Valid formation needs to be provided!");
         }
-
-        for(Player player : lineup.getStartingPlayers()){
-            int countGoalkeeper = 0;
-
-            if(player.getType().equals("Goalkeaper")){
-                countGoalkeeper ++;
-            }
-            if(countGoalkeeper != 1){
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Your team must have one goalkeeper!");
-            }
-        }
     }
 
     private void throwInvalidPlayerIdException(Long playerId) {
