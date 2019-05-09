@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonView;
 import com.fifa.wolrdcup.model.Round;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -24,4 +25,5 @@ public class RegularLeague extends League{
     public void setRounds(List<Round> rounds) {
         this.rounds = rounds;
     }
+
 }

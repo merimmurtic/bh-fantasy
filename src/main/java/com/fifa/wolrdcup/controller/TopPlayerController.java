@@ -38,12 +38,14 @@ public class TopPlayerController {
 
         for (Player player : players) {
 
-            TopPlayerValue stats = new TopPlayerValue();
-            stats.setPlayerId(player.getId());
-            stats.setFullName(player.getFullName());
-            stats.setGoalsScored(getGoalsScored(player));
+            if(getGoalsScored(player) >= 1) {
+                TopPlayerValue stats = new TopPlayerValue();
+                stats.setPlayerId(player.getId());
+                stats.setFullName(player.getFullName());
+                stats.setGoalsScored(getGoalsScored(player));
 
-            result.add(stats);
+                result.add(stats);
+            }
         }
 
         result.sort((TopPlayerValue player1, TopPlayerValue player2)->

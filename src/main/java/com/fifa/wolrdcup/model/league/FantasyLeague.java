@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonView;
 import com.fifa.wolrdcup.model.FantasyLineup;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -35,4 +36,6 @@ public class FantasyLeague extends League {
     public void setLineups(List<FantasyLineup> lineups) {
         this.lineups = lineups;
     }
+
+
 }
