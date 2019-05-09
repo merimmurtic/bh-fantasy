@@ -10,6 +10,7 @@ import com.fifa.wolrdcup.model.views.DefaultView;
 import com.fifa.wolrdcup.model.Team;
 import com.fifa.wolrdcup.repository.PlayerRepository;
 import com.fifa.wolrdcup.repository.TeamRepository;
+import org.hibernate.validator.internal.engine.messageinterpolation.parser.MessageDescriptorFormatException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -96,41 +97,47 @@ public class TeamController {
 
             player = existingPlayerOptional.get();
 
+            if (!(team.getLeagues() instanceof FantasyLeague)) {
+
+                int countGoalkeeper = 1;
+                int countDefender = 1;
+                int countMiddle = 1;
+                int countStriker = 1;
+
+                for(Player player1 : team.getPlayers()) {
+
+                    if (player1.getType().equals("Goalkeaper")) {
+                        countGoalkeeper += 1;
+                        if (countGoalkeeper > 2) {
+
+                            playerRepository.delete(player1);
+                            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Maximum Goalkeepers!");
+
+                        }
+                    } else if (player1.getType().equals("Defender")) {
+                        countDefender += 1;
+                        if (countDefender > 5) {
+                            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Maximum Defenders!");
+                        }
+                    } else if (player1.getType().equals("Middle")) {
+                        countMiddle += 1;
+                        if (countMiddle > 5) {
+                            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Maximum Middlers!");
+                        }
+                    } else if (player1.getType().equals("Striker")) {
+                        countStriker += 1;
+                        if (countStriker > 3) {
+                            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Maximum Strikers!");
+                        }
+                    }
+                }
+            }
             if(!player.getTeams().contains(team)) {
 
                 player.getTeams().add(team);
             } else {
                 throw new ResponseStatusException(
                         HttpStatus.BAD_REQUEST, "Player is already referenced with provided team!");
-            }
-
-            if (!(team.getLeagues() instanceof FantasyLeague)) {
-                int countGoalkeeper = 0;
-                int countDefender = 0;
-                int countMiddle = 0;
-                int countStriker = 0;
-
-                for(Player player1 : team.getPlayers()) {
-
-                    if (player1.getType().equals("Goalkeaper")) {
-                        countGoalkeeper += 1;
-                    } else if (player1.getType().equals("Defender")) {
-                        countDefender += 1;
-                    } else if (player1.getType().equals("Middle")) {
-                        countMiddle += 1;
-                    } else if (player1.getType().equals("Striker")) {
-                        countStriker += 1;
-                    }
-                    if (countGoalkeeper > 2) {
-                        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Maximum Goalkeepers!");
-                    } else if (countDefender > 5) {
-                        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Maximum Defenders!");
-                    } else if (countMiddle > 5) {
-                        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Maximum Middlers!");
-                    } else if (countStriker > 3) {
-                        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Maximum Strikers!");
-                    }
-                }
             }
 
             playerRepository.save(player);
