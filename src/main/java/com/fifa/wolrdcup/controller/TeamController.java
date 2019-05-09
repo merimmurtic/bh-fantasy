@@ -117,16 +117,23 @@ public class TeamController {
                     } else if (player1.getType().equals("Defender")) {
                         countDefender += 1;
                         if (countDefender > 5) {
+
+                            playerRepository.delete(player1);
                             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Maximum Defenders!");
                         }
                     } else if (player1.getType().equals("Middle")) {
                         countMiddle += 1;
                         if (countMiddle > 5) {
+
+                            playerRepository.delete(player1);
                             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Maximum Middlers!");
                         }
                     } else if (player1.getType().equals("Striker")) {
                         countStriker += 1;
                         if (countStriker > 3) {
+
+                            playerRepository.delete(player1);
+                            countStriker -= 1;
                             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Maximum Strikers!");
                         }
                     }
