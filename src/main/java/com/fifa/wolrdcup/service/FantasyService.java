@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -30,7 +29,10 @@ public class FantasyService {
 
     private final PlayerRepository playerRepository;
 
-    public FantasyService(LeagueRepository leagueRepository, TeamRepository teamRepository,
+    private final PlayerPointsRepository playerPointsRepository;
+
+    public FantasyService(PlayerPointsRepository playerPointsRepository,
+                          LeagueRepository leagueRepository, TeamRepository teamRepository,
                           FantasyLineupRepository fantasyLineupRepository,
                           LineupRepository lineupRepository, PlayerRepository playerRepository) {
         this.leagueRepository = leagueRepository;
@@ -38,6 +40,7 @@ public class FantasyService {
         this.fantasyLineupRepository = fantasyLineupRepository;
         this.lineupRepository = lineupRepository;
         this.playerRepository = playerRepository;
+        this.playerPointsRepository = playerPointsRepository;
     }
 
     @Transactional
@@ -58,7 +61,16 @@ public class FantasyService {
 
                 Map<Long, PointsValue> pointsMap = calculatePointsForMatch(match);
 
-                //TODO: Merim, save points here
+                for(Long playerId : pointsMap.keySet()) {
+                    PointsValue pointsValue = pointsMap.get(playerId);
+
+                    PlayerPoints playerPoints = new PlayerPoints();
+                    playerPoints.setMatch(match);
+                    playerPoints.setPlayer(pointsValue.getPlayer());
+                    playerPoints.setPoints(pointsValue.getTotalPoints());
+
+                    playerPointsRepository.save(playerPoints);
+                }
             }
         }
     }

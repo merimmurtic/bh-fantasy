@@ -44,15 +44,15 @@ public class PointsValue {
         minutesPlayed = minutes;
     }
 
-    public Integer get() {
+    public Integer getTotalPoints() {
         int result = 0;
 
         result += goalsScored * getGoalScoredCoefficient();
         result += goalsAssisted * 3;
         result += ownGoalsScored * -2;
 
-        // Player can get only 1 yellow card or red card, so it's boolean value
-        // If user get yellow card and then red card, only red card is calculated
+        // Player can getTotalPoints only 1 yellow card or red card, so it's boolean value
+        // If user getTotalPoints yellow card and then red card, only red card is calculated
         if(redCard) {
             result += -3;
         } else if(yellowCard) {
@@ -64,6 +64,10 @@ public class PointsValue {
         }
 
         return result;
+    }
+
+    public Player getPlayer() {
+        return player;
     }
 
     public Integer getGoalScoredCoefficient() {
@@ -78,6 +82,6 @@ public class PointsValue {
 
     @Override
     public String toString() {
-        return String.format("Player %s has %d points.", player.getFullName(), get());
+        return String.format("Player %s has %d points.", player.getFullName(), getTotalPoints());
     }
 }
