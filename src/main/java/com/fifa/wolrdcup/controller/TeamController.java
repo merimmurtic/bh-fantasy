@@ -4,13 +4,11 @@ import com.fasterxml.jackson.annotation.JsonView;
 import com.fifa.wolrdcup.exception.InvalidPlayerIdException;
 import com.fifa.wolrdcup.exception.InvalidTeamIdException;
 import com.fifa.wolrdcup.model.league.FantasyLeague;
-import com.fifa.wolrdcup.model.league.League;
-import com.fifa.wolrdcup.model.players.Player;
+import com.fifa.wolrdcup.model.players.*;
 import com.fifa.wolrdcup.model.views.DefaultView;
 import com.fifa.wolrdcup.model.Team;
 import com.fifa.wolrdcup.repository.PlayerRepository;
 import com.fifa.wolrdcup.repository.TeamRepository;
-import org.hibernate.validator.internal.engine.messageinterpolation.parser.MessageDescriptorFormatException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -97,50 +95,30 @@ public class TeamController {
 
             player = existingPlayerOptional.get();
 
-            if (!(team.getLeagues() instanceof FantasyLeague)) {
+            if (team.getLeagues().size() > 0 && team.getLeagues().get(0) instanceof FantasyLeague) {
+                List<Player> players = team.getPlayersOfType(player.getClass());
 
-                int countGoalkeeper = 1;
-                int countDefender = 1;
-                int countMiddle = 1;
-                int countStriker = 1;
+                if (player instanceof Goalkeaper) {
+                    if (players.size() > 1) {
+                        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Maximum Goalkeepers!");
 
-                for(Player player1 : team.getPlayers()) {
-
-                    if (player1.getType().equals("Goalkeaper")) {
-                        countGoalkeeper += 1;
-                        if (countGoalkeeper > 2) {
-
-                            playerRepository.delete(player1);
-                            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Maximum Goalkeepers!");
-
-                        }
-                    } else if (player1.getType().equals("Defender")) {
-                        countDefender += 1;
-                        if (countDefender > 5) {
-
-                            playerRepository.delete(player1);
-                            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Maximum Defenders!");
-                        }
-                    } else if (player1.getType().equals("Middle")) {
-                        countMiddle += 1;
-                        if (countMiddle > 5) {
-
-                            playerRepository.delete(player1);
-                            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Maximum Middlers!");
-                        }
-                    } else if (player1.getType().equals("Striker")) {
-                        countStriker += 1;
-                        if (countStriker > 3) {
-
-                            playerRepository.delete(player1);
-                            countStriker -= 1;
-                            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Maximum Strikers!");
-                        }
+                    }
+                } else if (player instanceof Defender) {
+                    if (players.size() > 4) {
+                        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Maximum Defenders!");
+                    }
+                } else if (player instanceof Middle) {
+                    if (players.size() > 4) {
+                        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Maximum Middlers!");
+                    }
+                } else if (player instanceof Striker) {
+                    if (players.size() > 2) {
+                        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Maximum Strikers!");
                     }
                 }
             }
-            if(!player.getTeams().contains(team)) {
 
+            if(!player.getTeams().contains(team)) {
                 player.getTeams().add(team);
             } else {
                 throw new ResponseStatusException(

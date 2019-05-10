@@ -33,7 +33,7 @@ public abstract class League {
     @Column(unique = true)
     private String name;
 
-    @ManyToMany
+    @ManyToMany(mappedBy = "leagues", cascade = CascadeType.ALL)
     @JsonView(LeagueTeamsView.class)
     private List<Team> teams = new LinkedList<>();
 

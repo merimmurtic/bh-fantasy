@@ -9,6 +9,7 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Entity
 public class Team{
@@ -88,6 +89,11 @@ public class Team{
 
     public void setProfilePicture(String profilePicture) {
         this.profilePicture = profilePicture;
+    }
+
+    public List<Player> getPlayersOfType(Class<? extends Player> type) {
+        return players.stream().filter(
+                player -> player.getClass().equals(type)).collect(Collectors.toList());
     }
 
     public interface TeamPlayersView {}
