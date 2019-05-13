@@ -39,8 +39,13 @@ public class PlayerService {
         existingPlayer.ifPresent((p) -> {
             boolean updated = false;
 
-            if(player.getFirstName() != null && p.getFirstName() == null) {
+            if(player.getFirstName() != null && !player.getFirstName().equals(p.getFirstName())) {
                 p.setFirstName(player.getFirstName());
+                updated = true;
+            }
+
+            if(player.getLastName() != null && !player.getLastName().equals(p.getLastName())) {
+                p.setLastName(player.getLastName());
                 updated = true;
             }
 
@@ -52,6 +57,31 @@ public class PlayerService {
             if(team != null && !p.getTeams().stream().map(Team::getId)
                     .collect(Collectors.toSet()).contains(team.getId())) {
                 p.getTeams().add(team);
+                updated = true;
+            }
+
+            if(player.getNumberoOnDress() != null && !player.getNumberoOnDress().equals(p.getNumberoOnDress())) {
+                p.setNumberoOnDress(player.getNumberoOnDress());
+                updated = true;
+            }
+
+            if(player.getBirthDate() != null && !player.getBirthDate().equals(p.getBirthDate())) {
+                p.setBirthDate(player.getBirthDate());
+                updated = true;
+            }
+
+            if(player.getMarketValueRaw() != null && !player.getMarketValueRaw().equals(p.getMarketValueRaw())) {
+                p.setMarketValueRaw(player.getMarketValueRaw());
+                updated = true;
+            }
+
+            if(player.getProfilePicture() != null && !player.getProfilePicture().equals(p.getProfilePicture())) {
+                p.setProfilePicture(player.getProfilePicture());
+                updated = true;
+            }
+
+            if(player.getPosition() != null && !player.getPosition().equals(p.getPosition())) {
+                p.setPosition(player.getPosition());
                 updated = true;
             }
 

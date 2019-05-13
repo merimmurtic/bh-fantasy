@@ -37,11 +37,12 @@ public class LeagueRoundController {
 
     @GetMapping("/{roundId}/matches/{matchId}")
     @JsonView(Match.DetailedView.class)
-    public Iterable<Match> getMatches(
+    public ResponseEntity<Match> getMatches(
             @PathVariable("leagueId") Long leagueId,
             @PathVariable("roundId") Long roundId,
             @PathVariable("matchId") Long matchId) throws Exception{
-        return matchRepository.findByIdAndRound_IdAndRound_League_Id(matchId, roundId, leagueId);
+        return ResponseEntity.of(
+                matchRepository.findByIdAndRound_IdAndRound_League_Id(matchId, roundId, leagueId));
     }
 
 
