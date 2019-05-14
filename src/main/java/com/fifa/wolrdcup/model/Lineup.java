@@ -5,6 +5,7 @@ import com.fifa.wolrdcup.model.players.Player;
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Entity
 public class Lineup {
@@ -87,6 +88,11 @@ public class Lineup {
 
     public void setFormation(Formation formation) {
         this.formation = formation;
+    }
+
+    public List<Player> getPlayersOfType(Class<? extends Player> type) {
+        return startingPlayers.stream().filter(
+                player -> player.getClass().equals(type)).collect(Collectors.toList());
     }
 
     public enum Formation{

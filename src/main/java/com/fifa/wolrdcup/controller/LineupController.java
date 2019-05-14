@@ -5,7 +5,7 @@ import com.fifa.wolrdcup.exception.*;
 import com.fifa.wolrdcup.model.*;
 import com.fifa.wolrdcup.model.league.FantasyLeague;
 import com.fifa.wolrdcup.model.league.League;
-import com.fifa.wolrdcup.model.players.Player;
+import com.fifa.wolrdcup.model.players.*;
 import com.fifa.wolrdcup.repository.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -163,6 +163,32 @@ public class LineupController {
 
         if(lineup.getFormation() == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Valid formation needs to be provided!");
+        }
+
+        for (Player player : lineup.getStartingPlayers()) {
+
+            if (lineup.getStartingPlayers().size() > 0) {
+                List<Player> players = lineup.getPlayersOfType(player.getClass());
+
+                if (player instanceof Goalkeaper) {
+                    if (players.size() != 1) {
+                        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Maximum Goalkeepers!");
+
+                    }
+                } else if (player instanceof Defender) {
+                    if (players.size() > 4 || players.size() < 2) {
+                        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Maximum Defenders!");
+                    }
+                } else if (player instanceof Middle) {
+                    if (players.size() > 4 || players.size() < 2) {
+                        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Maximum Middlers!");
+                    }
+                } else if (player instanceof Striker) {
+                    if (players.size() < 1 || players.size() < 2) {
+                        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Maximum Strikers!");
+                    }
+                }
+            }
         }
     }
 
