@@ -32,6 +32,10 @@ public class Match {
     @JsonView(MatchGoalsView.class)
     private List<Goal> goals = new ArrayList<>();
 
+    @OneToMany(mappedBy = "match", cascade = CascadeType.ALL)
+    @JsonView(MatchMissedPenaltiesView.class)
+    private List<MissedPenalty> missedPenalties = new ArrayList<>();
+
     @OneToOne
     private Stadium stadium;
 
@@ -159,11 +163,21 @@ public class Match {
         this.dateTime = dateTime;
     }
 
+    public List<MissedPenalty> getMissedPenalties() {
+        return missedPenalties;
+    }
+
+    public void setMissedPenalties(List<MissedPenalty> missedPenalties) {
+        this.missedPenalties = missedPenalties;
+    }
+
     public interface MatchGoalsView {}
+
+    public interface MatchMissedPenaltiesView {}
 
     public interface MatchLineupsView {}
 
     public interface MatchCardsView {}
 
-    public interface DetailedView extends MatchGoalsView, MatchLineupsView, MatchCardsView {}
+    public interface DetailedView extends MatchGoalsView, MatchLineupsView, MatchCardsView, MatchMissedPenaltiesView {}
 }

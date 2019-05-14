@@ -1,5 +1,6 @@
 package com.fifa.wolrdcup.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fifa.wolrdcup.model.players.Player;
 
 import javax.persistence.*;
@@ -11,6 +12,7 @@ public class MissedPenalty {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @JsonIgnore
     @ManyToOne
     private Match match;
 
