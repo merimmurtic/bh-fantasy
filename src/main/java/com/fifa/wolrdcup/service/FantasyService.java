@@ -1,6 +1,5 @@
 package com.fifa.wolrdcup.service;
 
-
 import com.fifa.wolrdcup.exception.InvalidLeagueIdException;
 import com.fifa.wolrdcup.model.*;
 import com.fifa.wolrdcup.model.custom.PointsValue;
@@ -9,6 +8,8 @@ import com.fifa.wolrdcup.model.league.League;
 import com.fifa.wolrdcup.model.league.RegularLeague;
 import com.fifa.wolrdcup.model.players.Player;
 import com.fifa.wolrdcup.repository.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -18,6 +19,8 @@ import java.util.Optional;
 
 @Service
 public class FantasyService {
+
+    private static Logger logger = LoggerFactory.getLogger(FantasyService.class);
 
     private final LeagueRepository leagueRepository;
 
@@ -31,16 +34,20 @@ public class FantasyService {
 
     private final PlayerPointsRepository playerPointsRepository;
 
+    private final MatchRepository matchRepository;
+
     public FantasyService(PlayerPointsRepository playerPointsRepository,
                           LeagueRepository leagueRepository, TeamRepository teamRepository,
                           FantasyLineupRepository fantasyLineupRepository,
-                          LineupRepository lineupRepository, PlayerRepository playerRepository) {
+                          LineupRepository lineupRepository, PlayerRepository playerRepository,
+                          MatchRepository matchRepository) {
         this.leagueRepository = leagueRepository;
         this.teamRepository = teamRepository;
         this.fantasyLineupRepository = fantasyLineupRepository;
         this.lineupRepository = lineupRepository;
         this.playerRepository = playerRepository;
         this.playerPointsRepository = playerPointsRepository;
+        this.matchRepository = matchRepository;
     }
 
     @Transactional
@@ -55,25 +62,28 @@ public class FantasyService {
 
         for(Round round : league.getRounds()) {
             for(Match match : round.getMatches()) {
-                if(match.getScore1() == null) {
-                    continue;
-                }
-
-                Map<Long, PointsValue> pointsMap = calculatePointsForMatch(match);
-
-                for(Long playerId : pointsMap.keySet()) {
-                    PointsValue pointsValue = pointsMap.get(playerId);
-
-                    PlayerPoints playerPoints = new PlayerPoints();
-                    playerPoints.setMatch(match);
-                    playerPoints.setPlayer(pointsValue.getPlayer());
-                    playerPoints.setPoints(pointsValue.getTotalPoints());
-
-                    playerPointsRepository.save(playerPoints);
-                }
-
-
+                processMatch(match);
             }
+        }
+    }
+
+    @Transactional
+    public void processMatch(Match match) {
+        if(match.getScore1() == null || match.getPlayerPoints().size() > 0) {
+            return;
+        }
+
+        Map<Long, PointsValue> pointsMap = calculatePointsForMatch(match);
+
+        for(Long playerId : pointsMap.keySet()) {
+            PointsValue pointsValue = pointsMap.get(playerId);
+
+            PlayerPoints playerPoints = new PlayerPoints();
+            playerPoints.setMatch(match);
+            playerPoints.setPlayer(pointsValue.getPlayer());
+            playerPoints.setPoints(pointsValue.getTotalPoints());
+
+            playerPointsRepository.save(playerPoints);
         }
     }
 
@@ -106,8 +116,8 @@ public class FantasyService {
             }
         }
 
-        Map<Long, Integer> minutesPlayed = getPlayerMinutes(match.getLineup1(), pointsMap);
-        minutesPlayed.putAll(getPlayerMinutes(match.getLineup2(), pointsMap));
+        Map<Long, Integer> minutesPlayed = getPlayerMinutes(match.getLineup1(), pointsMap, match);
+        minutesPlayed.putAll(getPlayerMinutes(match.getLineup2(), pointsMap, match));
 
         for(Long playerId: minutesPlayed.keySet()) {
             pointsMap.get(playerId).addMinutesPlayed(minutesPlayed.get(playerId));
@@ -116,7 +126,7 @@ public class FantasyService {
         return pointsMap;
     }
 
-    private Map<Long, Integer> getPlayerMinutes(Lineup lineup, Map<Long, PointsValue> pointsMap) {
+    private Map<Long, Integer> getPlayerMinutes(Lineup lineup, Map<Long, PointsValue> pointsMap, Match match) {
         Map<Long, Integer> result = new HashMap<>();
 
         if(lineup == null) {
@@ -137,8 +147,19 @@ public class FantasyService {
             }
         }
 
-        for(Substitution substitution: lineup.getSubstitutionChanges()) {
+        for (Substitution substitution : lineup.getSubstitutionChanges()) {
             Integer minutesPlayed = result.get(substitution.getSubstitutePlayer().getId());
+
+            if(minutesPlayed == null) {
+                match.setReviewRequired(true);
+
+                matchRepository.save(match);
+
+                logger.error(
+                        "Error while processing minutes for player {}", substitution.getSubstitutePlayer().getId());
+                continue;
+            }
+
             result.put(substitution.getSubstitutePlayer().getId(), minutesPlayed - (90 - substitution.getMinute()));
         }
 

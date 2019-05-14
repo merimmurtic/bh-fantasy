@@ -61,6 +61,10 @@ public class Match {
     @JsonView(MatchMissedPenaltiesView.class)
     private List<MissedPenalty> missedPenalties = new ArrayList<>();
 
+    @JsonIgnore
+    @OneToMany(mappedBy = "match", cascade = CascadeType.ALL)
+    private List<PlayerPoints> playerPoints = new ArrayList<>();
+
     @OneToOne
     private Stadium stadium;
 
@@ -79,6 +83,8 @@ public class Match {
     private Integer score1;
 
     private Integer score2;
+
+    private Boolean reviewRequired = false;
 
     private LocalDateTime dateTime;
     
@@ -188,12 +194,28 @@ public class Match {
         this.dateTime = dateTime;
     }
 
+    public List<PlayerPoints> getPlayerPoints() {
+        return playerPoints;
+    }
+
+    public void setPlayerPoints(List<PlayerPoints> playerPoints) {
+        this.playerPoints = playerPoints;
+    }
+
     public List<MissedPenalty> getMissedPenalties() {
         return missedPenalties;
     }
 
     public void setMissedPenalties(List<MissedPenalty> missedPenalties) {
         this.missedPenalties = missedPenalties;
+    }
+
+    public Boolean getReviewRequired() {
+        return reviewRequired;
+    }
+
+    public void setReviewRequired(Boolean reviewRequired) {
+        this.reviewRequired = reviewRequired;
     }
 
     public interface MatchGoalsView {}
