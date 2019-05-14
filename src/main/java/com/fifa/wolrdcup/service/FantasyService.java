@@ -135,7 +135,6 @@ public class FantasyService {
                 pointsMap.get(match.getLineup2().getId()).addViceCapiten();
             }
 
-
         }
 
         for(Substitution substitution : match.getLineup1().getSubstitutionChanges()){
@@ -151,7 +150,6 @@ public class FantasyService {
 
             pointsMap.get(substitution.getSubstitutePlayer().getId()).addMinutesPlayed(90 - substitution.getMinute());
         }
-
 
 
         //TODO: Merim, add all other points (feel free to update PointsValue)

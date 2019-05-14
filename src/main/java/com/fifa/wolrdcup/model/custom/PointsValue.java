@@ -68,6 +68,8 @@ public class PointsValue {
         }
 
         if(minutesPlayed >= 60) {
+            result += 2;
+        }else{
             result += 1;
         }
 
