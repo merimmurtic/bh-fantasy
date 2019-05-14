@@ -20,10 +20,6 @@ public class PointsValue {
 
     private boolean redCard = false;
 
-    private boolean capiten = false;
-
-    private boolean viceCapiten = false;
-
     public PointsValue(Player player) {
         this.player = player;
     }
@@ -48,10 +44,6 @@ public class PointsValue {
         minutesPlayed = minutes;
     }
 
-    public void addCapiten(){ capiten = true;}
-
-    public void addViceCapiten(){ viceCapiten = true;}
-
     public Integer getTotalPoints() {
         int result = 0;
 
@@ -59,8 +51,6 @@ public class PointsValue {
         result += goalsAssisted * 3;
         result += ownGoalsScored * -2;
 
-        // Player can getTotalPoints only 1 yellow card or red card, so it's boolean value
-        // If user getTotalPoints yellow card and then red card, only red card is calculated
         if(redCard) {
             result += -3;
         } else if(yellowCard) {
@@ -69,16 +59,8 @@ public class PointsValue {
 
         if(minutesPlayed >= 60) {
             result += 2;
-        }else{
+        } else if(minutesPlayed > 0){
             result += 1;
-        }
-
-        if(capiten){
-            result *= 2;
-        }
-
-        if(!capiten && viceCapiten){
-            result  *= 2;
         }
 
         return result;
@@ -88,7 +70,7 @@ public class PointsValue {
         return player;
     }
 
-    public Integer getGoalScoredCoefficient() {
+    private Integer getGoalScoredCoefficient() {
         if(player instanceof Striker) {
             return 4;
         } else if(player instanceof Middle) {

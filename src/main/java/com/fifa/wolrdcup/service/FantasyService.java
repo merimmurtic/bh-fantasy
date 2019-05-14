@@ -77,7 +77,7 @@ public class FantasyService {
         }
     }
 
-    public Map<Long, PointsValue> calculatePointsForMatch(Match match) {
+    private Map<Long, PointsValue> calculatePointsForMatch(Match match) {
         Map<Long, PointsValue> pointsMap = new HashMap<>();
 
         for(Goal goal : match.getGoals()) {
@@ -106,55 +106,39 @@ public class FantasyService {
             }
         }
 
-        for(Player player : match.getLineup1().getStartingPlayers()){
-            pointsMap.putIfAbsent(player.getId(), new PointsValue(match.getLineup1().getCapiten()));
+        Map<Long, Integer> minutesPlayed = getPlayerMinutes(match.getLineup1(), pointsMap);
+        minutesPlayed.putAll(getPlayerMinutes(match.getLineup2(), pointsMap));
 
-            if(player.getId().equals(match.getLineup1().getCapiten().getId())){
-
-                pointsMap.get(match.getLineup1().getId()).addCapiten();
-            }
-
-            if(player.getId().equals(match.getLineup1().getViceCapiten().getId())){
-                pointsMap.putIfAbsent(player.getId(), new PointsValue(match.getLineup1().getViceCapiten()));
-                pointsMap.get(match.getLineup1().getId()).addViceCapiten();
-            }
-
-
+        for(Long playerId: minutesPlayed.keySet()) {
+            pointsMap.get(playerId).addMinutesPlayed(minutesPlayed.get(playerId));
         }
-
-        for(Player player : match.getLineup2().getStartingPlayers()){
-            pointsMap.putIfAbsent(player.getId(), new PointsValue(match.getLineup2().getCapiten()));
-
-            if(player.getId().equals(match.getLineup2().getCapiten().getId())){
-
-                pointsMap.get(match.getLineup2().getId()).addCapiten();
-            }
-
-            if(player.getId().equals(match.getLineup2().getViceCapiten().getId())){
-                pointsMap.putIfAbsent(player.getId(), new PointsValue(match.getLineup1().getViceCapiten()));
-                pointsMap.get(match.getLineup2().getId()).addViceCapiten();
-            }
-
-        }
-
-        for(Substitution substitution : match.getLineup1().getSubstitutionChanges()){
-
-            pointsMap.putIfAbsent(substitution.getLineup().getId(), new PointsValue(substitution.getSubstitutePlayer()));
-
-            pointsMap.get(substitution.getSubstitutePlayer().getId()).addMinutesPlayed(90 - substitution.getMinute());
-        }
-
-        for(Substitution substitution : match.getLineup2().getSubstitutionChanges()){
-
-            pointsMap.putIfAbsent(substitution.getLineup().getId(), new PointsValue(substitution.getSubstitutePlayer()));
-
-            pointsMap.get(substitution.getSubstitutePlayer().getId()).addMinutesPlayed(90 - substitution.getMinute());
-        }
-
-
-        //TODO: Merim, add all other points (feel free to update PointsValue)
 
         return pointsMap;
+    }
+
+    private Map<Long, Integer> getPlayerMinutes(Lineup lineup, Map<Long, PointsValue> pointsMap) {
+        Map<Long, Integer> result = new HashMap<>();
+
+        for(Player player: lineup.getStartingPlayers()) {
+            pointsMap.putIfAbsent(player.getId(), new PointsValue(player));
+
+            result.put(player.getId(), 90);
+        }
+
+        for(Substitution substitution: lineup.getSubstitutionChanges()) {
+            if(substitution.getPlayer() != null) {
+                pointsMap.putIfAbsent(substitution.getPlayer().getId(), new PointsValue(substitution.getPlayer()));
+
+                result.put(substitution.getPlayer().getId(), 90 - substitution.getMinute());
+            }
+        }
+
+        for(Substitution substitution: lineup.getSubstitutionChanges()) {
+            Integer minutesPlayed = result.get(substitution.getSubstitutePlayer().getId());
+            result.put(substitution.getSubstitutePlayer().getId(), minutesPlayed - (90 - substitution.getMinute()));
+        }
+
+        return result;
     }
 
     @Transactional
