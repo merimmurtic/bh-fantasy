@@ -119,6 +119,10 @@ public class FantasyService {
     private Map<Long, Integer> getPlayerMinutes(Lineup lineup, Map<Long, PointsValue> pointsMap) {
         Map<Long, Integer> result = new HashMap<>();
 
+        if(lineup == null) {
+            return result;
+        }
+
         for(Player player: lineup.getStartingPlayers()) {
             pointsMap.putIfAbsent(player.getId(), new PointsValue(player));
 

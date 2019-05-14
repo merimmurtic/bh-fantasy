@@ -64,11 +64,11 @@ public class Match {
     @OneToOne
     private Stadium stadium;
 
-    @OneToOne(optional=false, fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY)
     @JsonView(MatchLineupsView.class)
     private Lineup lineup1;
 
-    @OneToOne(optional=false, fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY)
     @JsonView(MatchLineupsView.class)
     private Lineup lineup2;
 
