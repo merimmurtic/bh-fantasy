@@ -40,6 +40,7 @@ public class StandingController {
             StandingValue value = new StandingValue();
             value.setTeamId(team.getId());
             value.setTeamName(team.getName());
+            value.setProfilePicture(team.getProfilePicture());
             setTeamStats(team, value);
 
             result.add(value);

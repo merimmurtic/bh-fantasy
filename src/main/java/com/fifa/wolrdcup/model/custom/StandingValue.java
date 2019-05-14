@@ -16,6 +16,7 @@ public class StandingValue{
 
     private Long goalsConceded;
 
+    private String profilePicture;
 
     public StandingValue() {}
 
@@ -81,5 +82,13 @@ public class StandingValue{
 
     public Long getGoalsDifference() {
         return goalsScored - goalsConceded;
+    }
+
+    public String getProfilePicture() {
+        return profilePicture;
+    }
+
+    public void setProfilePicture(String profilePicture) {
+        this.profilePicture = profilePicture;
     }
 }
