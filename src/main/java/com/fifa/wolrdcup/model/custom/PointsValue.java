@@ -20,6 +20,10 @@ public class PointsValue {
 
     private boolean redCard = false;
 
+    private boolean capiten = false;
+
+    private boolean viceCapiten = false;
+
     public PointsValue(Player player) {
         this.player = player;
     }
@@ -40,9 +44,13 @@ public class PointsValue {
 
     public void addRedCard(){ redCard = true;}
 
-    public void setMinutesPlayed(Integer minutes) {
+    public void addMinutesPlayed(Integer minutes) {
         minutesPlayed = minutes;
     }
+
+    public void addCapiten(){ capiten = true;}
+
+    public void addViceCapiten(){ viceCapiten = true;}
 
     public Integer getTotalPoints() {
         int result = 0;
@@ -61,6 +69,14 @@ public class PointsValue {
 
         if(minutesPlayed >= 60) {
             result += 1;
+        }
+
+        if(capiten){
+            result *= 2;
+        }
+
+        if(!capiten && viceCapiten){
+            result  *= 2;
         }
 
         return result;

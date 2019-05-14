@@ -71,6 +71,8 @@ public class FantasyService {
 
                     playerPointsRepository.save(playerPoints);
                 }
+
+
             }
         }
     }
@@ -103,6 +105,54 @@ public class FantasyService {
                 pointsMap.get(card.getPlayer().getId()).addYellowCard();
             }
         }
+
+        for(Player player : match.getLineup1().getStartingPlayers()){
+            pointsMap.putIfAbsent(player.getId(), new PointsValue(match.getLineup1().getCapiten()));
+
+            if(player.getId().equals(match.getLineup1().getCapiten().getId())){
+
+                pointsMap.get(match.getLineup1().getId()).addCapiten();
+            }
+
+            if(player.getId().equals(match.getLineup1().getViceCapiten().getId())){
+                pointsMap.putIfAbsent(player.getId(), new PointsValue(match.getLineup1().getViceCapiten()));
+                pointsMap.get(match.getLineup1().getId()).addViceCapiten();
+            }
+
+
+        }
+
+        for(Player player : match.getLineup2().getStartingPlayers()){
+            pointsMap.putIfAbsent(player.getId(), new PointsValue(match.getLineup2().getCapiten()));
+
+            if(player.getId().equals(match.getLineup2().getCapiten().getId())){
+
+                pointsMap.get(match.getLineup2().getId()).addCapiten();
+            }
+
+            if(player.getId().equals(match.getLineup2().getViceCapiten().getId())){
+                pointsMap.putIfAbsent(player.getId(), new PointsValue(match.getLineup1().getViceCapiten()));
+                pointsMap.get(match.getLineup2().getId()).addViceCapiten();
+            }
+
+
+        }
+
+        for(Substitution substitution : match.getLineup1().getSubstitutionChanges()){
+
+            pointsMap.putIfAbsent(substitution.getLineup().getId(), new PointsValue(substitution.getSubstitutePlayer()));
+
+            pointsMap.get(substitution.getSubstitutePlayer().getId()).addMinutesPlayed(90 - substitution.getMinute());
+        }
+
+        for(Substitution substitution : match.getLineup2().getSubstitutionChanges()){
+
+            pointsMap.putIfAbsent(substitution.getLineup().getId(), new PointsValue(substitution.getSubstitutePlayer()));
+
+            pointsMap.get(substitution.getSubstitutePlayer().getId()).addMinutesPlayed(90 - substitution.getMinute());
+        }
+
+
 
         //TODO: Merim, add all other points (feel free to update PointsValue)
 
