@@ -9,6 +9,31 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
+@NamedEntityGraph(name = "Match.detail",
+        attributeNodes = {
+                @NamedAttributeNode("team1"),
+                @NamedAttributeNode("team2"),
+                @NamedAttributeNode("stadium"),
+                @NamedAttributeNode("lineup1"),
+                @NamedAttributeNode("lineup2"),
+                @NamedAttributeNode(value = "round", subgraph = "round-subgraph"),
+                @NamedAttributeNode(value = "goals", subgraph = "goals-subgraph"),
+        },
+        subgraphs = {
+                @NamedSubgraph(
+                        name = "goals-subgraph",
+                        attributeNodes = {
+                                @NamedAttributeNode("player"),
+                                @NamedAttributeNode("assist")
+                        }
+                ),
+                @NamedSubgraph(
+                        name = "round-subgraph",
+                        attributeNodes = {
+                                @NamedAttributeNode("league")
+                        }
+                )
+        })
 public class Match {
 
     @Id
@@ -39,11 +64,11 @@ public class Match {
     @OneToOne
     private Stadium stadium;
 
-    @OneToOne
+    @OneToOne(optional=false, fetch = FetchType.LAZY)
     @JsonView(MatchLineupsView.class)
     private Lineup lineup1;
 
-    @OneToOne
+    @OneToOne(optional=false, fetch = FetchType.LAZY)
     @JsonView(MatchLineupsView.class)
     private Lineup lineup2;
 

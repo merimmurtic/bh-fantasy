@@ -8,6 +8,21 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
+@NamedEntityGraph(name = "Round.detail",
+        attributeNodes = {
+            @NamedAttributeNode(value = "matches", subgraph = "matches-subgraph"),
+            @NamedAttributeNode("league")
+        },
+        subgraphs = {
+                @NamedSubgraph(
+                        name = "matches-subgraph",
+                        attributeNodes = {
+                                @NamedAttributeNode("team1"),
+                                @NamedAttributeNode("team2"),
+                                @NamedAttributeNode("stadium")
+                        }
+                )
+        })
 public class Round {
 
     @Id

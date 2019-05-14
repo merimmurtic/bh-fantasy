@@ -58,7 +58,7 @@ public class LeagueController {
 
                 Long regularLeagueId = fantasyLeague.getRegularLeague().getId();
 
-                Optional<League> regularLeagueOptional = leagueRepository.findById(regularLeagueId);
+                Optional<League> regularLeagueOptional = leagueRepository.getById(regularLeagueId);
 
                 if(!regularLeagueOptional.isPresent()) {
                     throw new InvalidLeagueIdException();
@@ -130,7 +130,7 @@ public class LeagueController {
     @GetMapping("/{leagueId}")
     @JsonView(value = {League.DetailedView.class})
     public ResponseEntity<League> getLeague(@PathVariable("leagueId") Long leagueId) throws Exception {
-        Optional<League> optionalLeague = leagueRepository.findById(leagueId);
+        Optional<League> optionalLeague = leagueRepository.getById(leagueId);
 
         optionalLeague.ifPresent(league -> {
             if(league instanceof RegularLeague) {

@@ -23,6 +23,8 @@ import java.util.stream.Collectors;
         @JsonSubTypes.Type(value = RegularLeague.class, name = "RegularLeague"),
         @JsonSubTypes.Type(value = FantasyLeague.class, name = "FantasyLeague")
 })
+@NamedEntityGraph(name = "League.detail",
+        attributeNodes = @NamedAttributeNode("teams"))
 public abstract class League {
 
     @Id
