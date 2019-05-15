@@ -34,6 +34,11 @@ import java.util.List;
                         }
                 )
         })
+@NamedEntityGraph(name = "Match.standings",
+        attributeNodes = {
+                @NamedAttributeNode("team1"),
+                @NamedAttributeNode("team2")
+        })
 public class Match {
 
     @Id
@@ -43,13 +48,13 @@ public class Match {
     @Column(unique = true)
     private Long transfermarktId;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     private Team team1;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     private Team team2;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JsonIgnore
     private Round round;
 
@@ -65,7 +70,7 @@ public class Match {
     @OneToMany(mappedBy = "match", cascade = CascadeType.ALL)
     private List<PlayerPoints> playerPoints = new ArrayList<>();
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     private Stadium stadium;
 
     @OneToOne(fetch = FetchType.LAZY)

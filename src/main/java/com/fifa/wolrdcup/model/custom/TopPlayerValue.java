@@ -10,27 +10,22 @@ public class TopPlayerValue {
 
     public TopPlayerValue(){}
 
-    public Long getPlayerId() {
-        return playerId;
+    public TopPlayerValue(Long playerId, String fullName, Long goalsScored) {
+        this.playerId = playerId;
+        this.fullName = fullName;
+        this.goalsScored = goalsScored;
     }
 
-    public void setPlayerId(Long playerId) {
-        this.playerId = playerId;
+    public Long getPlayerId() {
+        return playerId;
     }
 
     public String getFullName() {
         return fullName;
     }
 
-    public void setFullName(String fullName) {
-        this.fullName = fullName;
-    }
-
     public Long getGoalsScored() {
         return goalsScored;
     }
 
-    public void setGoalsScored(Long goalsScored) {
-        this.goalsScored = goalsScored;
-    }
 }

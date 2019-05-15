@@ -8,7 +8,8 @@ import org.springframework.data.repository.CrudRepository;
 import java.util.Optional;
 
 public interface MatchRepository extends CrudRepository<Match, Long> {
-    Iterable<Match> findByTeam1OrTeam2(Team team1, Team team2);
+    @EntityGraph(value = "Match.standings", type = EntityGraph.EntityGraphType.LOAD)
+    Iterable<Match> getByTeam1OrTeam2(Team team1, Team team2);
 
     @EntityGraph(value = "Match.detail", type = EntityGraph.EntityGraphType.LOAD)
     Optional<Match> getByIdAndRound_IdAndRound_League_Id(Long id, Long roundId, Long leagueId);

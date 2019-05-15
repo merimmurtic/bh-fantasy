@@ -2,8 +2,6 @@ package com.fifa.wolrdcup.controller;
 
 import com.fifa.wolrdcup.model.*;
 import com.fifa.wolrdcup.model.custom.StandingValue;
-import com.fifa.wolrdcup.model.league.League;
-import com.fifa.wolrdcup.repository.LeagueRepository;
 import com.fifa.wolrdcup.repository.MatchRepository;
 import com.fifa.wolrdcup.repository.TeamRepository;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,8 +20,7 @@ public class StandingController {
     private final TeamRepository teamRepository;
     private final MatchRepository matchRepository;
 
-    public StandingController(TeamRepository teamRepository, MatchRepository matchRepository,
-                              LeagueRepository leagueRepository) {
+    public StandingController(TeamRepository teamRepository, MatchRepository matchRepository) {
         this.teamRepository = teamRepository;
         this.matchRepository = matchRepository;
     }
@@ -72,7 +69,7 @@ public class StandingController {
         long lose = 0L;
         long draw = 0L;
 
-        Iterable<Match> matches = matchRepository.findByTeam1OrTeam2(team, team);
+        Iterable<Match> matches = matchRepository.getByTeam1OrTeam2(team, team);
 
         for(Match match : matches){
 
