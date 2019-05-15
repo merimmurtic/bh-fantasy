@@ -12,10 +12,10 @@ public class Goal {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne
+    @ManyToOne
     private Player player;
 
-    @OneToOne
+    @ManyToOne
     private Player assist;
 
     private Integer minute;

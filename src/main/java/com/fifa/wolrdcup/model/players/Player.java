@@ -1,8 +1,11 @@
 package com.fifa.wolrdcup.model.players;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonView;
+import com.fifa.wolrdcup.model.Goal;
+import com.fifa.wolrdcup.model.PlayerPoints;
 import com.fifa.wolrdcup.model.Team;
 
 import javax.persistence.*;
@@ -46,6 +49,14 @@ public abstract class Player implements Comparable<Player> {
     @ManyToMany
     @JsonView(PlayerTeamsView.class)
     private List<Team> teams = new ArrayList<>();
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "player", cascade = CascadeType.ALL)
+    private List<Goal> goals = new ArrayList<>();
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "player", cascade = CascadeType.ALL)
+    private List<PlayerPoints> playerPoints = new ArrayList<>();
 
     public Player(){
     }
@@ -172,6 +183,22 @@ public abstract class Player implements Comparable<Player> {
 
     public void setTeams(List<Team> teams) {
         this.teams = teams;
+    }
+
+    public List<Goal> getGoals() {
+        return goals;
+    }
+
+    public void setGoals(List<Goal> goals) {
+        this.goals = goals;
+    }
+
+    public List<PlayerPoints> getPlayerPoints() {
+        return playerPoints;
+    }
+
+    public void setPlayerPoints(List<PlayerPoints> playerPoints) {
+        this.playerPoints = playerPoints;
     }
 
     public enum Position{

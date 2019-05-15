@@ -24,7 +24,9 @@ import java.util.stream.Collectors;
         @JsonSubTypes.Type(value = FantasyLeague.class, name = "FantasyLeague")
 })
 @NamedEntityGraph(name = "League.detail",
-        attributeNodes = @NamedAttributeNode("teams"))
+        attributeNodes = {
+            @NamedAttributeNode("teams")
+        })
 public abstract class League {
 
     @Id
@@ -41,6 +43,9 @@ public abstract class League {
 
     @Transient
     private Long currentRoundId = null;
+
+    @Column(insertable = false, updatable = false)
+    private String dtype;
 
     public League() {}
 
@@ -143,6 +148,14 @@ public abstract class League {
 
     public void setCurrentRoundId(Long currentRoundId) {
         this.currentRoundId = currentRoundId;
+    }
+
+    public String getDtype() {
+        return dtype;
+    }
+
+    public void setDtype(String dtype) {
+        this.dtype = dtype;
     }
 
     public interface LeagueTeamsView {}
