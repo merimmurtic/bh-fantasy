@@ -35,7 +35,7 @@ public class Round {
     @JsonView(RoundMatchesView.class)
     private List<Match> matches = new ArrayList<>();
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JsonView(RoundLeagueView.class)
     private League league;
 

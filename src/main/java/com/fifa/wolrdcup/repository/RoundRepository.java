@@ -7,8 +7,8 @@ import org.springframework.data.repository.CrudRepository;
 import java.util.Optional;
 
 public interface RoundRepository extends CrudRepository<Round, Long> {
-    @EntityGraph(value = "Round.detail", type = EntityGraph.EntityGraphType.LOAD)
-    Iterable<Round> getByLeagueId(Long leagueId);
+
+    Iterable<Round> findByLeagueId(Long leagueId);
 
     @EntityGraph(value = "Round.detail", type = EntityGraph.EntityGraphType.LOAD)
     Optional<Round> getByIdAndLeague_Id(Long id, Long leagueId);

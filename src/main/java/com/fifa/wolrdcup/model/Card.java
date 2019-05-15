@@ -15,11 +15,11 @@ public class Card {
     @Enumerated(EnumType.STRING)
     private Card.CardType cardType;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JsonIgnore
     private Match match;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private Player player;
 
     private Integer minute;

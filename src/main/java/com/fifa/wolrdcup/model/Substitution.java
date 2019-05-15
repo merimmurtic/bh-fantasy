@@ -11,14 +11,14 @@ public class Substitution {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JsonIgnore
     private Lineup lineup;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private Player player;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private Player substitutePlayer;
 
     private Integer minute;

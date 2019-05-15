@@ -48,13 +48,13 @@ public class Match {
     @Column(unique = true)
     private Long transfermarktId;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private Team team1;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private Team team2;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JsonIgnore
     private Round round;
 
@@ -70,14 +70,14 @@ public class Match {
     @OneToMany(mappedBy = "match", cascade = CascadeType.ALL)
     private List<PlayerPoints> playerPoints = new ArrayList<>();
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private Stadium stadium;
 
-    @OneToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JsonView(MatchLineupsView.class)
     private Lineup lineup1;
 
-    @OneToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JsonView(MatchLineupsView.class)
     private Lineup lineup2;
 

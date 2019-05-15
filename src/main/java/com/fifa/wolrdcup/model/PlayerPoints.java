@@ -13,10 +13,10 @@ public class PlayerPoints {
 
     private Integer points;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private Match match;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private Player player;
 
     public PlayerPoints() {

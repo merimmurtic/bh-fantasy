@@ -12,17 +12,17 @@ public class FantasyLineup {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JsonView(FantasyLineupLeagueView.class)
     private FantasyLeague league;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private Team team;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private Round round;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private Lineup lineup;
 
     public FantasyLineup() {}
