@@ -17,32 +17,35 @@ public interface LeagueRepository extends CrudRepository<League, Long> {
     Optional<League> getById(Long aLong);
 
     @Query("select new com.fifa.wolrdcup.model.custom.TopPlayerValue(" +
-            "player.id, trim(concat(coalesce(player.firstName, ''), ' ', coalesce(player.lastName, ''))), count(goal), 0L, 0L) " +
+            "player.id, trim(concat(coalesce(player.firstName, ''), ' ', coalesce(player.lastName, ''))), " +
+            "team.profilePicture, count(goal), 0L, 0L) " +
             "from Goal goal " +
             "join goal.player player " +
-            "join player.teams teams " +
-            "join teams.leagues leagues " +
-            "where leagues.id = :leagueId and leagues.dtype = 'RegularLeague' " +
-            "group by player order by count(goal) desc")
+            "join player.teams team " +
+            "join team.leagues league " +
+            "where league.id = :leagueId and league.dtype = 'RegularLeague' " +
+            "group by player, team.profilePicture order by count(goal) desc")
     List<TopPlayerValue> getTopPlayers(@Param("leagueId") Long leagueId);
 
     @Query("select new com.fifa.wolrdcup.model.custom.TopPlayerValue(" +
-            "player.id, trim(concat(coalesce(player.firstName, ''), ' ', coalesce(player.lastName, ''))), 0L, count(goal), 0L) " +
+            "player.id, trim(concat(coalesce(player.firstName, ''), ' ', coalesce(player.lastName, ''))), " +
+            "team.profilePicture, 0L, count(goal), 0L) " +
             "from Goal goal " +
             "join Player player on goal.assist.id = player.id " +
-            "join player.teams teams " +
-            "join teams.leagues leagues " +
-            "where leagues.id = :leagueId and leagues.dtype = 'RegularLeague' " +
-            "group by player order by count(goal) desc")
+            "join player.teams team " +
+            "join team.leagues league " +
+            "where league.id = :leagueId and league.dtype = 'RegularLeague' " +
+            "group by player, team.profilePicture order by count(goal) desc")
     List<TopPlayerValue> getTopPlayerAssists(@Param("leagueId") Long leagueId);
 
     @Query("select distinct new com.fifa.wolrdcup.model.custom.TopPlayerValue(" +
-            "player.id, trim(concat(coalesce(player.firstName, ''), ' ', coalesce(player.lastName, ''))), 0L, 0L, sum(playerPoints.points)) " +
+            "player.id, trim(concat(coalesce(player.firstName, ''), ' ', coalesce(player.lastName, ''))), " +
+            "team.profilePicture, 0L, 0L, sum(playerPoints.points)) " +
             "from PlayerPoints playerPoints " +
             "join playerPoints.player player " +
-            "join player.teams teams " +
-            "join teams.leagues leagues " +
+            "join player.teams team " +
+            "join team.leagues leagues " +
             "where leagues.id = :leagueId and leagues.dtype = 'RegularLeague' " +
-            "group by player order by sum(playerPoints.points) desc")
+            "group by player, team.profilePicture order by sum(playerPoints.points) desc")
     List<TopPlayerValue> getTopPlayersFantasyPoints(@Param("leagueId") Long leagueId);
 }

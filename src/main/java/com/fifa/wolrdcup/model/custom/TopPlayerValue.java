@@ -9,6 +9,8 @@ public class TopPlayerValue {
 
     private String fullName;
 
+    private String teamProfilePicture;
+
     private Long goalsScored;
 
     private Long points;
@@ -17,12 +19,13 @@ public class TopPlayerValue {
 
     public TopPlayerValue(){}
 
-    public TopPlayerValue(Long playerId, String fullName, Long goalsScored, Long assistsMade, Long points) {
+    public TopPlayerValue(Long playerId, String fullName, String teamProfilePicture, Long goalsScored, Long assistsMade, Long points) {
         this.playerId = playerId;
         this.fullName = fullName;
         this.goalsScored = goalsScored;
         this.assistsMade = assistsMade;
         this.points = points;
+        this.teamProfilePicture = teamProfilePicture;
     }
 
     public Long getPlayerId() {
@@ -31,6 +34,10 @@ public class TopPlayerValue {
 
     public String getFullName() {
         return fullName;
+    }
+
+    public String getTeamProfilePicture() {
+        return teamProfilePicture;
     }
 
     public Long getGoalsScored() {
