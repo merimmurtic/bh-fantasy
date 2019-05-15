@@ -118,6 +118,21 @@ public abstract class League {
         return result;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || !(o instanceof League)) return false;
+
+        League that = (League) o;
+
+        return getId().equals(that.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return getId().hashCode();
+    }
+
     public String getType() {
         return this.getClass().getSimpleName();
     }

@@ -201,6 +201,21 @@ public abstract class Player implements Comparable<Player> {
         this.playerPoints = playerPoints;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || !(o instanceof Player)) return false;
+
+        Player that = (Player) o;
+
+        return getId().equals(that.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return getId().hashCode();
+    }
+
     public enum Position{
         SS("Second Striker"),
         CF("Centre-Forward"),
