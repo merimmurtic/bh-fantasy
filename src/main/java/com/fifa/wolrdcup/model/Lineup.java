@@ -23,10 +23,10 @@ public class Lineup {
     @OneToMany(mappedBy = "lineup", cascade = CascadeType.ALL)
     private List<Substitution> substitutionChanges = new ArrayList<>();
 
-    @OneToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private Player capiten;
 
-    @OneToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private Player viceCapiten;
 
     @Enumerated(EnumType.STRING)
