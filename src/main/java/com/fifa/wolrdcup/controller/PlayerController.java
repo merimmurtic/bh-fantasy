@@ -35,7 +35,7 @@ public class PlayerController {
 
     @GetMapping("/{playerId}")
     @JsonView(Player.DetailedView.class)
-    public ResponseEntity<Player> getPlayer(@PathVariable("playerId") Long playerId){
+    public ResponseEntity<Player> getPlayer(@PathVariable("playerId") Long playerId) {
         return ResponseEntity.of(playerRepository.findById(playerId));
     }
 
@@ -44,11 +44,11 @@ public class PlayerController {
     public Iterable<Player> getPlayers(
             @RequestParam(value = "leagueId", required = false) Long leagueId,
             @RequestParam(value = "teamId", required = false) Long teamId) {
-        if(teamId != null && leagueId != null) {
+        if (teamId != null && leagueId != null) {
             return playerRepository.findByTeamsAndTeams_Leagues_Id(teamId, leagueId);
-        } else if(teamId != null){
+        } else if (teamId != null) {
             return playerRepository.findByTeams(teamId);
-        } else if(leagueId != null){
+        } else if (leagueId != null) {
             return playerRepository.findDistinctByTeams_Leagues_Id(leagueId);
         } else {
             return playerRepository.findAll();
@@ -75,35 +75,35 @@ public class PlayerController {
     @PutMapping
     @JsonView(Player.DetailedView.class)
     public Player putPlayer(@RequestBody Player player) {
-        if(player.getId() == null) {
+        if (player.getId() == null) {
             throw new InvalidPlayerPositionException();
         }
 
         Optional<Player> existingPlayerOptional = playerRepository.findById(player.getId());
 
-        if(existingPlayerOptional.isPresent()) {
+        if (existingPlayerOptional.isPresent()) {
             Player existingPlayer = existingPlayerOptional.get();
 
             // In case player type is changed, player migration needs to be done because
             // it's not same type of player and new player needs to be created.
-            if(!existingPlayer.getType().equals(player.getType())) {
+            if (!existingPlayer.getType().equals(player.getType())) {
                 // Do player migration and return new version of player
                 return migratePlayer(existingPlayer, player);
             } else {
                 // Update provided fields on existing player including team if it's provided
-                if(player.getNumberoOnDress() != null) {
+                if (player.getNumberoOnDress() != null) {
                     existingPlayer.setNumberoOnDress(player.getNumberoOnDress());
                 }
 
-                if(player.getFirstName() != null) {
+                if (player.getFirstName() != null) {
                     existingPlayer.setFirstName(player.getFirstName());
                 }
 
-                if(player.getLastName() != null) {
+                if (player.getLastName() != null) {
                     existingPlayer.setLastName(player.getLastName());
                 }
 
-                if(player.getPosition() != null) {
+                if (player.getPosition() != null) {
                     existingPlayer.setPosition(player.getPosition());
                 }
 
@@ -131,19 +131,19 @@ public class PlayerController {
         newPlayer.getTeams().addAll(oldPlayer.getTeams());
         newPlayer.setTransferMarktId(oldPlayer.getTransferMarktId());
 
-        if(newPlayer.getNumberoOnDress() == null) {
+        if (newPlayer.getNumberoOnDress() == null) {
             newPlayer.setNumberoOnDress(oldPlayer.getNumberoOnDress());
         }
 
-        if(newPlayer.getFirstName() == null) {
+        if (newPlayer.getFirstName() == null) {
             newPlayer.setFirstName(oldPlayer.getFirstName());
         }
 
-        if(newPlayer.getLastName() == null) {
+        if (newPlayer.getLastName() == null) {
             newPlayer.setLastName(oldPlayer.getLastName());
         }
 
-        if(newPlayer.getPosition() == null) {
+        if (newPlayer.getPosition() == null) {
             newPlayer.setPosition(oldPlayer.getPosition());
         }
 
@@ -153,7 +153,7 @@ public class PlayerController {
         // Move all goals to new version of player
         List<Goal> goals = goalRepository.findByPlayer(oldPlayer);
 
-        for(Goal goal : goals) {
+        for (Goal goal : goals) {
             goal.setPlayer(newPlayer);
             goalRepository.save(goal);
         }

@@ -6,7 +6,6 @@ import com.fifa.wolrdcup.model.custom.PointsValue;
 import com.fifa.wolrdcup.model.league.FantasyLeague;
 import com.fifa.wolrdcup.model.league.League;
 import com.fifa.wolrdcup.model.league.RegularLeague;
-import com.fifa.wolrdcup.model.players.Goalkeaper;
 import com.fifa.wolrdcup.model.players.Player;
 import com.fifa.wolrdcup.repository.*;
 import org.slf4j.Logger;
