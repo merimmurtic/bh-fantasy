@@ -77,9 +77,9 @@ public class PointsValue {
 
         if(cleanSheet){
             if(player instanceof Goalkeaper){
-             result += 3;
+             result += 4;
             }else if(player instanceof Defender){
-                result += 2;
+                result += 4;
             }else if(player instanceof Middle){
                 result += 1;
             }

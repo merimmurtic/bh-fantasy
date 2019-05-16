@@ -8,6 +8,7 @@ import com.fifa.wolrdcup.model.league.League;
 import com.fifa.wolrdcup.model.league.RegularLeague;
 import com.fifa.wolrdcup.model.players.Defender;
 import com.fifa.wolrdcup.model.players.Goalkeaper;
+import com.fifa.wolrdcup.model.players.Middle;
 import com.fifa.wolrdcup.model.players.Player;
 import com.fifa.wolrdcup.repository.*;
 import org.slf4j.Logger;
@@ -139,7 +140,8 @@ public class FantasyService {
         minutesPlayedLineup1.forEach((playerId, minutes) -> {
             Player player = pointsMap.get(playerId).getPlayer();
 
-            if(minutes >= 60 && match.getScore2() == 0 && player instanceof Defender || player instanceof Goalkeaper) {
+            if(minutes >= 60 && match.getScore2() == 0 && player
+                    instanceof Defender || player instanceof Goalkeaper || player instanceof Middle) {
                 pointsMap.get(playerId).addCleanSheet();
             }
         });
@@ -147,7 +149,8 @@ public class FantasyService {
         minutesPlayedLineup2.forEach((playerId, minutes) -> {
             Player player = pointsMap.get(playerId).getPlayer();
 
-            if(minutes >= 60 && match.getScore1() == 0 && player instanceof Defender || player instanceof Goalkeaper) {
+            if(minutes >= 60 && match.getScore1() == 0 && player
+                    instanceof Defender || player instanceof Goalkeaper || player instanceof Middle) {
                 pointsMap.get(playerId).addCleanSheet();
             }
         });
