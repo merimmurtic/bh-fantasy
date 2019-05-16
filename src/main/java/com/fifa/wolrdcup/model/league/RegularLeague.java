@@ -2,6 +2,7 @@ package com.fifa.wolrdcup.model.league;
 
 import com.fasterxml.jackson.annotation.JsonView;
 import com.fifa.wolrdcup.model.Round;
+import com.fifa.wolrdcup.model.Team;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -45,5 +46,10 @@ public class RegularLeague extends League{
 
     public void setGroups(List<RegularLeague> groups) {
         this.groups = groups;
+    }
+
+    @Override
+    public List<Team> getTeams() {
+        return super.getTeams();
     }
 }
