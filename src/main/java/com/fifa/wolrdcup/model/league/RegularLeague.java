@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonView;
 import com.fifa.wolrdcup.model.Round;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -16,6 +17,9 @@ public class RegularLeague extends League{
     @OneToMany(mappedBy = "league", cascade = CascadeType.ALL)
     @JsonView(LeagueRoundsView.class)
     private List<Round> rounds = new LinkedList<>();
+
+    @ManyToMany
+    private List<RegularLeague> groups = new ArrayList<>();
 
     public RegularLeague(){}
 
@@ -33,5 +37,13 @@ public class RegularLeague extends League{
 
     public void setSeason(String season) {
         this.season = season;
+    }
+
+    public List<RegularLeague> getGroups() {
+        return groups;
+    }
+
+    public void setGroups(List<RegularLeague> groups) {
+        this.groups = groups;
     }
 }
