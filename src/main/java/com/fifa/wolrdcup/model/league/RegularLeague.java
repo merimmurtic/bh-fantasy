@@ -50,6 +50,12 @@ public class RegularLeague extends League{
 
     @Override
     public List<Team> getTeams() {
-        return super.getTeams();
+        List<Team> teams = new ArrayList<>(super.getTeams());
+
+        groups.forEach(group -> {
+            teams.addAll(group.getTeams());
+        });
+
+        return teams;
     }
 }
