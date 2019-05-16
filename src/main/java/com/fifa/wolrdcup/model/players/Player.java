@@ -10,6 +10,9 @@ import com.fifa.wolrdcup.model.Team;
 
 import javax.persistence.*;
 import java.sql.Date;
+import java.time.LocalDate;
+import java.time.Period;
+import java.time.temporal.TemporalAccessor;
 import java.util.*;
 
 @Entity
@@ -39,6 +42,8 @@ public abstract class Player implements Comparable<Player> {
     private String profilePicture;
 
     private Date birthDate;
+
+    private Integer yearsCount;
 
     @Column(unique = true)
     private Long transferMarktId;
@@ -199,6 +204,17 @@ public abstract class Player implements Comparable<Player> {
 
     public void setPlayerPoints(List<PlayerPoints> playerPoints) {
         this.playerPoints = playerPoints;
+    }
+
+    public int getYearsCount(Date birthDate){
+
+        LocalDate yearsCount = LocalDate.now();
+        LocalDate birthday = LocalDate.from((TemporalAccessor) getBirthDate());
+
+    Period p = Period.between(birthday, yearsCount);
+
+    return p.getYears();
+
     }
 
     @Override
