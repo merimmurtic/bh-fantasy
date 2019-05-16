@@ -11,6 +11,8 @@ import java.util.List;
 @DiscriminatorValue("RegularLeague")
 public class RegularLeague extends League{
 
+    private String season;
+
     @OneToMany(mappedBy = "league", cascade = CascadeType.ALL)
     @JsonView(LeagueRoundsView.class)
     private List<Round> rounds = new LinkedList<>();
@@ -23,5 +25,13 @@ public class RegularLeague extends League{
 
     public void setRounds(List<Round> rounds) {
         this.rounds = rounds;
+    }
+
+    public String getSeason() {
+        return season;
+    }
+
+    public void setSeason(String season) {
+        this.season = season;
     }
 }
