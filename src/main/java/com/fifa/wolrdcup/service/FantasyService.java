@@ -135,6 +135,7 @@ public class FantasyService {
         Map<Long, Integer> minutesPlayedLineup1 = getPlayerMinutes(match.getLineup1(), pointsMap, match);
         Map<Long, Integer> minutesPlayedLineup2 = getPlayerMinutes(match.getLineup1(), pointsMap, match);
 
+        // TODO: There is a bug here, we need to check if goal is scored while player is on pitch
         minutesPlayedLineup1.forEach((playerId, minutes) -> {
             Player player = pointsMap.get(playerId).getPlayer();
 
