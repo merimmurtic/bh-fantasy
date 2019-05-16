@@ -12,7 +12,6 @@ import javax.persistence.*;
 import java.sql.Date;
 import java.time.LocalDate;
 import java.time.Period;
-import java.time.temporal.TemporalAccessor;
 import java.util.*;
 
 @Entity
@@ -42,8 +41,6 @@ public abstract class Player implements Comparable<Player> {
     private String profilePicture;
 
     private Date birthDate;
-
-    private Integer yearsCount;
 
     @Column(unique = true)
     private Long transferMarktId;
