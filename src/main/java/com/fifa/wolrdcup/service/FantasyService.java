@@ -6,6 +6,8 @@ import com.fifa.wolrdcup.model.custom.PointsValue;
 import com.fifa.wolrdcup.model.league.FantasyLeague;
 import com.fifa.wolrdcup.model.league.League;
 import com.fifa.wolrdcup.model.league.RegularLeague;
+import com.fifa.wolrdcup.model.players.Defender;
+import com.fifa.wolrdcup.model.players.Goalkeaper;
 import com.fifa.wolrdcup.model.players.Player;
 import com.fifa.wolrdcup.repository.*;
 import org.slf4j.Logger;
@@ -104,18 +106,6 @@ public class FantasyService {
 
                 pointsMap.get(goal.getAssist().getId()).addAssist();
             }
-
-            if(goal.getScore1() == 0){
-                pointsMap.putIfAbsent(goal.getPlayer().getId(), new PointsValue(goal.getPlayer()));
-
-                pointsMap.get(goal.getPlayer().getId()).addCleanSheet();
-            }
-
-            if(goal.getScore2() == 0){
-                pointsMap.putIfAbsent(goal.getPlayer().getId(), new PointsValue(goal.getPlayer()));
-
-                pointsMap.get(goal.getPlayer().getId()).addCleanSheet();
-            }
         }
 
         for(Card card : match.getCards()) {
@@ -129,7 +119,6 @@ public class FantasyService {
         }
 
         for(MissedPenalty missedPenalty : match.getMissedPenalties()){
-
             if(missedPenalty.getSavedBy() != null) {
                 pointsMap.putIfAbsent(missedPenalty.getSavedBy().getId(), new PointsValue(missedPenalty.getSavedBy()));
 
@@ -143,10 +132,28 @@ public class FantasyService {
             }
         }
 
+        Map<Long, Integer> minutesPlayedLineup1 = getPlayerMinutes(match.getLineup1(), pointsMap, match);
+        Map<Long, Integer> minutesPlayedLineup2 = getPlayerMinutes(match.getLineup1(), pointsMap, match);
 
+        minutesPlayedLineup1.forEach((playerId, minutes) -> {
+            Player player = pointsMap.get(playerId).getPlayer();
 
-        Map<Long, Integer> minutesPlayed = getPlayerMinutes(match.getLineup1(), pointsMap, match);
-        minutesPlayed.putAll(getPlayerMinutes(match.getLineup2(), pointsMap, match));
+            if(minutes >= 60 && match.getScore2() == 0 && player instanceof Defender || player instanceof Goalkeaper) {
+                pointsMap.get(playerId).addCleanSheet();
+            }
+        });
+
+        minutesPlayedLineup2.forEach((playerId, minutes) -> {
+            Player player = pointsMap.get(playerId).getPlayer();
+
+            if(minutes >= 60 && match.getScore1() == 0 && player instanceof Defender || player instanceof Goalkeaper) {
+                pointsMap.get(playerId).addCleanSheet();
+            }
+        });
+
+        Map<Long, Integer> minutesPlayed = new HashMap<>();
+        minutesPlayed.putAll(minutesPlayedLineup1);
+        minutesPlayed.putAll(minutesPlayedLineup2);
 
         for(Long playerId: minutesPlayed.keySet()) {
             pointsMap.get(playerId).addMinutesPlayed(minutesPlayed.get(playerId));

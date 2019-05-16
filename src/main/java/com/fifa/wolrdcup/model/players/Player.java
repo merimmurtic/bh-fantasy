@@ -206,18 +206,12 @@ public abstract class Player implements Comparable<Player> {
         this.playerPoints = playerPoints;
     }
 
-    public int getYearsCount(Date birthDate){
-
+    public Integer getYearsCount(){
         if(birthDate == null) {
-            yearsCount = null;
+            return null;
         }
 
-        LocalDate yearsCount = LocalDate.now();
-        LocalDate birthday = LocalDate.from((TemporalAccessor) getBirthDate());
-
-        Period p = Period.between(birthday, yearsCount);
-
-        return p.getYears();
+        return Period.between(getBirthDate().toLocalDate(), LocalDate.now()).getYears();
     }
 
     @Override

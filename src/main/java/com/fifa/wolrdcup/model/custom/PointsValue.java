@@ -60,8 +60,8 @@ public class PointsValue {
         result += goalsScored * getGoalScoredCoefficient();
         result += goalsAssisted * 3;
         result += ownGoalsScored * -2;
-        result += savedPenalty ;
-        result += missedPenalty * -1;
+        result += savedPenalty * 5;
+        result += missedPenalty * -2;
 
         if(redCard) {
             result += -3;
