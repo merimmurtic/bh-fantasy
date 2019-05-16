@@ -44,10 +44,6 @@ public class PointsValue {
 
     public void addRedCard(){ redCard = true;}
 
-    public Integer getGoalsAssisted() {
-        return goalsAssisted;
-    }
-
     public void addMinutesPlayed(Integer minutes) {
         minutesPlayed = minutes;
     }
@@ -57,6 +53,7 @@ public class PointsValue {
     public void addMissedPenalty(){ missedPenalty += 1;}
 
     public void addCleanSheet(){ cleanSheet = true;}
+
     public Integer getTotalPoints() {
         int result = 0;
 
