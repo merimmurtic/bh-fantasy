@@ -6,6 +6,7 @@ import com.fifa.wolrdcup.model.custom.PointsValue;
 import com.fifa.wolrdcup.model.league.FantasyLeague;
 import com.fifa.wolrdcup.model.league.League;
 import com.fifa.wolrdcup.model.league.RegularLeague;
+import com.fifa.wolrdcup.model.players.Goalkeaper;
 import com.fifa.wolrdcup.model.players.Player;
 import com.fifa.wolrdcup.repository.*;
 import org.slf4j.Logger;
@@ -104,6 +105,18 @@ public class FantasyService {
 
                 pointsMap.get(goal.getAssist().getId()).addAssist();
             }
+
+            if(goal.getScore1() == 0){
+                pointsMap.putIfAbsent(goal.getPlayer().getId(), new PointsValue(goal.getPlayer()));
+
+                pointsMap.get(goal.getPlayer().getId()).addCleanSheet();
+            }
+
+            if(goal.getScore2() == 0){
+                pointsMap.putIfAbsent(goal.getPlayer().getId(), new PointsValue(goal.getPlayer()));
+
+                pointsMap.get(goal.getPlayer().getId()).addCleanSheet();
+            }
         }
 
         for(Card card : match.getCards()) {
@@ -115,6 +128,23 @@ public class FantasyService {
                 pointsMap.get(card.getPlayer().getId()).addYellowCard();
             }
         }
+
+        for(MissedPenalty missedPenalty : match.getMissedPenalties()){
+
+            if(missedPenalty.getSavedBy() != null) {
+                pointsMap.putIfAbsent(missedPenalty.getSavedBy().getId(), new PointsValue(missedPenalty.getSavedBy()));
+
+                pointsMap.get(missedPenalty.getSavedBy().getId()).addSavedPenalty();
+            }
+
+            if(missedPenalty.getPlayer() != null){
+                pointsMap.putIfAbsent(missedPenalty.getPlayer().getId(), new PointsValue(missedPenalty.getPlayer()));
+
+                pointsMap.get(missedPenalty.getPlayer().getId()).addMissedPenalty();
+            }
+        }
+
+
 
         Map<Long, Integer> minutesPlayed = getPlayerMinutes(match.getLineup1(), pointsMap, match);
         minutesPlayed.putAll(getPlayerMinutes(match.getLineup2(), pointsMap, match));
