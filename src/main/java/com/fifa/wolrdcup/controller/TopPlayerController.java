@@ -4,6 +4,7 @@ import com.fifa.wolrdcup.model.custom.TopPlayerValue;
 import com.fifa.wolrdcup.model.league.FantasyLeague;
 import com.fifa.wolrdcup.model.league.League;
 import com.fifa.wolrdcup.repository.LeagueRepository;
+import com.fifa.wolrdcup.repository.RegularLeagueRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -21,15 +22,18 @@ public class TopPlayerController {
 
     private final LeagueRepository leagueRepository;
 
-    public TopPlayerController(LeagueRepository leagueRepository) {
+    private final RegularLeagueRepository regularLeagueRepository;
+
+    public TopPlayerController(LeagueRepository leagueRepository, RegularLeagueRepository regularLeagueRepository) {
         this.leagueRepository = leagueRepository;
+        this.regularLeagueRepository = regularLeagueRepository;
     }
 
     private Map<Long, TopPlayerValue> getGoalsAndAssistsMap(Long leagueId) {
-        Map<Long, TopPlayerValue> resultMap = leagueRepository.getTopPlayers(leagueId).stream()
+        Map<Long, TopPlayerValue> resultMap = regularLeagueRepository.getTopPlayers(leagueId).stream()
                 .collect(LinkedHashMap::new, (map, item) -> map.put(item.getPlayerId(), item), Map::putAll);
 
-        Map<Long, TopPlayerValue> assistsMap = leagueRepository.getTopPlayerAssists(leagueId).stream()
+        Map<Long, TopPlayerValue> assistsMap = regularLeagueRepository.getTopPlayerAssists(leagueId).stream()
                 .collect(LinkedHashMap::new, (map, item) -> map.put(item.getPlayerId(), item), Map::putAll);
 
         resultMap.forEach((playerId, value) -> {
@@ -62,7 +66,7 @@ public class TopPlayerController {
         Map<Long, TopPlayerValue> resultMap = getGoalsAndAssistsMap(leagueId);
 
         if(fantasyLeagueId != null) {
-            Map<Long, TopPlayerValue> pointsMap = leagueRepository.getTopPlayersFantasyPoints(leagueId).stream()
+            Map<Long, TopPlayerValue> pointsMap = regularLeagueRepository.getTopPlayersFantasyPoints(leagueId).stream()
                     .collect(LinkedHashMap::new, (map, item) -> map.put(item.getPlayerId(), item), Map::putAll);
 
             pointsMap.forEach((playerId, value) -> {

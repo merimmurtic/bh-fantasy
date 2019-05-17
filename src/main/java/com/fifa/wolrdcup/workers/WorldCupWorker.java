@@ -22,18 +22,22 @@ public class WorldCupWorker extends ProcessWorker {
 
     private static Logger logger = LoggerFactory.getLogger(WorldCupWorker.class);
 
+    private final String season;
+
     public WorldCupWorker(
             StadiumRepository stadiumRepository,
             GoalRepository goalRepository,
             MatchRepository matchRepository,
             TeamRepository teamRepository,
             RoundRepository roundRepository,
-            LeagueRepository leagueRepository,
-            PlayerService playerService) {
+            RegularLeagueRepository regularLeagueRepository,
+            PlayerService playerService, String season) {
         super(stadiumRepository, goalRepository, matchRepository,
-                teamRepository, roundRepository, leagueRepository,
+                teamRepository, roundRepository, regularLeagueRepository,
                 playerService, null, null,
                 null, null);
+
+        this.season = season;
     }
 
     @SuppressWarnings("unchecked")
@@ -47,10 +51,11 @@ public class WorldCupWorker extends ProcessWorker {
 
             String leagueName = (String) map.get("name");
 
-            Optional<League> optionalLeague = leagueRepository.findByName(leagueName);
+            Optional<RegularLeague> optionalLeague = regularLeagueRepository.findByNameAndSeason(
+                    leagueName, season);
 
             if(optionalLeague.isPresent()) {
-                // If it exist, json file is already processed, just return league id
+                logger.info("{} for season {} is already processed!", leagueName, season);
                 return optionalLeague.get().getId();
             }
 
@@ -58,8 +63,9 @@ public class WorldCupWorker extends ProcessWorker {
 
             RegularLeague league = new RegularLeague();
             league.setName(leagueName);
+            league.setSeason(season);
 
-            leagueRepository.save(league);
+            regularLeagueRepository.save(league);
 
             processRounds((List<HashMap<String, Object>>) map.get("rounds"), league);
 

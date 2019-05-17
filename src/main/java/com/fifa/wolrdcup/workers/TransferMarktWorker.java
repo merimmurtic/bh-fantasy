@@ -42,23 +42,26 @@ public class TransferMarktWorker extends ProcessWorker {
 
     private final String transfermarktUrl;
 
+    private final String season;
+
     public TransferMarktWorker(StadiumRepository stadiumRepository,
                         GoalRepository goalRepository,
                         MatchRepository matchRepository,
                         TeamRepository teamRepository,
                         RoundRepository roundRepository,
-                        LeagueRepository leagueRepository,
+                        RegularLeagueRepository regularLeagueRepository,
                         PlayerService playerService,
                         LineupRepository lineupRepository,
                         SubstitutionRepository substitutionRepository,
                         CardRepository cardRepository,
                         MissedPenaltyRepository missedPenaltyRepository,
-                        String transfermarktUrl) {
+                        String transfermarktUrl, String season) {
         super(stadiumRepository, goalRepository, matchRepository,
-                teamRepository, roundRepository, leagueRepository,
+                teamRepository, roundRepository, regularLeagueRepository,
                 playerService, lineupRepository, substitutionRepository, cardRepository, missedPenaltyRepository);
 
         this.transfermarktUrl = transfermarktUrl;
+        this.season = season;
     }
 
     public String getTransfermarktUrl() {
@@ -66,25 +69,24 @@ public class TransferMarktWorker extends ProcessWorker {
     }
 
     public Long process() throws Exception {
-        Document document = Jsoup.parse(new URL(BASE_URL.concat(transfermarktUrl)), 10000);
+        Document document = Jsoup.parse(new URL(BASE_URL.concat(transfermarktUrl).concat(season)), 10000);
 
         String leagueName = document.select(".spielername-profil").text();
-        String leagueLevel = document.select(
-                ".box-personeninfos tr").first().select("td").text();
 
         logger.info("Processing league {}.", leagueName);
 
-        Optional<League> optionalLeague = leagueRepository.findByName(leagueName);
+        Optional<RegularLeague> optionalLeague = regularLeagueRepository.findByNameAndSeason(leagueName, season);
 
         RegularLeague league = null;
 
         if(optionalLeague.isPresent()) {
-            league = (RegularLeague) optionalLeague.get();
+            league = optionalLeague.get();
         } else {
             league = new RegularLeague();
             league.setName(leagueName);
+            league.setSeason(season);
 
-            leagueRepository.save(league);
+            regularLeagueRepository.save(league);
         }
 
         Elements matchDays = document.select(".row .large-6 .box");
@@ -182,7 +184,7 @@ public class TransferMarktWorker extends ProcessWorker {
                     match.setTeam2(processTeam(processTeamMap(elements.get(6).select("a").text(), profilePictureTeam2), league));
                     match.setRound(round);
                 } else if(match.getLineup1() != null) {
-                    //TODO: Find better way to figure out if match has updates
+                    logger.info("Match {} is already processed.", match.getTransfermarktId());
                     continue;
                 }
 

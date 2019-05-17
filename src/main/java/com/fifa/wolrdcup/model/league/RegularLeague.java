@@ -11,6 +11,9 @@ import java.util.List;
 
 @Entity
 @DiscriminatorValue("RegularLeague")
+@Table(
+        uniqueConstraints=@UniqueConstraint(columnNames={"name", "season"})
+)
 public class RegularLeague extends League{
 
     private String season;
@@ -20,6 +23,7 @@ public class RegularLeague extends League{
     private List<Round> rounds = new LinkedList<>();
 
     @ManyToMany
+    @JsonView(LeagueGroupsView.class)
     private List<RegularLeague> groups = new ArrayList<>();
 
     public RegularLeague(){}

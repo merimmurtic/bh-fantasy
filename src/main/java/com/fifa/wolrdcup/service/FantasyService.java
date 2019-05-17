@@ -4,7 +4,6 @@ import com.fifa.wolrdcup.exception.InvalidLeagueIdException;
 import com.fifa.wolrdcup.model.*;
 import com.fifa.wolrdcup.model.custom.PointsValue;
 import com.fifa.wolrdcup.model.league.FantasyLeague;
-import com.fifa.wolrdcup.model.league.League;
 import com.fifa.wolrdcup.model.league.RegularLeague;
 import com.fifa.wolrdcup.model.players.Defender;
 import com.fifa.wolrdcup.model.players.Goalkeaper;
@@ -25,7 +24,9 @@ public class FantasyService {
 
     private static Logger logger = LoggerFactory.getLogger(FantasyService.class);
 
-    private final LeagueRepository leagueRepository;
+    private final RegularLeagueRepository regularLeagueRepository;
+
+    private final FantasyLeagueRepository fantasyLeagueRepository;
 
     private final TeamRepository teamRepository;
 
@@ -40,11 +41,13 @@ public class FantasyService {
     private final MatchRepository matchRepository;
 
     public FantasyService(PlayerPointsRepository playerPointsRepository,
-                          LeagueRepository leagueRepository, TeamRepository teamRepository,
+                          RegularLeagueRepository regularLeagueRepository,
+                          FantasyLeagueRepository fantasyLeagueRepository, TeamRepository teamRepository,
                           FantasyLineupRepository fantasyLineupRepository,
                           LineupRepository lineupRepository, PlayerRepository playerRepository,
                           MatchRepository matchRepository) {
-        this.leagueRepository = leagueRepository;
+        this.regularLeagueRepository = regularLeagueRepository;
+        this.fantasyLeagueRepository = fantasyLeagueRepository;
         this.teamRepository = teamRepository;
         this.fantasyLineupRepository = fantasyLineupRepository;
         this.lineupRepository = lineupRepository;
@@ -55,13 +58,13 @@ public class FantasyService {
 
     @Transactional
     public void process(Long leagueId) {
-        Optional<League> leagueOptional = leagueRepository.findById(leagueId);
+        Optional<RegularLeague> leagueOptional = regularLeagueRepository.findById(leagueId);
 
-        if(!leagueOptional.isPresent() || !(leagueOptional.get() instanceof RegularLeague)) {
+        if(!leagueOptional.isPresent()) {
             throw new InvalidLeagueIdException();
         }
 
-        RegularLeague league = (RegularLeague) leagueOptional.get();
+        RegularLeague league = leagueOptional.get();
 
         for(Round round : league.getRounds()) {
             for(Match match : round.getMatches()) {
@@ -208,20 +211,30 @@ public class FantasyService {
 
     @Transactional
     public void seedFantasyPlayerLeague(Long leagueId) {
+        Optional<RegularLeague> regularLeagueOptional = regularLeagueRepository.findById(leagueId);
+
+        if (!regularLeagueOptional.isPresent()) {
+            logger.warn("Regular league doesn't exist, skip seeding Fantasy League");
+            return;
+        }
+
+        RegularLeague regularLeague = regularLeagueOptional.get();
+
         String leagueName = "Fantasy Premijer Liga";
 
-        if(leagueRepository.findByName(leagueName).isPresent()) {
+        Optional<FantasyLeague> fantasyLeagueOptional = fantasyLeagueRepository.findByRegularLeague_Id(
+                regularLeague.getId());
+
+        if(fantasyLeagueOptional.isPresent()) {
+            logger.info(leagueName.concat(" is already seeded!"));
             return;
         }
 
         FantasyLeague fantasyLeague = new FantasyLeague();
         fantasyLeague.setName(leagueName);
+        fantasyLeague.setRegularLeague(regularLeague);
 
-        leagueRepository.findById(leagueId).ifPresent((league -> {
-            fantasyLeague.setRegularLeague((RegularLeague) league);
-        }));
-
-        leagueRepository.save(fantasyLeague);
+        fantasyLeagueRepository.save(fantasyLeague);
 
         Team fantasyTeam = new Team();
         fantasyTeam.setCode("VUCKO");

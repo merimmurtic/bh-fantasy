@@ -13,7 +13,7 @@ import java.util.Optional;
 public abstract class ProcessWorker {
     final StadiumRepository stadiumRepository;
 
-    final LeagueRepository leagueRepository;
+    final RegularLeagueRepository regularLeagueRepository;
 
     final RoundRepository roundRepository;
 
@@ -39,14 +39,14 @@ public abstract class ProcessWorker {
             MatchRepository matchRepository,
             TeamRepository teamRepository,
             RoundRepository roundRepository,
-            LeagueRepository leagueRepository,
+            RegularLeagueRepository regularLeagueRepository,
             PlayerService playerService,
             LineupRepository lineupRepository,
             SubstitutionRepository substitutionRepository,
             CardRepository cardRepository,
             MissedPenaltyRepository missedPenaltyRepository
     ) {
-        this.leagueRepository = leagueRepository;
+        this.regularLeagueRepository = regularLeagueRepository;
         this.roundRepository = roundRepository;
         this.teamRepository = teamRepository;
         this.matchRepository = matchRepository;

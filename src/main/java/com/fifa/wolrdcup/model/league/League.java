@@ -33,8 +33,7 @@ public abstract class League {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotNull // Make sure that name exist and prevent leagues with same name!
-    @Column(unique = true)
+    @NotNull
     private String name;
 
     @ManyToMany(mappedBy = "leagues", cascade = CascadeType.ALL)
@@ -181,6 +180,8 @@ public abstract class League {
 
     public interface LeagueLineupsView {}
 
-    public interface DetailedView extends LeagueTeamsView, LeaguePlayersView, LeagueLineupsView {}
+    public interface LeagueGroupsView {}
+
+    public interface DetailedView extends LeagueTeamsView, LeaguePlayersView, LeagueLineupsView, LeagueGroupsView {}
 }
 
