@@ -100,8 +100,6 @@ public class WorldCupWorker extends ProcessWorker {
     public void processMatches(List<HashMap<String, Object>> matches, Round round, League league) {
         for (HashMap<String, Object> matchMap : matches) {
             Match match = new Match();
-            match.setRound(round);
-
 
             match.setTeam1(processTeam((HashMap<String, String>) matchMap.get("team1"), league));
             match.setTeam2(processTeam((HashMap<String, String>) matchMap.get("team2"), league));
@@ -125,6 +123,10 @@ public class WorldCupWorker extends ProcessWorker {
             } else if(matchMap.containsKey("score2")){
                 match.setScore2((Integer) matchMap.get("score2"));
             }
+
+            matchRepository.save(match);
+
+            match.getRounds().add(round);
 
             matchRepository.save(match);
 

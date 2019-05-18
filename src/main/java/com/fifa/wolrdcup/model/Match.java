@@ -16,7 +16,6 @@ import java.util.List;
                 @NamedAttributeNode("stadium"),
                 @NamedAttributeNode("lineup1"),
                 @NamedAttributeNode("lineup2"),
-                @NamedAttributeNode(value = "round", subgraph = "round-subgraph"),
                 @NamedAttributeNode(value = "goals", subgraph = "goals-subgraph"),
         },
         subgraphs = {
@@ -25,12 +24,6 @@ import java.util.List;
                         attributeNodes = {
                                 @NamedAttributeNode("player"),
                                 @NamedAttributeNode("assist")
-                        }
-                ),
-                @NamedSubgraph(
-                        name = "round-subgraph",
-                        attributeNodes = {
-                                @NamedAttributeNode("league")
                         }
                 )
         })
@@ -54,9 +47,9 @@ public class Match {
     @ManyToOne(fetch = FetchType.LAZY)
     private Team team2;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToMany(cascade = CascadeType.ALL)
     @JsonIgnore
-    private Round round;
+    private List<Round> rounds = new ArrayList<>();
 
     @OneToMany(mappedBy = "match", cascade = CascadeType.ALL)
     @JsonView(MatchGoalsView.class)
@@ -119,12 +112,12 @@ public class Match {
         this.team2 = team2;
     }
 
-    public Round getRound() {
-        return round;
+    public List<Round> getRounds() {
+        return rounds;
     }
 
-    public void setRound(Round round) {
-        this.round = round;
+    public void setRounds(List<Round> rounds) {
+        this.rounds = rounds;
     }
 
     public List<Goal> getGoals() {

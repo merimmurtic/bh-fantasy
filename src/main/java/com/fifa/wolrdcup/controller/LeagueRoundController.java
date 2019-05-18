@@ -42,7 +42,7 @@ public class LeagueRoundController {
             @PathVariable("roundId") Long roundId,
             @PathVariable("matchId") Long matchId) throws Exception{
         return ResponseEntity.of(
-                matchRepository.getByIdAndRound_IdAndRound_League_Id(matchId, roundId, leagueId));
+                matchRepository.getDistinctByIdAndRounds_IdAndRounds_League_Id(matchId, roundId, leagueId));
     }
 
 

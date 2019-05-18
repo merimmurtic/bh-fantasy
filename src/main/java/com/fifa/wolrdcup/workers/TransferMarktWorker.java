@@ -197,7 +197,10 @@ public class TransferMarktWorker extends ProcessWorker {
                             processTeamMap(elements.get(2).select("a").text(), profilePictureTeam1), league));
                     match.setTeam2(processTeam(
                             processTeamMap(elements.get(6).select("a").text(), profilePictureTeam2), league));
-                    match.setRound(round);
+
+                    matchRepository.save(match);
+
+                    match.getRounds().add(round);
                 } else if(match.getLineup1() != null) {
                     logger.info("Match {} is already processed.", match.getTransfermarktId());
                     continue;

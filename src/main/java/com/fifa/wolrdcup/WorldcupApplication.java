@@ -3,6 +3,7 @@ package com.fifa.wolrdcup;
 import com.fifa.wolrdcup.model.league.RegularLeague;
 import com.fifa.wolrdcup.repository.*;
 import com.fifa.wolrdcup.service.FantasyService;
+import com.fifa.wolrdcup.service.MultiLeagueService;
 import com.fifa.wolrdcup.service.PlayerService;
 import com.fifa.wolrdcup.workers.ProcessWorker;
 import com.fifa.wolrdcup.workers.TransferMarktWorker;
@@ -50,6 +51,8 @@ public class WorldcupApplication {
 
     private final MissedPenaltyRepository missedPenaltyRepository;
 
+    private final MultiLeagueService multiLeagueService;
+
     private static boolean WORKERS_RUNNING = false;
 
     private static final String PREMIJER_LIGA_URL = "/premijer-liga/gesamtspielplan/wettbewerb/BOS1/saison_id/";
@@ -80,7 +83,7 @@ public class WorldcupApplication {
             LineupRepository lineupRepository,
             SubstitutionRepository substitutionRepository,
             CardRepository cardRepository,
-            MissedPenaltyRepository missedPenaltyRepository) {
+            MissedPenaltyRepository missedPenaltyRepository, MultiLeagueService multiLeagueService) {
         this.regularLeagueRepository = regularLeagueRepository;
         this.roundRepository = roundRepository;
         this.teamRepository = teamRepository;
@@ -93,6 +96,7 @@ public class WorldcupApplication {
         this.substitutionRepository = substitutionRepository;
         this.cardRepository = cardRepository;
         this.missedPenaltyRepository = missedPenaltyRepository;
+        this.multiLeagueService = multiLeagueService;
     }
 
     public static void main(String[] args) {
@@ -110,7 +114,7 @@ public class WorldcupApplication {
         source.registerCorsConfiguration("/**", config);
         return new CorsFilter(source);
     }
-
+    
     @Scheduled(fixedRate = 60 * 60 * 1000)
     // Method will be executed each hour to refresh leagues
     public void startWorkers() throws Exception {
@@ -183,6 +187,8 @@ public class WorldcupApplication {
                 top5League.getGroups().addAll(regularLeagues);
 
                 regularLeagueRepository.save(top5League);
+
+                multiLeagueService.calculateRounds(top5League);
             } else {
                 logger.info("Top 5 League is already created for season {}", firstLeague.getSeason());
             }

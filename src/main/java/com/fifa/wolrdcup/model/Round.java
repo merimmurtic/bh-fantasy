@@ -32,7 +32,7 @@ public class Round {
 
     private String name;
 
-    @OneToMany(mappedBy = "round", cascade = CascadeType.ALL)
+    @ManyToMany(mappedBy = "rounds", cascade = CascadeType.ALL)
     @JsonView(RoundMatchesView.class)
     private List<Match> matches = new ArrayList<>();
 
