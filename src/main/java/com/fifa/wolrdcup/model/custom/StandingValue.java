@@ -18,6 +18,8 @@ public class StandingValue{
 
     private String profilePicture;
 
+    private Long counterPlayed;
+
     public StandingValue() {}
 
     public Long getTeamId() {
@@ -90,5 +92,13 @@ public class StandingValue{
 
     public void setProfilePicture(String profilePicture) {
         this.profilePicture = profilePicture;
+    }
+
+    public Long getCounterPlayed() {
+        return counterPlayed;
+    }
+
+    public void setCounterPlayed(Long counterPlayed) {
+        this.counterPlayed = counterPlayed;
     }
 }

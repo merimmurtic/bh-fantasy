@@ -68,6 +68,7 @@ public class StandingController {
         long won = 0L;
         long lose = 0L;
         long draw = 0L;
+        long counterPlayed = 0L;
 
         Iterable<Match> matches = matchRepository.getByTeam1OrTeam2(team, team);
 
@@ -101,6 +102,7 @@ public class StandingController {
                 goalsScored += match.getScore2();
                 goalsConceded += match.getScore1();
             }
+            counterPlayed ++;
         }
 
         value.setGoalsScored(goalsScored);
@@ -108,5 +110,6 @@ public class StandingController {
         value.setLose(lose);
         value.setWon(won);
         value.setDraw(draw);
+        value.setCounterPlayed(counterPlayed);
     }
 }
