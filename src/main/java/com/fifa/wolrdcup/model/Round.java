@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonView;
 import com.fifa.wolrdcup.model.league.League;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,6 +39,10 @@ public class Round {
     @ManyToOne(fetch = FetchType.LAZY)
     @JsonView(RoundLeagueView.class)
     private League league;
+
+    private LocalDateTime startDate;
+
+    private LocalDateTime endDate;
 
     public Round(){}
 
@@ -75,6 +80,22 @@ public class Round {
 
     public void setLeague(League league) {
         this.league = league;
+    }
+
+    public LocalDateTime getStartDate() {
+        return startDate;
+    }
+
+    public void setStartDate(LocalDateTime startDate) {
+        this.startDate = startDate;
+    }
+
+    public LocalDateTime getEndDate() {
+        return endDate;
+    }
+
+    public void setEndDate(LocalDateTime endDate) {
+        this.endDate = endDate;
     }
 
     public interface RoundMatchesView {}
