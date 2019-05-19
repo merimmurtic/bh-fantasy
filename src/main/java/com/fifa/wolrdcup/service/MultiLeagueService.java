@@ -53,15 +53,16 @@ public class MultiLeagueService {
                 round.setName(counter + ".Matchday");
                 round.setLeague(league);
 
-                roundRepository.save(round);
+                round = roundRepository.save(round);
 
                 rounds.add(round);
 
                 counter += 1;
             } else {
-                round.getMatches().add(match);
                 round.setEndDate(match.getDateTime());
             }
+
+            match.getRounds().add(round);
 
             roundStart = match.getDateTime();
         }

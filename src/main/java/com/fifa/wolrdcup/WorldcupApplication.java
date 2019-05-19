@@ -19,6 +19,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 
+import javax.transaction.Transactional;
 import java.util.*;
 
 @SpringBootApplication
@@ -114,9 +115,10 @@ public class WorldcupApplication {
         source.registerCorsConfiguration("/**", config);
         return new CorsFilter(source);
     }
-    
+
     @Scheduled(fixedRate = 60 * 60 * 1000)
     // Method will be executed each hour to refresh leagues
+    @Transactional
     public void startWorkers() throws Exception {
         if(WORKERS_RUNNING) {
             return;
@@ -169,7 +171,8 @@ public class WorldcupApplication {
         }
     }
 
-    private void seedTop5League(List<Long> leagueIds) {
+    @Transactional
+    public void seedTop5League(List<Long> leagueIds) {
         List<RegularLeague> regularLeagues = new ArrayList<>();
 
         regularLeagueRepository.findAllById(leagueIds).forEach(regularLeagues::add);
@@ -187,6 +190,14 @@ public class WorldcupApplication {
                 top5League.getGroups().addAll(regularLeagues);
 
                 regularLeagueRepository.save(top5League);
+
+                regularLeagues.forEach(league -> {
+                    league.getTeams().forEach(team -> {
+                        team.getLeagues().add(top5League);
+
+                        teamRepository.save(team);
+                    });
+                });
 
                 multiLeagueService.calculateRounds(top5League);
             } else {
