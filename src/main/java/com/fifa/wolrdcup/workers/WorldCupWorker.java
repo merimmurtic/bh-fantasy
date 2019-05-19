@@ -124,11 +124,11 @@ public class WorldCupWorker extends ProcessWorker {
                 match.setScore2((Integer) matchMap.get("score2"));
             }
 
-            matchRepository.save(match);
+            match = matchRepository.save(match);
 
             match.getRounds().add(round);
 
-            matchRepository.save(match);
+            match = matchRepository.save(match);
 
             if(matchMap.containsKey("goals1")) {
                 processGoals((List<HashMap<String, Object>>) matchMap.get("goals1"),

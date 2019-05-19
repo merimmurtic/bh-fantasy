@@ -197,8 +197,7 @@ public class TransferMarktWorker extends ProcessWorker {
                             processTeamMap(elements.get(2).select("a").text(), profilePictureTeam1), league));
                     match.setTeam2(processTeam(
                             processTeamMap(elements.get(6).select("a").text(), profilePictureTeam2), league));
-
-                    matchRepository.save(match);
+                    match = matchRepository.save(match);
 
                     match.getRounds().add(round);
                 } else if(match.getLineup1() != null) {
@@ -217,7 +216,7 @@ public class TransferMarktWorker extends ProcessWorker {
                     // Match is not played
                 }
 
-                matchRepository.save(match);
+                match = matchRepository.save(match);
 
                 if(match.getScore1() != null) {
                     processMatch(matchDetailsElement.attr("href"), match);

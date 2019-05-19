@@ -6,7 +6,9 @@ import com.fasterxml.jackson.annotation.JsonView;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @NamedEntityGraph(name = "Match.detail",
@@ -47,9 +49,9 @@ public class Match {
     @ManyToOne(fetch = FetchType.LAZY)
     private Team team2;
 
-    @ManyToMany(cascade = CascadeType.ALL)
+    @ManyToMany
     @JsonIgnore
-    private List<Round> rounds = new ArrayList<>();
+    private Set<Round> rounds = new HashSet<>();
 
     @OneToMany(mappedBy = "match", cascade = CascadeType.ALL)
     @JsonView(MatchGoalsView.class)
@@ -112,11 +114,11 @@ public class Match {
         this.team2 = team2;
     }
 
-    public List<Round> getRounds() {
+    public Set<Round> getRounds() {
         return rounds;
     }
 
-    public void setRounds(List<Round> rounds) {
+    public void setRounds(Set<Round> rounds) {
         this.rounds = rounds;
     }
 
