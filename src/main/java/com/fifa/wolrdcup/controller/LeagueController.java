@@ -10,6 +10,7 @@ import com.fifa.wolrdcup.model.views.DefaultView;
 import com.fifa.wolrdcup.model.league.League;
 import com.fifa.wolrdcup.model.Team;
 import com.fifa.wolrdcup.repository.LeagueRepository;
+import com.fifa.wolrdcup.repository.RegularLeagueRepository;
 import com.fifa.wolrdcup.repository.RoundRepository;
 import com.fifa.wolrdcup.repository.TeamRepository;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -20,7 +21,7 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.validation.ConstraintViolationException;
-import java.util.List;
+import java.util.ArrayList;
 import java.util.Optional;
 
 @RestController
@@ -30,14 +31,16 @@ public class LeagueController {
     private final LeagueRepository leagueRepository;
     private final TeamRepository teamRepository;
     private final RoundRepository roundRepository;
+    private final RegularLeagueRepository regularLeagueRepository;
 
     public LeagueController(
             TeamRepository teamRepository,
             LeagueRepository leagueRepository,
-            RoundRepository roundRepository) {
+            RoundRepository roundRepository, RegularLeagueRepository regularLeagueRepository) {
         this.leagueRepository = leagueRepository;
         this.teamRepository = teamRepository;
         this.roundRepository = roundRepository;
+        this.regularLeagueRepository = regularLeagueRepository;
     }
 
     @GetMapping
@@ -134,11 +137,19 @@ public class LeagueController {
 
         optionalLeague.ifPresent(league -> {
             if(league instanceof RegularLeague) {
+                RegularLeague regularLeague = (RegularLeague)league;
+
                 Optional<Round> optionalRound = roundRepository.
                         findFirstByLeagueIdAndMatches_Score1IsNotNullOrderByMatches_DateTimeDesc(leagueId);
 
                 optionalRound.ifPresent(round -> {
                     league.setCurrentRoundId(round.getId());
+                });
+
+                regularLeague.setGroups(regularLeagueRepository.getGroupsWithTeams(leagueId));
+
+                regularLeague.getGroups().forEach(group -> {
+                    group.setGroups(new ArrayList<>());
                 });
             }
         });
