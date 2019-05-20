@@ -118,7 +118,6 @@ public class WorldcupApplication {
 
     @Scheduled(fixedRate = 60 * 60 * 1000)
     // Method will be executed each hour to refresh leagues
-    @Transactional
     public void startWorkers() throws Exception {
         if(WORKERS_RUNNING) {
             return;
