@@ -5,6 +5,7 @@ import com.fifa.wolrdcup.exception.InvalidLeagueIdException;
 import com.fifa.wolrdcup.exception.InvalidTeamIdException;
 import com.fifa.wolrdcup.model.Round;
 import com.fifa.wolrdcup.model.league.FantasyLeague;
+import com.fifa.wolrdcup.model.league.LeagueGroup;
 import com.fifa.wolrdcup.model.league.RegularLeague;
 import com.fifa.wolrdcup.model.views.DefaultView;
 import com.fifa.wolrdcup.model.league.League;
@@ -134,8 +135,8 @@ public class LeagueController {
         Optional<League> optionalLeague = leagueRepository.getById(leagueId);
 
         optionalLeague.ifPresent(league -> {
-            if(league instanceof RegularLeague) {
-                RegularLeague regularLeague = (RegularLeague)league;
+            if(league instanceof LeagueGroup) {
+                LeagueGroup regularLeague = (LeagueGroup)league;
 
                 Optional<Round> optionalRound = roundRepository.
                         findFirstByLeagueIdAndMatches_Score1IsNotNullOrderByMatches_DateTimeDesc(leagueId);
@@ -144,7 +145,9 @@ public class LeagueController {
                     league.setCurrentRoundId(round.getId());
                 });
 
-                regularLeague.setGroups(leagueGroupRepository.getGroupsWithTeams(leagueId));
+                if(league instanceof RegularLeague) {
+                    ((RegularLeague)regularLeague).setGroups(leagueGroupRepository.getGroupsWithTeams(leagueId));
+                }
             }
         });
 
