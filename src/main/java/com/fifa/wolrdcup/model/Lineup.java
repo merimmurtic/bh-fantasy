@@ -15,15 +15,15 @@ public class Lineup {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToMany(cascade = CascadeType.ALL)
+    @ManyToMany
     @OrderBy("id")
     private Set<Player> startingPlayers = new HashSet<>();
 
-    @ManyToMany(cascade = CascadeType.ALL)
+    @ManyToMany
     @OrderBy("id")
     private Set<Player> availableSubstitutions = new HashSet<>();
 
-    @OneToMany(mappedBy = "lineup", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "lineup")
     @OrderBy("id")
     private Set<Substitution> substitutionChanges = new HashSet<>();
 

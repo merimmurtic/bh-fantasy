@@ -32,7 +32,7 @@ public class Round {
 
     private String name;
 
-    @ManyToMany(mappedBy = "rounds", cascade = CascadeType.ALL)
+    @ManyToMany(mappedBy = "rounds")
     @JsonView(RoundMatchesView.class)
     @OrderBy("id")
     private Set<Match> matches = new HashSet<>();

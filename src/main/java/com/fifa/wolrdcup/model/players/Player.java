@@ -54,12 +54,12 @@ public abstract class Player implements Comparable<Player> {
     private Set<Team> teams = new HashSet<>();
 
     @JsonIgnore
-    @OneToMany(mappedBy = "player", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "player")
     @OrderBy("id")
     private Set<Goal> goals = new HashSet<>();
 
     @JsonIgnore
-    @OneToMany(mappedBy = "player", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "player")
     @OrderBy("id")
     private Set<PlayerPoints> playerPoints = new HashSet<>();
 
