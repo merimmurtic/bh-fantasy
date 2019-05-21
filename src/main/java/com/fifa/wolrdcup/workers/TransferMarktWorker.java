@@ -327,7 +327,8 @@ public class TransferMarktWorker extends ProcessWorker {
             Team team2 = processTeam(teamMap2, league);
 
             if(group != null) {
-                processTeam(teamMap1, league);
+                processTeam(teamMap1, group);
+                processTeam(teamMap2, group);
             }
 
             match = matchService.createMatch(transferMarktId, team1, team2, matchDate, score1, score2, null);
