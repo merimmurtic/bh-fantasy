@@ -2,6 +2,7 @@ package com.fifa.wolrdcup.workers;
 
 import com.fifa.wolrdcup.model.*;
 import com.fifa.wolrdcup.model.league.League;
+import com.fifa.wolrdcup.model.league.LeagueGroup;
 import com.fifa.wolrdcup.model.league.RegularLeague;
 import com.fifa.wolrdcup.model.players.Player;
 import com.fifa.wolrdcup.model.players.Player.Position;
@@ -10,6 +11,7 @@ import com.fifa.wolrdcup.repository.*;
 import com.fifa.wolrdcup.service.LeagueService;
 import com.fifa.wolrdcup.service.MatchService;
 import com.fifa.wolrdcup.service.PlayerService;
+import com.fifa.wolrdcup.service.TeamService;
 import com.fifa.wolrdcup.utils.CommonUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -50,7 +52,7 @@ public class TransferMarktWorker extends ProcessWorker {
     public TransferMarktWorker(StadiumRepository stadiumRepository,
                         GoalRepository goalRepository,
                         MatchService matchService,
-                        TeamRepository teamRepository,
+                        TeamService teamService,
                         RoundRepository roundRepository,
                         LeagueService leagueService,
                         PlayerService playerService,
@@ -60,7 +62,7 @@ public class TransferMarktWorker extends ProcessWorker {
                         MissedPenaltyRepository missedPenaltyRepository,
                         String transfermarktUrl, String season) {
         super(stadiumRepository, goalRepository, matchService,
-                teamRepository, roundRepository, leagueService,
+                teamService, roundRepository, leagueService,
                 playerService, lineupRepository, substitutionRepository, cardRepository, missedPenaltyRepository);
 
         this.transfermarktUrl = transfermarktUrl;
@@ -115,13 +117,12 @@ public class TransferMarktWorker extends ProcessWorker {
         for(Element groupElement : groupElements) {
             final String groupName = groupElement.selectFirst(".table-header").text();
 
-            RegularLeague group = leagueService.getLeagueGroup(league.getId(), groupName);
+            LeagueGroup group = leagueService.getLeagueGroup(league.getId(), groupName);
 
             if(group == null) {
-                group = new RegularLeague();
-                group.setName(groupName);
+                group = leagueService.createLeagueGroup(groupName);
 
-                group = leagueService.getRegularLeagueRepository().save(group);
+                league = leagueService.addGroup(league.getId(), group);
             }
 
             Elements trs = groupElement.select("table").last().select("tr");
@@ -149,7 +150,7 @@ public class TransferMarktWorker extends ProcessWorker {
                 if(dateTd != null) {
                     tds.add(0, dateTd);
 
-                    Match match = processMatch(tds, league);
+                    Match match = processMatch(tds, league, group);
 
                     if (round == null || !CommonUtils.checkIfSameWeek(match.getDateTime(), startDate)) {
                        if (round != null) {
@@ -184,8 +185,6 @@ public class TransferMarktWorker extends ProcessWorker {
                     }
                 }
             }
-
-            league = leagueService.addGroup(league.getId(), group);
         }
 
         leagueService.getRegularLeagueRepository().save(league);
@@ -225,7 +224,7 @@ public class TransferMarktWorker extends ProcessWorker {
             Elements elements = matchElement.select("td");
 
             if (elements.size() == 7) {
-                Match match = processMatch(elements, league);
+                Match match = processMatch(elements, league, null);
 
                 LocalDateTime matchDate = match.getDateTime();
 
@@ -253,22 +252,12 @@ public class TransferMarktWorker extends ProcessWorker {
         }
     }
 
-    private Match processMatch(Elements elements, League league) {
+    private Match processMatch(Elements elements, League league, League group) {
         LocalDateTime matchDate = null;
 
         Element matchDetailsElement = elements.get(4).selectFirst("a");
 
-        Match match = null;
-
         Long transferMarktId = getTransferMarktId(matchDetailsElement.attr("href"));
-
-        if(transferMarktId != null) {
-            Optional<Match> optionalMatch = matchService.getMatchRepository().findByTransfermarktId(transferMarktId);
-
-            if(optionalMatch.isPresent()) {
-                match = optionalMatch.get();
-            }
-        }
 
         Element dateElement = elements.get(0).selectFirst("a");
 
@@ -302,38 +291,57 @@ public class TransferMarktWorker extends ProcessWorker {
             logger.error("Error while parsing datetime.", e);
         }
 
-        if(match == null) {
-            match = new Match();
-            match.setTransfermarktId(transferMarktId);
+        String[] scores = matchDetailsElement.text().split(":");
 
+        Integer score1 = null;
+        Integer score2 = null;
+
+        try {
+            score1 = Integer.parseInt(scores[0]);
+            score2 = Integer.parseInt(scores[1]);
+        } catch (NumberFormatException e) {
+            // Match is not played
+        }
+
+        Optional<Match> matchOptional = matchService.getMatch(transferMarktId);
+
+        Match match = null;
+
+        if(matchOptional.isPresent()) {
+            match = matchOptional.get();
+        }
+
+        boolean created = false;
+
+        if(match == null) {
             String profilePictureTeam1 = elements.get(3).select("img")
                     .attr("src").replace("tiny", "normal");
 
             String profilePictureTeam2 = elements.get(5).select("img")
                     .attr("src").replace("tiny", "normal");
 
-            match.setTeam1(processTeam(
-                    processTeamMap(elements.get(2).select("a").text(), profilePictureTeam1), league));
-            match.setTeam2(processTeam(
-                    processTeamMap(elements.get(6).select("a").text(), profilePictureTeam2), league));
+            Map<String, String> teamMap1 = processTeamMap(elements.get(2).select("a").text(), profilePictureTeam1);
+            Map<String, String> teamMap2 = processTeamMap(elements.get(6).select("a").text(), profilePictureTeam2);
+
+            Team team1 = processTeam(teamMap1, league);
+            Team team2 = processTeam(teamMap2, league);
+
+            if(group != null) {
+                processTeam(teamMap1, league);
+            }
+
+            match = matchService.createMatch(transferMarktId, team1, team2, matchDate, score1, score2, null);
+
+            created = true;
         } else if(match.getLineup1() != null) {
             logger.info("Match {} is already processed.", match.getTransfermarktId());
 
             return match;
         }
 
-        match.setDateTime(matchDate);
-
-        String[] scores = matchDetailsElement.text().split(":");
-
-        try {
-            match.setScore1(Integer.parseInt(scores[0]));
-            match.setScore2(Integer.parseInt(scores[1]));
-        } catch (NumberFormatException e) {
-            // Match is not played
+        if(!created) {
+            match = matchService.updateMatch(match.getId(), matchDate, score1, score2);
         }
-
-        match = matchService.getMatchRepository().save(match);
 
         if(match.getScore1() != null) {
             processMatchDetails(matchDetailsElement.attr("href"), match);

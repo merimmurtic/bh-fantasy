@@ -28,7 +28,7 @@ public class Team{
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String code;
 
-    @ManyToMany(mappedBy = "teams", cascade = CascadeType.ALL)
+    @ManyToMany(mappedBy = "teams")
     @JsonView(TeamPlayersView.class)
     private List<Player> players = new ArrayList<>();
 

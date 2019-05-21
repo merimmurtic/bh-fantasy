@@ -44,14 +44,4 @@ public interface RegularLeagueRepository extends CrudRepository<RegularLeague, L
             "where leagues.id = :leagueId and leagues.dtype = 'RegularLeague' " +
             "group by player, team.profilePicture order by sum(playerPoints.points) desc")
     List<TopPlayerValue> getTopPlayersFantasyPoints(@Param("leagueId") Long leagueId);
-
-    @Query("select distinct g from RegularLeague league " +
-            "inner join league.groups g " +
-            "inner join fetch g.teams team where league.id = :leagueId")
-    List<RegularLeague> getGroupsWithTeams(@Param("leagueId") Long leagueId);
-
-    @Query("select g from RegularLeague league " +
-            "inner join league.groups g " +
-            "where league.id = :leagueId and g.name = :name")
-    Optional<RegularLeague> findGroup(@Param("leagueId") Long leagueId, @Param("name") String name);
 }

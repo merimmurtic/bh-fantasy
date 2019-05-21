@@ -9,10 +9,7 @@ import com.fifa.wolrdcup.model.league.RegularLeague;
 import com.fifa.wolrdcup.model.views.DefaultView;
 import com.fifa.wolrdcup.model.league.League;
 import com.fifa.wolrdcup.model.Team;
-import com.fifa.wolrdcup.repository.LeagueRepository;
-import com.fifa.wolrdcup.repository.RegularLeagueRepository;
-import com.fifa.wolrdcup.repository.RoundRepository;
-import com.fifa.wolrdcup.repository.TeamRepository;
+import com.fifa.wolrdcup.repository.*;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,7 +18,6 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.validation.ConstraintViolationException;
-import java.util.ArrayList;
 import java.util.Optional;
 
 @RestController
@@ -31,16 +27,16 @@ public class LeagueController {
     private final LeagueRepository leagueRepository;
     private final TeamRepository teamRepository;
     private final RoundRepository roundRepository;
-    private final RegularLeagueRepository regularLeagueRepository;
+    private final LeagueGroupRepository leagueGroupRepository;
 
     public LeagueController(
             TeamRepository teamRepository,
             LeagueRepository leagueRepository,
-            RoundRepository roundRepository, RegularLeagueRepository regularLeagueRepository) {
+            RoundRepository roundRepository, LeagueGroupRepository leagueGroupRepository) {
         this.leagueRepository = leagueRepository;
         this.teamRepository = teamRepository;
         this.roundRepository = roundRepository;
-        this.regularLeagueRepository = regularLeagueRepository;
+        this.leagueGroupRepository = leagueGroupRepository;
     }
 
     @GetMapping
@@ -146,11 +142,7 @@ public class LeagueController {
                     league.setCurrentRoundId(round.getId());
                 });
 
-                regularLeague.setGroups(regularLeagueRepository.getGroupsWithTeams(leagueId));
-
-                regularLeague.getGroups().forEach(group -> {
-                    group.setGroups(new ArrayList<>());
-                });
+                regularLeague.setGroups(leagueGroupRepository.getGroupsWithTeams(leagueId));
             }
         });
 

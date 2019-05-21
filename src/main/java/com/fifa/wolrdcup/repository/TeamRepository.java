@@ -10,7 +10,7 @@ import java.util.Optional;
 public interface TeamRepository extends CrudRepository<Team, Long> {
     List<Team> findByNameContaining(String name);
 
-    Optional<Team> findByCodeAndLeagues(String code, League league);
+    Optional<Team> findByCode(String code);
 
     List<Team> findByLeagues_Id(Long leagueId);
 }

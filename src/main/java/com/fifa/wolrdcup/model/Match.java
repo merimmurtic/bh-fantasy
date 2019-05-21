@@ -53,16 +53,16 @@ public class Match {
     @JsonIgnore
     private Set<Round> rounds = new HashSet<>();
 
-    @OneToMany(mappedBy = "match", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "match")
     @JsonView(MatchGoalsView.class)
     private List<Goal> goals = new ArrayList<>();
 
-    @OneToMany(mappedBy = "match", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "match")
     @JsonView(MatchMissedPenaltiesView.class)
     private List<MissedPenalty> missedPenalties = new ArrayList<>();
 
     @JsonIgnore
-    @OneToMany(mappedBy = "match", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "match")
     private List<PlayerPoints> playerPoints = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -76,7 +76,7 @@ public class Match {
     @JsonView(MatchLineupsView.class)
     private Lineup lineup2;
 
-    @OneToMany(mappedBy = "match", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "match")
     @JsonView(MatchCardsView.class)
     private List<Card> cards = new ArrayList<>();
 

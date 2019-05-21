@@ -1,11 +1,9 @@
 package com.fifa.wolrdcup.model.league;
 
 import com.fasterxml.jackson.annotation.JsonView;
-import com.fifa.wolrdcup.model.Round;
 
 import javax.persistence.*;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 @Entity
@@ -13,27 +11,15 @@ import java.util.List;
 @Table(
         uniqueConstraints=@UniqueConstraint(columnNames={"name", "season"})
 )
-public class RegularLeague extends League{
+public class RegularLeague extends LeagueGroup{
 
     private String season;
 
-    @OneToMany(mappedBy = "league", cascade = CascadeType.ALL)
-    @JsonView(LeagueRoundsView.class)
-    private List<Round> rounds = new LinkedList<>();
-
     @ManyToMany
     @JsonView(LeagueGroupsView.class)
-    private List<RegularLeague> groups = new ArrayList<>();
+    private List<LeagueGroup> groups = new ArrayList<>();
 
     public RegularLeague(){}
-
-    public List<Round> getRounds() {
-        return rounds;
-    }
-
-    public void setRounds(List<Round> rounds) {
-        this.rounds = rounds;
-    }
 
     public String getSeason() {
         return season;
@@ -43,11 +29,11 @@ public class RegularLeague extends League{
         this.season = season;
     }
 
-    public List<RegularLeague> getGroups() {
+    public List<LeagueGroup> getGroups() {
         return groups;
     }
 
-    public void setGroups(List<RegularLeague> groups) {
+    public void setGroups(List<LeagueGroup> groups) {
         this.groups = groups;
     }
 }

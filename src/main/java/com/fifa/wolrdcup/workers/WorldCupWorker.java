@@ -10,11 +10,11 @@ import com.fifa.wolrdcup.repository.*;
 import com.fifa.wolrdcup.service.LeagueService;
 import com.fifa.wolrdcup.service.MatchService;
 import com.fifa.wolrdcup.service.PlayerService;
+import com.fifa.wolrdcup.service.TeamService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.ResourceUtils;
 
-import javax.transaction.Transactional;
 import java.io.FileNotFoundException;
 import java.util.HashMap;
 import java.util.List;
@@ -30,12 +30,12 @@ public class WorldCupWorker extends ProcessWorker {
             StadiumRepository stadiumRepository,
             GoalRepository goalRepository,
             MatchService matchService,
-            TeamRepository teamRepository,
+            TeamService teamService,
             RoundRepository roundRepository,
             LeagueService leagueService,
             PlayerService playerService, String season) {
         super(stadiumRepository, goalRepository, matchService,
-                teamRepository, roundRepository, leagueService,
+                teamService, roundRepository, leagueService,
                 playerService, null, null,
                 null, null);
 
@@ -53,8 +53,7 @@ public class WorldCupWorker extends ProcessWorker {
 
             String leagueName = (String) map.get("name");
 
-            Optional<RegularLeague> optionalLeague = leagueService.getRegularLeagueRepository().findByNameAndSeason(
-                    leagueName, season);
+            Optional<RegularLeague> optionalLeague = leagueService.getRegularLeague(leagueName, season);
 
             if(optionalLeague.isPresent()) {
                 logger.info("{} for season {} is already processed!", leagueName, season);
@@ -63,11 +62,7 @@ public class WorldCupWorker extends ProcessWorker {
 
             logger.info("Processing league {}.", leagueName);
 
-            RegularLeague league = new RegularLeague();
-            league.setName(leagueName);
-            league.setSeason(season);
-
-            leagueService.getRegularLeagueRepository().save(league);
+            RegularLeague league = leagueService.createRegularLeague(leagueName, season);
 
             processRounds((List<HashMap<String, Object>>) map.get("rounds"), league);
 
@@ -98,39 +93,45 @@ public class WorldCupWorker extends ProcessWorker {
     }
 
     @SuppressWarnings("unchecked")
-    @Transactional
-    public void processMatches(List<HashMap<String, Object>> matches, Round round, League league) {
+    private void processMatches(List<HashMap<String, Object>> matches, Round round, League league) {
         for (HashMap<String, Object> matchMap : matches) {
-            Match match = new Match();
+            Team team1 = processTeam((HashMap<String, String>) matchMap.get("team1"), league);
+            Team team2 = processTeam((HashMap<String, String>) matchMap.get("team2"), league);
 
-            match.setTeam1(processTeam((HashMap<String, String>) matchMap.get("team1"), league));
-            match.setTeam2(processTeam((HashMap<String, String>) matchMap.get("team2"), league));
-
+            Stadium stadium = null;
 
             // There is matches without stadium, you need to check if it exist first
             if(matchMap.containsKey("stadium")) {
-                match.setStadium(processStadium((HashMap<String, String>) matchMap.get("stadium")));
+                stadium = processStadium((HashMap<String, String>) matchMap.get("stadium"));
             }
+
+            Integer score1 = null;
+            Integer score2 = null;
 
             // By using getOrDefault you can get value always, there is no need to check if key exist,
             // if key does not exist, value you provided as defaultValue will be returned
             if(matchMap.getOrDefault("score1et", null) != null){
-                match.setScore1((Integer) matchMap.get("score1et"));
+                score1 = (Integer) matchMap.get("score1et");
             } else if(matchMap.containsKey("score1")){
-                match.setScore1((Integer) matchMap.get("score1"));
+                score1 = (Integer) matchMap.get("score1");
             }
 
             if(matchMap.getOrDefault("score2et", null) != null){
-                match.setScore2((Integer) matchMap.get("score2et"));
+                score2 = (Integer) matchMap.get("score2et");
             } else if(matchMap.containsKey("score2")){
-                match.setScore2((Integer) matchMap.get("score2"));
+                score2 = (Integer) matchMap.get("score2");
             }
 
-            match = matchService.getMatchRepository().save(match);
+            Match match = null;
 
-            match.getRounds().add(round);
+            try {
+                match = matchService.createMatch(
+                        team1, team2, null, score1, score2, stadium);
+            } catch (Exception e) {
+                logger.error("");
+            }
 
-            match = matchService.getMatchRepository().save(match);
+            match = matchService.addRound(match.getId(), round);
 
             if(matchMap.containsKey("goals1")) {
                 processGoals((List<HashMap<String, Object>>) matchMap.get("goals1"),

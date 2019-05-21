@@ -5,6 +5,7 @@ import com.fifa.wolrdcup.repository.*;
 import com.fifa.wolrdcup.service.*;
 import com.fifa.wolrdcup.workers.ProcessWorker;
 import com.fifa.wolrdcup.workers.TransferMarktWorker;
+import com.fifa.wolrdcup.workers.WorldCupWorker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
@@ -31,7 +32,7 @@ public class WorldcupApplication {
 
     private final RoundRepository roundRepository;
 
-    private final TeamRepository teamRepository;
+    private final TeamService teamService;
 
     private final MatchService matchService;
 
@@ -79,7 +80,7 @@ public class WorldcupApplication {
             StadiumRepository stadiumRepository,
             GoalRepository goalRepository,
             MatchService matchService,
-            TeamRepository teamRepository,
+            TeamService teamService,
             RoundRepository roundRepository,
             RegularLeagueRepository regularLeagueRepository,
             PlayerService playerService,
@@ -89,7 +90,7 @@ public class WorldcupApplication {
             MissedPenaltyRepository missedPenaltyRepository, MultiLeagueService multiLeagueService) {
         this.regularLeagueRepository = regularLeagueRepository;
         this.roundRepository = roundRepository;
-        this.teamRepository = teamRepository;
+        this.teamService = teamService;
         this.matchService = matchService;
         this.playerService = playerService;
         this.goalRepository = goalRepository;
@@ -131,16 +132,16 @@ public class WorldcupApplication {
 
             List<ProcessWorker> workers = new ArrayList<>();
 
-            /*workers.add(new WorldCupWorker(
-                    stadiumRepository, goalRepository, matchService,
-                    teamRepository, roundRepository, leagueService, playerService, "2014"
-            ));*/
+            //workers.add(new WorldCupWorker(
+              //      stadiumRepository, goalRepository, matchService,
+                //    teamService, roundRepository, leagueService, playerService, "2014"
+            //));
 
 
             for (String url : TRANSFERMARKT_URLS) {
                 workers.add(new TransferMarktWorker(
                         stadiumRepository, goalRepository, matchService,
-                        teamRepository, roundRepository, leagueService,
+                        teamService, roundRepository, leagueService,
                         playerService, lineupRepository, substitutionRepository, cardRepository, missedPenaltyRepository,
                         url, "2018"));
             }
@@ -197,7 +198,7 @@ public class WorldcupApplication {
                     league.getTeams().forEach(team -> {
                         team.getLeagues().add(top5League);
 
-                        teamRepository.save(team);
+                        teamService.getTeamRepository().save(team);
                     });
                 });
 

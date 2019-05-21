@@ -8,9 +8,9 @@ import com.fifa.wolrdcup.repository.*;
 import com.fifa.wolrdcup.service.LeagueService;
 import com.fifa.wolrdcup.service.MatchService;
 import com.fifa.wolrdcup.service.PlayerService;
+import com.fifa.wolrdcup.service.TeamService;
 
 import java.util.Map;
-import java.util.Optional;
 
 public abstract class ProcessWorker {
     final StadiumRepository stadiumRepository;
@@ -19,7 +19,7 @@ public abstract class ProcessWorker {
 
     final RoundRepository roundRepository;
 
-    final TeamRepository teamRepository;
+    final TeamService teamService;
 
     final MatchService matchService;
 
@@ -39,7 +39,7 @@ public abstract class ProcessWorker {
             StadiumRepository stadiumRepository,
             GoalRepository goalRepository,
             MatchService matchService,
-            TeamRepository teamRepository,
+            TeamService teamService,
             RoundRepository roundRepository,
             LeagueService leagueService,
             PlayerService playerService,
@@ -50,7 +50,7 @@ public abstract class ProcessWorker {
     ) {
         this.leagueService = leagueService;
         this.roundRepository = roundRepository;
-        this.teamRepository = teamRepository;
+        this.teamService = teamService;
         this.matchService = matchService;
         this.playerService = playerService;
         this.goalRepository = goalRepository;
@@ -76,22 +76,7 @@ public abstract class ProcessWorker {
         return playerService.processPlayer(player, team);
     }
 
-    //TODO: Continue here
     Team processTeam(Map<String, String> teamMap, League league) {
-        Team team = new Team();
-        team.setCode(teamMap.get("code"));
-        team.setName(teamMap.get("name"));
-        team.setProfilePicture(teamMap.get("picture"));
-        team.getLeagues().add(league);
-
-        Optional<Team> existingTeam = teamRepository.findByCodeAndLeagues(team.getCode(), league);
-
-        //if(!existingTeam.isPresent()) {
-        //  return teamRepository.save(team);
-        //} else {
-        //  return existingTeam.get();
-        //}
-        return existingTeam.orElseGet(() -> teamRepository.save(team));
-
+        return teamService.processTeam(teamMap.get("code"), teamMap.get("name"), teamMap.get("picture"), league);
     }
 }

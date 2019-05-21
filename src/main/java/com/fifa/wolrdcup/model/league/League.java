@@ -21,7 +21,8 @@ import java.util.stream.Collectors;
         property = "type", defaultImpl = RegularLeague.class)
 @JsonSubTypes({
         @JsonSubTypes.Type(value = RegularLeague.class, name = "RegularLeague"),
-        @JsonSubTypes.Type(value = FantasyLeague.class, name = "FantasyLeague")
+        @JsonSubTypes.Type(value = FantasyLeague.class, name = "FantasyLeague"),
+        @JsonSubTypes.Type(value = LeagueGroup.class, name = "LeagueGroup")
 })
 @NamedEntityGraph(name = "League.detail",
         attributeNodes = {
@@ -36,7 +37,7 @@ public abstract class League {
     @NotNull
     private String name;
 
-    @ManyToMany(mappedBy = "leagues", cascade = CascadeType.ALL)
+    @ManyToMany(mappedBy = "leagues")
     @JsonView(LeagueTeamsView.class)
     private List<Team> teams = new LinkedList<>();
 

@@ -15,7 +15,7 @@ public class FantasyLeague extends League {
     @OneToOne
     private RegularLeague regularLeague;
 
-    @OneToMany(mappedBy = "league", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "league")
     @JsonView(LeagueLineupsView.class)
     private List<FantasyLineup> lineups = new LinkedList<>();
 
