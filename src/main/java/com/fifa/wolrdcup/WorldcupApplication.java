@@ -56,7 +56,7 @@ public class WorldcupApplication {
 
     private static final String EURO_QUALIFICATIONS_URL  = "/em-qualifikation/gesamtspielplan/pokalwettbewerb/EMQ/saison_id/";
 
-    private static final String CHAMPIONS_LEAGUE_URL = "uefa-champions-league/gesamtspielplan/pokalwettbewerb/CL/saison_id";
+    private static final String CHAMPIONS_LEAGUE_URL = "/uefa-champions-league/gesamtspielplan/pokalwettbewerb/CL/saison_id/";
 
     private static final List<String> TOP_5_URLS = Arrays.asList(
         "/serie-a/gesamtspielplan/wettbewerb/IT1/saison_id/",

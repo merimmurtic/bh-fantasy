@@ -20,79 +20,88 @@ public class PlayerService {
 
     @Transactional
     public Player processPlayer(Player player, Team team) {
-        Optional<Player> existingPlayer = Optional.empty();
+        Optional<Player> existingPlayerOptional = Optional.empty();
 
         if(player.getTransferMarktId() != null) {
-            existingPlayer = playerRepository.findByTransferMarktId(player.getTransferMarktId());
-        } else {
+            existingPlayerOptional = playerRepository.findByTransferMarktId(player.getTransferMarktId());
+        }
+
+        if(!existingPlayerOptional.isPresent()) {
             if (player.getFirstName() != null) {
-                existingPlayer = playerRepository.findByFirstNameAndLastName(
+                existingPlayerOptional = playerRepository.findByFirstNameAndLastName(
                         player.getFirstName(), player.getLastName());
             }
 
-            if (!existingPlayer.isPresent()) {
-                existingPlayer = playerRepository.findByLastName(player.getLastName());
+            if (!existingPlayerOptional.isPresent()) {
+                existingPlayerOptional = playerRepository.findByLastName(player.getLastName());
             }
         }
 
-        existingPlayer.ifPresent((p) -> {
+        Player existingPlayer = null;
+
+        if (existingPlayerOptional.isPresent()) {
+            existingPlayer = existingPlayerOptional.get();
+        }
+
+        if(existingPlayer != null) {
             boolean updated = false;
 
-            if(player.getFirstName() != null && !player.getFirstName().equals(p.getFirstName())) {
-                p.setFirstName(player.getFirstName());
+            if (player.getFirstName() != null && !player.getFirstName().equals(existingPlayer.getFirstName())) {
+                existingPlayer.setFirstName(player.getFirstName());
                 updated = true;
             }
 
-            if(player.getLastName() != null && !player.getLastName().equals(p.getLastName())) {
-                p.setLastName(player.getLastName());
+            if (player.getLastName() != null && !player.getLastName().equals(existingPlayer.getLastName())) {
+                existingPlayer.setLastName(player.getLastName());
                 updated = true;
             }
 
-            if(player.getTransferMarktId() != null && p.getTransferMarktId() == null) {
-                p.setTransferMarktId(player.getTransferMarktId());
+            if (player.getTransferMarktId() != null && existingPlayer.getTransferMarktId() == null) {
+                existingPlayer.setTransferMarktId(player.getTransferMarktId());
                 updated = true;
             }
 
-            if(team != null && !p.getTeams().stream().map(Team::getId)
+            if (team != null && !existingPlayer.getTeams().stream().map(Team::getId)
                     .collect(Collectors.toSet()).contains(team.getId())) {
-                p.getTeams().add(team);
+                existingPlayer.getTeams().add(team);
                 updated = true;
             }
 
-            if(player.getNumberoOnDress() != null && !player.getNumberoOnDress().equals(p.getNumberoOnDress())) {
-                p.setNumberoOnDress(player.getNumberoOnDress());
+            if (player.getNumberoOnDress() != null && !player.getNumberoOnDress().equals(existingPlayer.getNumberoOnDress())) {
+                existingPlayer.setNumberoOnDress(player.getNumberoOnDress());
                 updated = true;
             }
 
-            if(player.getBirthDate() != null && !player.getBirthDate().equals(p.getBirthDate())) {
-                p.setBirthDate(player.getBirthDate());
+            if (player.getBirthDate() != null && !player.getBirthDate().equals(existingPlayer.getBirthDate())) {
+                existingPlayer.setBirthDate(player.getBirthDate());
                 updated = true;
             }
 
-            if(player.getMarketValueRaw() != null && !player.getMarketValueRaw().equals(p.getMarketValueRaw())) {
-                p.setMarketValueRaw(player.getMarketValueRaw());
+            if (player.getMarketValueRaw() != null && !player.getMarketValueRaw().equals(existingPlayer.getMarketValueRaw())) {
+                existingPlayer.setMarketValueRaw(player.getMarketValueRaw());
                 updated = true;
             }
 
-            if(player.getProfilePicture() != null && !player.getProfilePicture().equals(p.getProfilePicture())) {
-                p.setProfilePicture(player.getProfilePicture());
+            if (player.getProfilePicture() != null && !player.getProfilePicture().equals(existingPlayer.getProfilePicture())) {
+                existingPlayer.setProfilePicture(player.getProfilePicture());
                 updated = true;
             }
 
-            if(player.getPosition() != null && !player.getPosition().equals(p.getPosition())) {
-                p.setPosition(player.getPosition());
+            if (player.getPosition() != null && !player.getPosition().equals(existingPlayer.getPosition())) {
+                existingPlayer.setPosition(player.getPosition());
                 updated = true;
             }
 
-            if(updated) {
-                playerRepository.save(p);
+            if (updated) {
+                existingPlayer = playerRepository.save(existingPlayer);
             }
-        });
+        } else {
+            existingPlayer = playerRepository.save(player);
 
-        return existingPlayer.orElseGet(() -> {
-            player.getTeams().add(team);
-            return playerRepository.save(player);
-        });
+            existingPlayer.getTeams().add(team);
+        }
+
+        return existingPlayer;
     }
 
     public PlayerRepository getPlayerRepository() {
