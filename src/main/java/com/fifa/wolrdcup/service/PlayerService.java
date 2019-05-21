@@ -26,13 +26,12 @@ public class PlayerService {
             existingPlayer = playerRepository.findByTransferMarktId(player.getTransferMarktId());
         } else {
             if (player.getFirstName() != null) {
-                existingPlayer = playerRepository.findByTeamsAndFirstNameAndLastName(
-                        team, player.getFirstName(), player.getLastName());
+                existingPlayer = playerRepository.findByFirstNameAndLastName(
+                        player.getFirstName(), player.getLastName());
             }
 
             if (!existingPlayer.isPresent()) {
-                existingPlayer = playerRepository.findByTeamsAndLastName(
-                        team, player.getLastName());
+                existingPlayer = playerRepository.findByLastName(player.getLastName());
             }
         }
 

@@ -4,7 +4,9 @@ import com.fifa.wolrdcup.model.Match;
 import com.fifa.wolrdcup.model.Round;
 import com.fifa.wolrdcup.model.league.RegularLeague;
 import com.fifa.wolrdcup.repository.MatchRepository;
+import com.fifa.wolrdcup.repository.RegularLeagueRepository;
 import com.fifa.wolrdcup.repository.RoundRepository;
+import com.fifa.wolrdcup.repository.TeamRepository;
 import com.fifa.wolrdcup.utils.CommonUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,6 +16,7 @@ import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class MultiLeagueService {
@@ -24,9 +27,17 @@ public class MultiLeagueService {
 
     private final RoundRepository roundRepository;
 
-    public MultiLeagueService(MatchRepository matchRepository, RoundRepository roundRepository) {
+    private final RegularLeagueRepository regularLeagueRepository;
+
+    private final TeamRepository teamRepository;
+
+    public MultiLeagueService(
+            MatchRepository matchRepository, RoundRepository roundRepository,
+            RegularLeagueRepository regularLeagueRepository, TeamRepository teamRepository) {
         this.matchRepository = matchRepository;
         this.roundRepository = roundRepository;
+        this.regularLeagueRepository = regularLeagueRepository;
+        this.teamRepository = teamRepository;
     }
 
     @Transactional
@@ -71,5 +82,40 @@ public class MultiLeagueService {
         }
 
         logger.info("{} rounds calculated for league {}!", rounds.size(), league.getName());
+    }
+
+    @Transactional
+    public void seedTop5League(List<Long> leagueIds) {
+        List<RegularLeague> regularLeagues = new ArrayList<>();
+
+        regularLeagueRepository.findAllById(leagueIds).forEach(regularLeagues::add);
+
+        if(regularLeagues.size() > 0) {
+            RegularLeague firstLeague = regularLeagues.get(0);
+
+            Optional<RegularLeague> top5LeagueOptional = regularLeagueRepository.findByNameAndSeason(
+                    "TOP 5 League", firstLeague.getSeason());
+
+            if (!top5LeagueOptional.isPresent()) {
+                RegularLeague top5League = new RegularLeague();
+                top5League.setName("TOP 5 League");
+                top5League.setSeason(firstLeague.getSeason());
+                top5League.getGroups().addAll(regularLeagues);
+
+                regularLeagueRepository.save(top5League);
+
+                regularLeagues.forEach(league -> {
+                    league.getTeams().forEach(team -> {
+                        team.getLeagues().add(top5League);
+
+                        teamRepository.save(team);
+                    });
+                });
+
+                calculateRounds(top5League);
+            } else {
+                logger.info("Top 5 League is already created for season {}", firstLeague.getSeason());
+            }
+        }
     }
 }

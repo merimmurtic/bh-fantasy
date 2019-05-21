@@ -1,6 +1,5 @@
 package com.fifa.wolrdcup;
 
-import com.fifa.wolrdcup.model.league.RegularLeague;
 import com.fifa.wolrdcup.repository.*;
 import com.fifa.wolrdcup.service.*;
 import com.fifa.wolrdcup.workers.ProcessWorker;
@@ -17,7 +16,6 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 
-import javax.transaction.Transactional;
 import java.util.*;
 
 @SpringBootApplication
@@ -27,10 +25,6 @@ public class WorldcupApplication {
     private static Logger logger = LoggerFactory.getLogger(WorldcupApplication.class);
 
     private final StadiumRepository stadiumRepository;
-
-    private final RegularLeagueRepository regularLeagueRepository;
-
-    private final RoundRepository roundRepository;
 
     private final TeamService teamService;
 
@@ -50,6 +44,8 @@ public class WorldcupApplication {
 
     private final FantasyService fantasyService;
 
+    private final RoundService roundService;
+
     private final MissedPenaltyRepository missedPenaltyRepository;
 
     private final MultiLeagueService multiLeagueService;
@@ -58,7 +54,9 @@ public class WorldcupApplication {
 
     private static final String PREMIJER_LIGA_URL = "/premijer-liga/gesamtspielplan/wettbewerb/BOS1/saison_id/";
 
-    private static final String CHAMPIONS_LEAGUE_URL = "/em-qualifikation/gesamtspielplan/pokalwettbewerb/EMQ/saison_id/";
+    private static final String EURO_QUALIFICATIONS_URL  = "/em-qualifikation/gesamtspielplan/pokalwettbewerb/EMQ/saison_id/";
+
+    private static final String CHAMPIONS_LEAGUE_URL = "uefa-champions-league/gesamtspielplan/pokalwettbewerb/CL/saison_id";
 
     private static final List<String> TOP_5_URLS = Arrays.asList(
         "/serie-a/gesamtspielplan/wettbewerb/IT1/saison_id/",
@@ -70,6 +68,7 @@ public class WorldcupApplication {
     private final static List<String> TRANSFERMARKT_URLS = new ArrayList<>();
 
     static {
+        TRANSFERMARKT_URLS.add(EURO_QUALIFICATIONS_URL);
         TRANSFERMARKT_URLS.add(CHAMPIONS_LEAGUE_URL);
         TRANSFERMARKT_URLS.add(PREMIJER_LIGA_URL);
         TRANSFERMARKT_URLS.addAll(TOP_5_URLS);
@@ -81,15 +80,11 @@ public class WorldcupApplication {
             GoalRepository goalRepository,
             MatchService matchService,
             TeamService teamService,
-            RoundRepository roundRepository,
-            RegularLeagueRepository regularLeagueRepository,
             PlayerService playerService,
             LeagueService leagueService, LineupRepository lineupRepository,
             SubstitutionRepository substitutionRepository,
             CardRepository cardRepository,
-            MissedPenaltyRepository missedPenaltyRepository, MultiLeagueService multiLeagueService) {
-        this.regularLeagueRepository = regularLeagueRepository;
-        this.roundRepository = roundRepository;
+            RoundService roundService, MissedPenaltyRepository missedPenaltyRepository, MultiLeagueService multiLeagueService) {
         this.teamService = teamService;
         this.matchService = matchService;
         this.playerService = playerService;
@@ -100,6 +95,7 @@ public class WorldcupApplication {
         this.fantasyService = fantasyService;
         this.substitutionRepository = substitutionRepository;
         this.cardRepository = cardRepository;
+        this.roundService = roundService;
         this.missedPenaltyRepository = missedPenaltyRepository;
         this.multiLeagueService = multiLeagueService;
     }
@@ -134,14 +130,14 @@ public class WorldcupApplication {
 
             workers.add(new WorldCupWorker(
                     stadiumRepository, goalRepository, matchService,
-                    teamService, roundRepository, leagueService, playerService, "2014"
+                    teamService, roundService, leagueService, playerService, "2014"
             ));
 
 
             for (String url : TRANSFERMARKT_URLS) {
                 workers.add(new TransferMarktWorker(
                         stadiumRepository, goalRepository, matchService,
-                        teamService, roundRepository, leagueService,
+                        teamService, roundService, leagueService,
                         playerService, lineupRepository, substitutionRepository, cardRepository, missedPenaltyRepository,
                         url, "2018"));
             }
@@ -168,44 +164,9 @@ public class WorldcupApplication {
                 Thread.sleep(10000);
             }
 
-            seedTop5League(top5LeagueIds);
+            multiLeagueService.seedTop5League(top5LeagueIds);
         } finally {
             WORKERS_RUNNING = false;
-        }
-    }
-
-    @Transactional
-    public void seedTop5League(List<Long> leagueIds) {
-        List<RegularLeague> regularLeagues = new ArrayList<>();
-
-        regularLeagueRepository.findAllById(leagueIds).forEach(regularLeagues::add);
-
-        if(regularLeagues.size() > 0) {
-            RegularLeague firstLeague = regularLeagues.get(0);
-
-            Optional<RegularLeague> top5LeagueOptional = regularLeagueRepository.findByNameAndSeason(
-                    "TOP 5 League", firstLeague.getSeason());
-
-            if (!top5LeagueOptional.isPresent()) {
-                RegularLeague top5League = new RegularLeague();
-                top5League.setName("TOP 5 League");
-                top5League.setSeason(firstLeague.getSeason());
-                top5League.getGroups().addAll(regularLeagues);
-
-                regularLeagueRepository.save(top5League);
-
-                regularLeagues.forEach(league -> {
-                    league.getTeams().forEach(team -> {
-                        team.getLeagues().add(top5League);
-
-                        teamService.getTeamRepository().save(team);
-                    });
-                });
-
-                multiLeagueService.calculateRounds(top5League);
-            } else {
-                logger.info("Top 5 League is already created for season {}", firstLeague.getSeason());
-            }
         }
     }
 }

@@ -8,9 +8,9 @@ import java.util.List;
 import java.util.Optional;
 
 public interface PlayerRepository extends CrudRepository<Player, Long> {
-    Optional<Player> findByTeamsAndFirstNameAndLastName(Team team, String firstName, String lastName);
+    Optional<Player> findByFirstNameAndLastName(String firstName, String lastName);
 
-    Optional<Player> findByTeamsAndLastName(Team team, String lastName);
+    Optional<Player> findByLastName(String lastName);
 
     Optional<Player> findByTransferMarktId(Long transferMarktId);
 

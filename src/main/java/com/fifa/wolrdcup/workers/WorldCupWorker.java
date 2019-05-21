@@ -7,10 +7,7 @@ import com.fifa.wolrdcup.model.league.League;
 import com.fifa.wolrdcup.model.league.RegularLeague;
 import com.fifa.wolrdcup.model.players.Player;
 import com.fifa.wolrdcup.repository.*;
-import com.fifa.wolrdcup.service.LeagueService;
-import com.fifa.wolrdcup.service.MatchService;
-import com.fifa.wolrdcup.service.PlayerService;
-import com.fifa.wolrdcup.service.TeamService;
+import com.fifa.wolrdcup.service.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.ResourceUtils;
@@ -31,11 +28,11 @@ public class WorldCupWorker extends ProcessWorker {
             GoalRepository goalRepository,
             MatchService matchService,
             TeamService teamService,
-            RoundRepository roundRepository,
+            RoundService roundService,
             LeagueService leagueService,
             PlayerService playerService, String season) {
         super(stadiumRepository, goalRepository, matchService,
-                teamService, roundRepository, leagueService,
+                teamService, roundService, leagueService,
                 playerService, null, null,
                 null, null);
 
@@ -81,14 +78,9 @@ public class WorldCupWorker extends ProcessWorker {
     @SuppressWarnings("unchecked")
     private void processRounds(List<HashMap<String, Object>> rounds, League league) {
         for (HashMap<String, Object> roundMap : rounds) {
-            Round round = new Round();
-            round.setName((String) roundMap.get("name"));
-            round.setLeague(league);
-
-            roundRepository.save(round);
+            Round round = roundService.getOrCreateRound((String) roundMap.get("name"), league);
 
             processMatches((List<HashMap<String, Object>>) roundMap.get("matches"), round, league);
-
         }
     }
 

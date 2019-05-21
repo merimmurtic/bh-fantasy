@@ -5,10 +5,7 @@ import com.fifa.wolrdcup.model.Team;
 import com.fifa.wolrdcup.model.players.Player;
 import com.fifa.wolrdcup.model.players.Unknown;
 import com.fifa.wolrdcup.repository.*;
-import com.fifa.wolrdcup.service.LeagueService;
-import com.fifa.wolrdcup.service.MatchService;
-import com.fifa.wolrdcup.service.PlayerService;
-import com.fifa.wolrdcup.service.TeamService;
+import com.fifa.wolrdcup.service.*;
 
 import java.util.Map;
 
@@ -17,7 +14,7 @@ public abstract class ProcessWorker {
 
     final LeagueService leagueService;
 
-    final RoundRepository roundRepository;
+    final RoundService roundService;
 
     final TeamService teamService;
 
@@ -40,7 +37,7 @@ public abstract class ProcessWorker {
             GoalRepository goalRepository,
             MatchService matchService,
             TeamService teamService,
-            RoundRepository roundRepository,
+            RoundService roundService,
             LeagueService leagueService,
             PlayerService playerService,
             LineupRepository lineupRepository,
@@ -49,7 +46,7 @@ public abstract class ProcessWorker {
             MissedPenaltyRepository missedPenaltyRepository
     ) {
         this.leagueService = leagueService;
-        this.roundRepository = roundRepository;
+        this.roundService = roundService;
         this.teamService = teamService;
         this.matchService = matchService;
         this.playerService = playerService;

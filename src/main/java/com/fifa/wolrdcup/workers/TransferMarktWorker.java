@@ -8,10 +8,7 @@ import com.fifa.wolrdcup.model.players.Player;
 import com.fifa.wolrdcup.model.players.Player.Position;
 import com.fifa.wolrdcup.model.players.Unknown;
 import com.fifa.wolrdcup.repository.*;
-import com.fifa.wolrdcup.service.LeagueService;
-import com.fifa.wolrdcup.service.MatchService;
-import com.fifa.wolrdcup.service.PlayerService;
-import com.fifa.wolrdcup.service.TeamService;
+import com.fifa.wolrdcup.service.*;
 import com.fifa.wolrdcup.utils.CommonUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -53,7 +50,7 @@ public class TransferMarktWorker extends ProcessWorker {
                         GoalRepository goalRepository,
                         MatchService matchService,
                         TeamService teamService,
-                        RoundRepository roundRepository,
+                        RoundService roundService,
                         LeagueService leagueService,
                         PlayerService playerService,
                         LineupRepository lineupRepository,
@@ -62,7 +59,7 @@ public class TransferMarktWorker extends ProcessWorker {
                         MissedPenaltyRepository missedPenaltyRepository,
                         String transfermarktUrl, String season) {
         super(stadiumRepository, goalRepository, matchService,
-                teamService, roundRepository, leagueService,
+                teamService, roundService, leagueService,
                 playerService, lineupRepository, substitutionRepository, cardRepository, missedPenaltyRepository);
 
         this.transfermarktUrl = transfermarktUrl;
@@ -114,6 +111,8 @@ public class TransferMarktWorker extends ProcessWorker {
     }
 
     private void processGroups(Elements groupElements, RegularLeague league) {
+        RoundRepository roundRepository = roundService.getRoundRepository();
+
         for(Element groupElement : groupElements) {
             final String groupName = groupElement.selectFirst(".table-header").text();
 
@@ -134,6 +133,8 @@ public class TransferMarktWorker extends ProcessWorker {
 
             Round round = null;
 
+            Round groupRound = null;
+
             int counter = 1;
 
             for(Element tr : trs) {
@@ -152,27 +153,35 @@ public class TransferMarktWorker extends ProcessWorker {
 
                     Match match = processMatch(tds, league, group);
 
-                    if (round == null || !CommonUtils.checkIfSameWeek(match.getDateTime(), startDate)) {
+                    if (groupRound == null || !CommonUtils.checkIfSameWeek(match.getDateTime(), startDate)) {
                        if (round != null) {
                            round.setEndDate(endDate);
 
                            roundRepository.save(round);
                        }
 
+                       if(groupRound != null) {
+                           groupRound.setEndDate(endDate);
+
+                           roundRepository.save(groupRound);
+                       }
+
                        startDate = match.getDateTime();
                        endDate = match.getDateTime();
 
-                       round = new Round();
-                       round.setName(counter + ".Matchday");
-                       round.setStartDate(startDate);
-                       round.setLeague(league);
+                       String roundName = counter + ".Matchday";
 
-                       round = roundRepository.save(round);
+                       round = roundService.getOrCreateRound(roundName, league);
+                       round.setStartDate(startDate);
+
+                       groupRound = roundService.getOrCreateRound(roundName, group);
+                       groupRound.setStartDate(startDate);
 
                        counter++;
                     }
 
                     match = matchService.addRound(match.getId(), round);
+                    match = matchService.addRound(match.getId(), groupRound);
 
                     LocalDateTime matchDate = match.getDateTime();
 
@@ -191,6 +200,8 @@ public class TransferMarktWorker extends ProcessWorker {
     }
 
     private void processRounds(Elements matchDays, League league) {
+        RoundRepository roundRepository = roundService.getRoundRepository();
+
         for(Element matchDayElement : matchDays) {
             Round round;
 
@@ -236,11 +247,7 @@ public class TransferMarktWorker extends ProcessWorker {
                     endDate = matchDate;
                 }
 
-                if(match.getRounds().size() == 0) {
-                    match.getRounds().add(round);
-
-                    matchService.getMatchRepository().save(match);
-                }
+                matchService.addRound(match.getId(), round);
             }
         }
 
@@ -248,7 +255,7 @@ public class TransferMarktWorker extends ProcessWorker {
             round.setStartDate(startDate);
             round.setEndDate(endDate);
 
-            roundRepository.save(round);
+            roundService.getRoundRepository().save(round);
         }
     }
 

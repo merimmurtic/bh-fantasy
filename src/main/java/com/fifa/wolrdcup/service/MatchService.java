@@ -29,9 +29,13 @@ public class MatchService {
         Optional<Match> optional = matchRepository.findById(matchId);
 
         if(optional.isPresent()) {
-            optional.get().getRounds().add(round);
+            Match match = optional.get();
 
-            return matchRepository.save(optional.get());
+            if (match.getRounds().stream().noneMatch(r -> r.getId().equals(round.getId()))) {
+               match.getRounds().add(round);
+            }
+
+            return match;
         } else {
             return null;
         }
