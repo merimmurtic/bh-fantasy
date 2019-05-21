@@ -87,7 +87,8 @@ public class PlayerService {
                 updated = true;
             }
 
-            if (player.getPosition() != null && !player.getPosition().equals(existingPlayer.getPosition())) {
+            if (player.getType() != null && player.getType().equals(existingPlayer.getType())
+                    && player.getPosition() != null && !player.getPosition().equals(existingPlayer.getPosition())) {
                 existingPlayer.setPosition(player.getPosition());
                 updated = true;
             }

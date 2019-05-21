@@ -128,11 +128,6 @@ public class WorldcupApplication {
 
             List<ProcessWorker> workers = new ArrayList<>();
 
-            workers.add(new WorldCupWorker(
-                    stadiumRepository, goalRepository, matchService,
-                    teamService, roundService, leagueService, playerService, "2014"
-            ));
-
 
             for (String url : TRANSFERMARKT_URLS) {
                 workers.add(new TransferMarktWorker(
@@ -141,6 +136,11 @@ public class WorldcupApplication {
                         playerService, lineupRepository, substitutionRepository, cardRepository, missedPenaltyRepository,
                         url, "2018"));
             }
+
+            workers.add(new WorldCupWorker(
+                    stadiumRepository, goalRepository, matchService,
+                    teamService, roundService, leagueService, playerService, "2014"
+            ));
 
             List<Long> top5LeagueIds = new ArrayList<>();
 
