@@ -5,15 +5,14 @@ import com.fifa.wolrdcup.model.Round;
 import com.fifa.wolrdcup.model.league.RegularLeague;
 import com.fifa.wolrdcup.repository.MatchRepository;
 import com.fifa.wolrdcup.repository.RoundRepository;
+import com.fifa.wolrdcup.utils.CommonUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 
 @Service
@@ -43,7 +42,7 @@ public class MultiLeagueService {
         Round round = null;
 
         for (Match match : matches) {
-            if(!checkIfSameWeek(roundStart, match.getDateTime())) {
+            if(!CommonUtils.checkIfSameWeek(roundStart, match.getDateTime())) {
                 if(round != null) {
                     roundRepository.save(round);
                 }
@@ -72,25 +71,5 @@ public class MultiLeagueService {
         }
 
         logger.info("{} rounds calculated for league {}!", rounds.size(), league.getName());
-    }
-
-    private boolean checkIfSameWeek(LocalDateTime localDateTime1, LocalDateTime localDateTime2) {
-        if(localDateTime1 == null || localDateTime2 == null) {
-            return false;
-        }
-
-        Calendar cal1 = Calendar.getInstance();
-        cal1.setTimeInMillis(localDateTime1.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli());
-
-        int week = cal1.get(Calendar.WEEK_OF_YEAR);
-        int year = cal1.get(Calendar.YEAR);
-
-        Calendar cal2 = Calendar.getInstance();
-
-        cal2.setTimeInMillis(localDateTime2.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli());
-        int targetWeek = cal2.get(Calendar.WEEK_OF_YEAR);
-        int targetYear = cal2.get(Calendar.YEAR);
-
-        return week == targetWeek && year == targetYear;
     }
 }

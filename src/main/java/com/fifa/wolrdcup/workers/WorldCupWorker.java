@@ -7,6 +7,8 @@ import com.fifa.wolrdcup.model.league.League;
 import com.fifa.wolrdcup.model.league.RegularLeague;
 import com.fifa.wolrdcup.model.players.Player;
 import com.fifa.wolrdcup.repository.*;
+import com.fifa.wolrdcup.service.LeagueService;
+import com.fifa.wolrdcup.service.MatchService;
 import com.fifa.wolrdcup.service.PlayerService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,13 +29,13 @@ public class WorldCupWorker extends ProcessWorker {
     public WorldCupWorker(
             StadiumRepository stadiumRepository,
             GoalRepository goalRepository,
-            MatchRepository matchRepository,
+            MatchService matchService,
             TeamRepository teamRepository,
             RoundRepository roundRepository,
-            RegularLeagueRepository regularLeagueRepository,
+            LeagueService leagueService,
             PlayerService playerService, String season) {
-        super(stadiumRepository, goalRepository, matchRepository,
-                teamRepository, roundRepository, regularLeagueRepository,
+        super(stadiumRepository, goalRepository, matchService,
+                teamRepository, roundRepository, leagueService,
                 playerService, null, null,
                 null, null);
 
@@ -51,7 +53,7 @@ public class WorldCupWorker extends ProcessWorker {
 
             String leagueName = (String) map.get("name");
 
-            Optional<RegularLeague> optionalLeague = regularLeagueRepository.findByNameAndSeason(
+            Optional<RegularLeague> optionalLeague = leagueService.getRegularLeagueRepository().findByNameAndSeason(
                     leagueName, season);
 
             if(optionalLeague.isPresent()) {
@@ -65,7 +67,7 @@ public class WorldCupWorker extends ProcessWorker {
             league.setName(leagueName);
             league.setSeason(season);
 
-            regularLeagueRepository.save(league);
+            leagueService.getRegularLeagueRepository().save(league);
 
             processRounds((List<HashMap<String, Object>>) map.get("rounds"), league);
 
@@ -124,11 +126,11 @@ public class WorldCupWorker extends ProcessWorker {
                 match.setScore2((Integer) matchMap.get("score2"));
             }
 
-            match = matchRepository.save(match);
+            match = matchService.getMatchRepository().save(match);
 
             match.getRounds().add(round);
 
-            match = matchRepository.save(match);
+            match = matchService.getMatchRepository().save(match);
 
             if(matchMap.containsKey("goals1")) {
                 processGoals((List<HashMap<String, Object>>) matchMap.get("goals1"),

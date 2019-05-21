@@ -7,7 +7,10 @@ import com.fifa.wolrdcup.model.players.Player;
 import com.fifa.wolrdcup.model.players.Player.Position;
 import com.fifa.wolrdcup.model.players.Unknown;
 import com.fifa.wolrdcup.repository.*;
+import com.fifa.wolrdcup.service.LeagueService;
+import com.fifa.wolrdcup.service.MatchService;
 import com.fifa.wolrdcup.service.PlayerService;
+import com.fifa.wolrdcup.utils.CommonUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -46,18 +49,18 @@ public class TransferMarktWorker extends ProcessWorker {
 
     public TransferMarktWorker(StadiumRepository stadiumRepository,
                         GoalRepository goalRepository,
-                        MatchRepository matchRepository,
+                        MatchService matchService,
                         TeamRepository teamRepository,
                         RoundRepository roundRepository,
-                        RegularLeagueRepository regularLeagueRepository,
+                        LeagueService leagueService,
                         PlayerService playerService,
                         LineupRepository lineupRepository,
                         SubstitutionRepository substitutionRepository,
                         CardRepository cardRepository,
                         MissedPenaltyRepository missedPenaltyRepository,
                         String transfermarktUrl, String season) {
-        super(stadiumRepository, goalRepository, matchRepository,
-                teamRepository, roundRepository, regularLeagueRepository,
+        super(stadiumRepository, goalRepository, matchService,
+                teamRepository, roundRepository, leagueService,
                 playerService, lineupRepository, substitutionRepository, cardRepository, missedPenaltyRepository);
 
         this.transfermarktUrl = transfermarktUrl;
@@ -71,34 +74,126 @@ public class TransferMarktWorker extends ProcessWorker {
     public Long process() throws Exception {
         Document document = Jsoup.parse(new URL(BASE_URL.concat(transfermarktUrl).concat(season)), 10000);
 
-        String leagueName = document.select(".spielername-profil").text();
+        Element leagueNameElement = document.selectFirst(".spielername-profil");
+
+        String leagueName = null;
+
+        boolean multiLeague = false;
+
+        if(leagueNameElement == null) {
+            leagueNameElement = document.selectFirst("#wettbewerb_head .dataName");
+
+            if (leagueNameElement != null) {
+                multiLeague = true;
+            }
+        }
+
+        if(leagueNameElement == null) {
+            return null;
+        }
+
+        leagueName = leagueNameElement.text();
 
         logger.info("Processing league {}.", leagueName);
 
-        Optional<RegularLeague> optionalLeague = regularLeagueRepository.findByNameAndSeason(leagueName, season);
+        RegularLeague league = leagueService.processRegularLeague(leagueName, season);
 
-        RegularLeague league = null;
+        if(multiLeague) {
+            Elements groups = document.select(".large-8 .row .large-6");
 
-        if(optionalLeague.isPresent()) {
-            league = optionalLeague.get();
+            processGroups(groups, league);
         } else {
-            league = new RegularLeague();
-            league.setName(leagueName);
-            league.setSeason(season);
+            Elements matchDays = document.select(".row .large-6 .box");
 
-            regularLeagueRepository.save(league);
+            processRounds(matchDays, league);
         }
-
-        Elements matchDays = document.select(".row .large-6 .box");
-
-        processRounds(matchDays, league);
 
         return league.getId();
     }
 
+    private void processGroups(Elements groupElements, RegularLeague league) {
+        for(Element groupElement : groupElements) {
+            final String groupName = groupElement.selectFirst(".table-header").text();
+
+            RegularLeague group = leagueService.getLeagueGroup(league.getId(), groupName);
+
+            if(group == null) {
+                group = new RegularLeague();
+                group.setName(groupName);
+
+                group = leagueService.getRegularLeagueRepository().save(group);
+            }
+
+            Elements trs = groupElement.select("table").last().select("tr");
+
+            Element dateTd = null;
+
+            LocalDateTime startDate = null;
+            LocalDateTime endDate = null;
+
+            Round round = null;
+
+            int counter = 1;
+
+            for(Element tr : trs) {
+                Elements tds = tr.select("td");
+
+                if(tds.size() == 1 && tds.select(".show-for-small").size() == 1) {
+                    dateTd = tds.get(0);
+                }
+
+                if(tds.size() != 6) {
+                    continue;
+                }
+
+                if(dateTd != null) {
+                    tds.add(0, dateTd);
+
+                    Match match = processMatch(tds, league);
+
+                    if (round == null || !CommonUtils.checkIfSameWeek(match.getDateTime(), startDate)) {
+                       if (round != null) {
+                           round.setEndDate(endDate);
+
+                           roundRepository.save(round);
+                       }
+
+                       startDate = match.getDateTime();
+                       endDate = match.getDateTime();
+
+                       round = new Round();
+                       round.setName(counter + ".Matchday");
+                       round.setStartDate(startDate);
+                       round.setLeague(league);
+
+                       round = roundRepository.save(round);
+
+                       counter++;
+                    }
+
+                    match = matchService.addRound(match.getId(), round);
+
+                    LocalDateTime matchDate = match.getDateTime();
+
+                    if(startDate == null || matchDate != null && startDate.isAfter(matchDate)) {
+                        startDate = matchDate;
+                    }
+
+                    if(endDate == null || matchDate != null && endDate.isBefore(matchDate)) {
+                        endDate = matchDate;
+                    }
+                }
+            }
+
+            league = leagueService.addGroup(league.getId(), group);
+        }
+
+        leagueService.getRegularLeagueRepository().save(league);
+    }
+
     private void processRounds(Elements matchDays, League league) {
         for(Element matchDayElement : matchDays) {
-            Round round = null;
+            Round round;
 
             String matchDay = matchDayElement.select(".table-header").first().text();
 
@@ -123,8 +218,6 @@ public class TransferMarktWorker extends ProcessWorker {
     }
 
     private void processMatches(Elements matchElements, Round round, League league) {
-        LocalDateTime matchDate = null;
-
         LocalDateTime startDate = null;
         LocalDateTime endDate = null;
 
@@ -132,48 +225,9 @@ public class TransferMarktWorker extends ProcessWorker {
             Elements elements = matchElement.select("td");
 
             if (elements.size() == 7) {
-                Element matchDetailsElement = elements.get(4).selectFirst("a");
+                Match match = processMatch(elements, league);
 
-                Match match = null;
-
-                Long transferMarktId = getTransferMarktId(matchDetailsElement.attr("href"));
-
-                if(transferMarktId != null) {
-                    Optional<Match> optionalMatch = matchRepository.findByTransfermarktId(transferMarktId);
-
-                    if(optionalMatch.isPresent()) {
-                        match = optionalMatch.get();
-                    }
-                }
-
-                Element dateElement = elements.get(0).selectFirst("a");
-
-                String dateTimeRaw = "";
-
-                if(dateElement != null) {
-                    String[] parts = dateElement.attr("href").split("/");
-
-                    if(parts.length > 0) {
-                        dateTimeRaw = dateTimeRaw.concat(parts[parts.length - 1]);
-                    }
-                }
-
-                String timeRaw = elements.get(1).text().trim();
-
-                try {
-                    if(!timeRaw.isEmpty() && !timeRaw.equals("-")) {
-                        dateTimeRaw = dateTimeRaw.concat(" ").concat(timeRaw);
-
-                        matchDate = LocalDateTime.parse(
-                                dateTimeRaw, DateTimeFormatter.ofPattern("yyyy-MM-dd h:mm a"));
-                    } else if(matchDate == null){
-                        matchDate = LocalDate.parse(
-                                dateTimeRaw, DateTimeFormatter.ofPattern("yyyy-MM-dd")).atStartOfDay();
-                    }
-                } catch (DateTimeParseException e) {
-                    logger.error("Error while parsing datetime.", e);
-                    matchDate = null;
-                }
+                LocalDateTime matchDate = match.getDateTime();
 
                 if(startDate == null || matchDate != null && startDate.isAfter(matchDate)) {
                     startDate = matchDate;
@@ -183,43 +237,10 @@ public class TransferMarktWorker extends ProcessWorker {
                     endDate = matchDate;
                 }
 
-                if(match == null) {
-                    match = new Match();
-                    match.setTransfermarktId(transferMarktId);
-
-                    String profilePictureTeam1 = elements.get(3).select("img")
-                            .attr("src").replace("tiny", "normal");
-
-                    String profilePictureTeam2 = elements.get(5).select("img")
-                            .attr("src").replace("tiny", "normal");
-
-                    match.setTeam1(processTeam(
-                            processTeamMap(elements.get(2).select("a").text(), profilePictureTeam1), league));
-                    match.setTeam2(processTeam(
-                            processTeamMap(elements.get(6).select("a").text(), profilePictureTeam2), league));
-                    match = matchRepository.save(match);
-
+                if(match.getRounds().size() == 0) {
                     match.getRounds().add(round);
-                } else if(match.getLineup1() != null) {
-                    logger.info("Match {} is already processed.", match.getTransfermarktId());
-                    continue;
-                }
 
-                match.setDateTime(matchDate);
-
-                String[] scores = matchDetailsElement.text().split(":");
-
-                try {
-                    match.setScore1(Integer.parseInt(scores[0]));
-                    match.setScore2(Integer.parseInt(scores[1]));
-                } catch (NumberFormatException e) {
-                    // Match is not played
-                }
-
-                match = matchRepository.save(match);
-
-                if(match.getScore1() != null) {
-                    processMatch(matchDetailsElement.attr("href"), match);
+                    matchService.getMatchRepository().save(match);
                 }
             }
         }
@@ -232,7 +253,96 @@ public class TransferMarktWorker extends ProcessWorker {
         }
     }
 
-    private void processMatch(String matchUrl, Match match) {
+    private Match processMatch(Elements elements, League league) {
+        LocalDateTime matchDate = null;
+
+        Element matchDetailsElement = elements.get(4).selectFirst("a");
+
+        Match match = null;
+
+        Long transferMarktId = getTransferMarktId(matchDetailsElement.attr("href"));
+
+        if(transferMarktId != null) {
+            Optional<Match> optionalMatch = matchService.getMatchRepository().findByTransfermarktId(transferMarktId);
+
+            if(optionalMatch.isPresent()) {
+                match = optionalMatch.get();
+            }
+        }
+
+        Element dateElement = elements.get(0).selectFirst("a");
+
+        String dateTimeRaw = "";
+
+        if(dateElement != null) {
+            String[] parts = dateElement.attr("href").split("/");
+
+            if(parts.length > 0) {
+                dateTimeRaw = dateTimeRaw.concat(parts[parts.length - 1]);
+            }
+        }
+
+        String timeRaw = elements.get(0).selectFirst("a").nextSibling().toString().trim();
+
+        if(timeRaw.isEmpty()) {
+            timeRaw = elements.get(1).text().trim();
+        }
+
+        try {
+            if(!timeRaw.isEmpty() && !timeRaw.equals("-")) {
+                dateTimeRaw = dateTimeRaw.concat(" ").concat(timeRaw);
+
+                matchDate = LocalDateTime.parse(
+                        dateTimeRaw, DateTimeFormatter.ofPattern("yyyy-MM-dd h:mm a"));
+            } else {
+                matchDate = LocalDate.parse(
+                        dateTimeRaw, DateTimeFormatter.ofPattern("yyyy-MM-dd")).atStartOfDay();
+            }
+        } catch (DateTimeParseException e) {
+            logger.error("Error while parsing datetime.", e);
+        }
+
+        if(match == null) {
+            match = new Match();
+            match.setTransfermarktId(transferMarktId);
+
+            String profilePictureTeam1 = elements.get(3).select("img")
+                    .attr("src").replace("tiny", "normal");
+
+            String profilePictureTeam2 = elements.get(5).select("img")
+                    .attr("src").replace("tiny", "normal");
+
+            match.setTeam1(processTeam(
+                    processTeamMap(elements.get(2).select("a").text(), profilePictureTeam1), league));
+            match.setTeam2(processTeam(
+                    processTeamMap(elements.get(6).select("a").text(), profilePictureTeam2), league));
+        } else if(match.getLineup1() != null) {
+            logger.info("Match {} is already processed.", match.getTransfermarktId());
+
+            return match;
+        }
+
+        match.setDateTime(matchDate);
+
+        String[] scores = matchDetailsElement.text().split(":");
+
+        try {
+            match.setScore1(Integer.parseInt(scores[0]));
+            match.setScore2(Integer.parseInt(scores[1]));
+        } catch (NumberFormatException e) {
+            // Match is not played
+        }
+
+        match = matchService.getMatchRepository().save(match);
+
+        if(match.getScore1() != null) {
+            processMatchDetails(matchDetailsElement.attr("href"), match);
+        }
+
+        return match;
+    }
+
+    private void processMatchDetails(String matchUrl, Match match) {
         try {
             Document document = Jsoup.parse(new URL(BASE_URL.concat(matchUrl)), 10000);
 
@@ -245,7 +355,7 @@ public class TransferMarktWorker extends ProcessWorker {
 
             match.setStadium(processStadium(document.selectFirst("#main .box .sb-zusatzinfos")));
 
-            matchRepository.save(match);
+            matchService.getMatchRepository().save(match);
 
             Elements goalElements = document.select("#sb-tore ul li");
 

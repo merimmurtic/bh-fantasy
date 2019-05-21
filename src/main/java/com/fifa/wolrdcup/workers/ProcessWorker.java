@@ -5,6 +5,8 @@ import com.fifa.wolrdcup.model.Team;
 import com.fifa.wolrdcup.model.players.Player;
 import com.fifa.wolrdcup.model.players.Unknown;
 import com.fifa.wolrdcup.repository.*;
+import com.fifa.wolrdcup.service.LeagueService;
+import com.fifa.wolrdcup.service.MatchService;
 import com.fifa.wolrdcup.service.PlayerService;
 
 import java.util.Map;
@@ -13,13 +15,13 @@ import java.util.Optional;
 public abstract class ProcessWorker {
     final StadiumRepository stadiumRepository;
 
-    final RegularLeagueRepository regularLeagueRepository;
+    final LeagueService leagueService;
 
     final RoundRepository roundRepository;
 
     final TeamRepository teamRepository;
 
-    final MatchRepository matchRepository;
+    final MatchService matchService;
 
     final PlayerService playerService;
 
@@ -36,20 +38,20 @@ public abstract class ProcessWorker {
     ProcessWorker(
             StadiumRepository stadiumRepository,
             GoalRepository goalRepository,
-            MatchRepository matchRepository,
+            MatchService matchService,
             TeamRepository teamRepository,
             RoundRepository roundRepository,
-            RegularLeagueRepository regularLeagueRepository,
+            LeagueService leagueService,
             PlayerService playerService,
             LineupRepository lineupRepository,
             SubstitutionRepository substitutionRepository,
             CardRepository cardRepository,
             MissedPenaltyRepository missedPenaltyRepository
     ) {
-        this.regularLeagueRepository = regularLeagueRepository;
+        this.leagueService = leagueService;
         this.roundRepository = roundRepository;
         this.teamRepository = teamRepository;
-        this.matchRepository = matchRepository;
+        this.matchService = matchService;
         this.playerService = playerService;
         this.goalRepository = goalRepository;
         this.stadiumRepository = stadiumRepository;
@@ -74,6 +76,7 @@ public abstract class ProcessWorker {
         return playerService.processPlayer(player, team);
     }
 
+    //TODO: Continue here
     Team processTeam(Map<String, String> teamMap, League league) {
         Team team = new Team();
         team.setCode(teamMap.get("code"));

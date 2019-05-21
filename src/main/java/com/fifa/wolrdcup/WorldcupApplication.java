@@ -2,12 +2,9 @@ package com.fifa.wolrdcup;
 
 import com.fifa.wolrdcup.model.league.RegularLeague;
 import com.fifa.wolrdcup.repository.*;
-import com.fifa.wolrdcup.service.FantasyService;
-import com.fifa.wolrdcup.service.MultiLeagueService;
-import com.fifa.wolrdcup.service.PlayerService;
+import com.fifa.wolrdcup.service.*;
 import com.fifa.wolrdcup.workers.ProcessWorker;
 import com.fifa.wolrdcup.workers.TransferMarktWorker;
-import com.fifa.wolrdcup.workers.WorldCupWorker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
@@ -36,9 +33,11 @@ public class WorldcupApplication {
 
     private final TeamRepository teamRepository;
 
-    private final MatchRepository matchRepository;
+    private final MatchService matchService;
 
     private final PlayerService playerService;
+
+    private final LeagueService leagueService;
 
     private final GoalRepository goalRepository;
 
@@ -58,6 +57,8 @@ public class WorldcupApplication {
 
     private static final String PREMIJER_LIGA_URL = "/premijer-liga/gesamtspielplan/wettbewerb/BOS1/saison_id/";
 
+    private static final String CHAMPIONS_LEAGUE_URL = "/em-qualifikation/gesamtspielplan/pokalwettbewerb/EMQ/saison_id/";
+
     private static final List<String> TOP_5_URLS = Arrays.asList(
         "/serie-a/gesamtspielplan/wettbewerb/IT1/saison_id/",
         "/1-bundesliga/gesamtspielplan/wettbewerb/L1/saison_id/",
@@ -68,30 +69,32 @@ public class WorldcupApplication {
     private final static List<String> TRANSFERMARKT_URLS = new ArrayList<>();
 
     static {
-        TRANSFERMARKT_URLS.add(PREMIJER_LIGA_URL);
-        TRANSFERMARKT_URLS.addAll(TOP_5_URLS);
+        //TRANSFERMARKT_URLS.add(PREMIJER_LIGA_URL);
+        //TRANSFERMARKT_URLS.addAll(TOP_5_URLS);
+        TRANSFERMARKT_URLS.add(CHAMPIONS_LEAGUE_URL);
     }
 
     public WorldcupApplication(
             FantasyService fantasyService,
             StadiumRepository stadiumRepository,
             GoalRepository goalRepository,
-            MatchRepository matchRepository,
+            MatchService matchService,
             TeamRepository teamRepository,
             RoundRepository roundRepository,
             RegularLeagueRepository regularLeagueRepository,
             PlayerService playerService,
-            LineupRepository lineupRepository,
+            LeagueService leagueService, LineupRepository lineupRepository,
             SubstitutionRepository substitutionRepository,
             CardRepository cardRepository,
             MissedPenaltyRepository missedPenaltyRepository, MultiLeagueService multiLeagueService) {
         this.regularLeagueRepository = regularLeagueRepository;
         this.roundRepository = roundRepository;
         this.teamRepository = teamRepository;
-        this.matchRepository = matchRepository;
+        this.matchService = matchService;
         this.playerService = playerService;
         this.goalRepository = goalRepository;
         this.stadiumRepository = stadiumRepository;
+        this.leagueService = leagueService;
         this.lineupRepository = lineupRepository;
         this.fantasyService = fantasyService;
         this.substitutionRepository = substitutionRepository;
@@ -128,16 +131,16 @@ public class WorldcupApplication {
 
             List<ProcessWorker> workers = new ArrayList<>();
 
-            workers.add(new WorldCupWorker(
-                    stadiumRepository, goalRepository, matchRepository,
-                    teamRepository, roundRepository, regularLeagueRepository, playerService, "2014"
-            ));
+            /*workers.add(new WorldCupWorker(
+                    stadiumRepository, goalRepository, matchService,
+                    teamRepository, roundRepository, leagueService, playerService, "2014"
+            ));*/
 
 
             for (String url : TRANSFERMARKT_URLS) {
                 workers.add(new TransferMarktWorker(
-                        stadiumRepository, goalRepository, matchRepository,
-                        teamRepository, roundRepository, regularLeagueRepository,
+                        stadiumRepository, goalRepository, matchService,
+                        teamRepository, roundRepository, leagueService,
                         playerService, lineupRepository, substitutionRepository, cardRepository, missedPenaltyRepository,
                         url, "2018"));
             }
