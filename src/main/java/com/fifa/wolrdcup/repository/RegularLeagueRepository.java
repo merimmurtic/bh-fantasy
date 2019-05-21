@@ -19,7 +19,7 @@ public interface RegularLeagueRepository extends CrudRepository<RegularLeague, L
             "join goal.player player " +
             "join player.teams team " +
             "join team.leagues league " +
-            "where league.id = :leagueId and league.dtype = 'RegularLeague' " +
+            "where league.id = :leagueId and (league.dtype = 'RegularLeague' or league.dtype = 'LeagueGroup') " +
             "group by player, team.profilePicture order by count(goal) desc")
     List<TopPlayerValue> getTopPlayers(@Param("leagueId") Long leagueId);
 
@@ -30,7 +30,7 @@ public interface RegularLeagueRepository extends CrudRepository<RegularLeague, L
             "join Player player on goal.assist.id = player.id " +
             "join player.teams team " +
             "join team.leagues league " +
-            "where league.id = :leagueId and league.dtype = 'RegularLeague' " +
+            "where league.id = :leagueId and (league.dtype = 'RegularLeague' or league.dtype = 'LeagueGroup') " +
             "group by player, team.profilePicture order by count(goal) desc")
     List<TopPlayerValue> getTopPlayerAssists(@Param("leagueId") Long leagueId);
 
@@ -41,7 +41,10 @@ public interface RegularLeagueRepository extends CrudRepository<RegularLeague, L
             "join playerPoints.player player " +
             "join player.teams team " +
             "join team.leagues leagues " +
-            "where leagues.id = :leagueId and leagues.dtype = 'RegularLeague' " +
+            "where leagues.id = :leagueId and (leagues.dtype = 'RegularLeague' or leagues.dtype = 'LeagueGroup') " +
             "group by player, team.profilePicture order by sum(playerPoints.points) desc")
     List<TopPlayerValue> getTopPlayersFantasyPoints(@Param("leagueId") Long leagueId);
+
+    @Query("select league from League league where league.dtype = 'RegularLeague' or league.dtype = 'FantasyLeague'")
+    Iterable<RegularLeague> getAllLeagues();
 }

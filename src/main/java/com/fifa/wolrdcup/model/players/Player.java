@@ -50,15 +50,18 @@ public abstract class Player implements Comparable<Player> {
 
     @ManyToMany
     @JsonView(PlayerTeamsView.class)
-    private List<Team> teams = new ArrayList<>();
+    @OrderBy("id")
+    private Set<Team> teams = new HashSet<>();
 
     @JsonIgnore
     @OneToMany(mappedBy = "player", cascade = CascadeType.ALL)
-    private List<Goal> goals = new ArrayList<>();
+    @OrderBy("id")
+    private Set<Goal> goals = new HashSet<>();
 
     @JsonIgnore
     @OneToMany(mappedBy = "player", cascade = CascadeType.ALL)
-    private List<PlayerPoints> playerPoints = new ArrayList<>();
+    @OrderBy("id")
+    private Set<PlayerPoints> playerPoints = new HashSet<>();
 
     public Player(){
     }
@@ -179,27 +182,27 @@ public abstract class Player implements Comparable<Player> {
         return this.getClass().getSimpleName();
     }
 
-    public List<Team> getTeams() {
+    public Set<Team> getTeams() {
         return teams;
     }
 
-    public void setTeams(List<Team> teams) {
+    public void setTeams(Set<Team> teams) {
         this.teams = teams;
     }
 
-    public List<Goal> getGoals() {
+    public Set<Goal> getGoals() {
         return goals;
     }
 
-    public void setGoals(List<Goal> goals) {
+    public void setGoals(Set<Goal> goals) {
         this.goals = goals;
     }
 
-    public List<PlayerPoints> getPlayerPoints() {
+    public Set<PlayerPoints> getPlayerPoints() {
         return playerPoints;
     }
 
-    public void setPlayerPoints(List<PlayerPoints> playerPoints) {
+    public void setPlayerPoints(Set<PlayerPoints> playerPoints) {
         this.playerPoints = playerPoints;
     }
 

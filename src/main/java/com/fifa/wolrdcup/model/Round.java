@@ -5,8 +5,8 @@ import com.fifa.wolrdcup.model.league.League;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @NamedEntityGraph(name = "Round.detail",
@@ -34,7 +34,8 @@ public class Round {
 
     @ManyToMany(mappedBy = "rounds", cascade = CascadeType.ALL)
     @JsonView(RoundMatchesView.class)
-    private List<Match> matches = new ArrayList<>();
+    @OrderBy("id")
+    private Set<Match> matches = new HashSet<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JsonView(RoundLeagueView.class)
@@ -66,11 +67,11 @@ public class Round {
         this.name = name;
     }
 
-    public List<Match> getMatches() {
+    public Set<Match> getMatches() {
         return matches;
     }
 
-    public void setMatches(List<Match> matches) {
+    public void setMatches(Set<Match> matches) {
         this.matches = matches;
     }
 

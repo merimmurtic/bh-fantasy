@@ -7,8 +7,7 @@ import com.fifa.wolrdcup.model.players.Player;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Entity
@@ -30,11 +29,13 @@ public class Team{
 
     @ManyToMany(mappedBy = "teams")
     @JsonView(TeamPlayersView.class)
-    private List<Player> players = new ArrayList<>();
+    @OrderBy("id")
+    private Set<Player> players = new HashSet<>();
 
     @ManyToMany
     @JsonView(TeamLeaguesView.class)
-    private List<League> leagues = new ArrayList<>();
+    @OrderBy("id")
+    private Set<League> leagues = new HashSet<>();
 
     public Team(){}
 
@@ -59,11 +60,11 @@ public class Team{
         this.name = name;
     }
 
-    public List<Player> getPlayers() {
+    public Set<Player> getPlayers() {
         return players;
     }
 
-    public void setPlayers(List<Player> players) {
+    public void setPlayers(Set<Player> players) {
         this.players = players;
     }
 
@@ -75,11 +76,11 @@ public class Team{
         this.code = code;
     }
 
-    public List<League> getLeagues() {
+    public Set<League> getLeagues() {
         return leagues;
     }
 
-    public void setLeagues(List<League> leagues) {
+    public void setLeagues(Set<League> leagues) {
         this.leagues = leagues;
     }
 

@@ -261,7 +261,7 @@ public class FantasyService {
         FantasyLineup fantasyLineup = new FantasyLineup();
         fantasyLineup.setLeague(fantasyLeague);
         fantasyLineup.setTeam(fantasyTeam);
-        fantasyLineup.setRound(fantasyLeague.getRegularLeague().getRounds().get(0));
+        fantasyLineup.setRound(fantasyLeague.getRegularLeague().getRounds().iterator().next());
 
         Lineup lineup = new Lineup();
         lineup.setFormation(Lineup.Formation.F_4_3_3);

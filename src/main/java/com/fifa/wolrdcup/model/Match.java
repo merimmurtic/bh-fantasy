@@ -5,9 +5,7 @@ import com.fasterxml.jackson.annotation.JsonView;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -19,6 +17,7 @@ import java.util.Set;
                 @NamedAttributeNode("lineup1"),
                 @NamedAttributeNode("lineup2"),
                 @NamedAttributeNode(value = "goals", subgraph = "goals-subgraph"),
+                @NamedAttributeNode(value = "cards", subgraph = "cards-subgraph"),
         },
         subgraphs = {
                 @NamedSubgraph(
@@ -26,6 +25,12 @@ import java.util.Set;
                         attributeNodes = {
                                 @NamedAttributeNode("player"),
                                 @NamedAttributeNode("assist")
+                        }
+                ),
+                @NamedSubgraph(
+                        name = "cards-subgraph",
+                        attributeNodes = {
+                                @NamedAttributeNode("player")
                         }
                 )
         })
@@ -51,19 +56,23 @@ public class Match {
 
     @ManyToMany
     @JsonIgnore
+    @OrderBy("id")
     private Set<Round> rounds = new HashSet<>();
 
     @OneToMany(mappedBy = "match")
     @JsonView(MatchGoalsView.class)
-    private List<Goal> goals = new ArrayList<>();
+    @OrderBy("id")
+    private Set<Goal> goals = new HashSet<>();
 
     @OneToMany(mappedBy = "match")
     @JsonView(MatchMissedPenaltiesView.class)
-    private List<MissedPenalty> missedPenalties = new ArrayList<>();
+    @OrderBy("id")
+    private Set<MissedPenalty> missedPenalties = new HashSet<>();
 
     @JsonIgnore
     @OneToMany(mappedBy = "match")
-    private List<PlayerPoints> playerPoints = new ArrayList<>();
+    @OrderBy("id")
+    private Set<PlayerPoints> playerPoints = new HashSet<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
     private Stadium stadium;
@@ -78,7 +87,8 @@ public class Match {
 
     @OneToMany(mappedBy = "match")
     @JsonView(MatchCardsView.class)
-    private List<Card> cards = new ArrayList<>();
+    @OrderBy("id")
+    private Set<Card> cards = new HashSet<>();
 
     private Integer score1;
 
@@ -122,11 +132,11 @@ public class Match {
         this.rounds = rounds;
     }
 
-    public List<Goal> getGoals() {
+    public Set<Goal> getGoals() {
         return goals;
     }
 
-    public void setGoals(List<Goal> goals) {
+    public void setGoals(Set<Goal> goals) {
         this.goals = goals;
     }
 
@@ -170,11 +180,11 @@ public class Match {
         this.lineup2 = lineup2;
     }
 
-    public List<Card> getCards() {
+    public Set<Card> getCards() {
         return cards;
     }
 
-    public void setCards(List<Card> cards) {
+    public void setCards(Set<Card> cards) {
         this.cards = cards;
     }
 
@@ -194,19 +204,19 @@ public class Match {
         this.dateTime = dateTime;
     }
 
-    public List<PlayerPoints> getPlayerPoints() {
+    public Set<PlayerPoints> getPlayerPoints() {
         return playerPoints;
     }
 
-    public void setPlayerPoints(List<PlayerPoints> playerPoints) {
+    public void setPlayerPoints(Set<PlayerPoints> playerPoints) {
         this.playerPoints = playerPoints;
     }
 
-    public List<MissedPenalty> getMissedPenalties() {
+    public Set<MissedPenalty> getMissedPenalties() {
         return missedPenalties;
     }
 
-    public void setMissedPenalties(List<MissedPenalty> missedPenalties) {
+    public void setMissedPenalties(Set<MissedPenalty> missedPenalties) {
         this.missedPenalties = missedPenalties;
     }
 

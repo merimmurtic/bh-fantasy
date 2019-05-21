@@ -387,6 +387,10 @@ public class TransferMarktWorker extends ProcessWorker {
     }
 
     private Stadium processStadium(Element stadiumElement) {
+        if(stadiumElement == null) {
+            return null;
+        }
+
         Elements elements = stadiumElement.select("a");
 
         String stadionName = null;

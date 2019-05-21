@@ -8,7 +8,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 public class TeamService {
@@ -53,16 +55,16 @@ public class TeamService {
                 update = true;
             }
 
-            if(existingTeam.getLeagues().stream().noneMatch(l -> l.getId().equals(league.getId()))) {
-                existingTeam.getLeagues().add(league);
-
-                update = true;
-            }
-
             if(update) {
                 team = teamRepository.save(existingTeam);
             } else {
                 team = existingTeam;
+            }
+
+            Set<League> leagues = team.getLeagues();
+
+            if(leagues.stream().noneMatch(l -> l.getId().equals(league.getId()))) {
+                leagues.add(league);
             }
 
             return team;

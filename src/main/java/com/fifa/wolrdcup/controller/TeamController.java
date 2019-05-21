@@ -95,7 +95,7 @@ public class TeamController {
 
             player = existingPlayerOptional.get();
 
-            if (team.getLeagues().size() > 0 && team.getLeagues().get(0) instanceof FantasyLeague) {
+            if (team.getLeagues().size() > 0 && team.getLeagues().iterator().next() instanceof FantasyLeague) {
                 List<Player> players = team.getPlayersOfType(player.getClass());
 
                 if (player instanceof Goalkeaper) {

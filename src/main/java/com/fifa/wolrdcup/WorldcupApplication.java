@@ -70,9 +70,9 @@ public class WorldcupApplication {
     private final static List<String> TRANSFERMARKT_URLS = new ArrayList<>();
 
     static {
-        //TRANSFERMARKT_URLS.add(PREMIJER_LIGA_URL);
-        //TRANSFERMARKT_URLS.addAll(TOP_5_URLS);
         TRANSFERMARKT_URLS.add(CHAMPIONS_LEAGUE_URL);
+        TRANSFERMARKT_URLS.add(PREMIJER_LIGA_URL);
+        TRANSFERMARKT_URLS.addAll(TOP_5_URLS);
     }
 
     public WorldcupApplication(
@@ -132,10 +132,10 @@ public class WorldcupApplication {
 
             List<ProcessWorker> workers = new ArrayList<>();
 
-            //workers.add(new WorldCupWorker(
-              //      stadiumRepository, goalRepository, matchService,
-                //    teamService, roundRepository, leagueService, playerService, "2014"
-            //));
+            workers.add(new WorldCupWorker(
+                    stadiumRepository, goalRepository, matchService,
+                    teamService, roundRepository, leagueService, playerService, "2014"
+            ));
 
 
             for (String url : TRANSFERMARKT_URLS) {

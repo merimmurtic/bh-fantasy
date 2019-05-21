@@ -3,8 +3,9 @@ package com.fifa.wolrdcup.model;
 import com.fifa.wolrdcup.model.players.Player;
 
 import javax.persistence.*;
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Entity
@@ -15,13 +16,16 @@ public class Lineup {
     private Long id;
 
     @ManyToMany(cascade = CascadeType.ALL)
-    private List<Player> startingPlayers = new ArrayList<>();
+    @OrderBy("id")
+    private Set<Player> startingPlayers = new HashSet<>();
 
     @ManyToMany(cascade = CascadeType.ALL)
-    private List<Player> availableSubstitutions = new ArrayList<>();
+    @OrderBy("id")
+    private Set<Player> availableSubstitutions = new HashSet<>();
 
     @OneToMany(mappedBy = "lineup", cascade = CascadeType.ALL)
-    private List<Substitution> substitutionChanges = new ArrayList<>();
+    @OrderBy("id")
+    private Set<Substitution> substitutionChanges = new HashSet<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
     private Player capiten;
@@ -58,27 +62,27 @@ public class Lineup {
         this.viceCapiten = viceCapiten;
     }
 
-    public List<Player> getStartingPlayers() {
+    public Set<Player> getStartingPlayers() {
         return startingPlayers;
     }
 
-    public void setStartingPlayers(List<Player> startingPlayers) {
+    public void setStartingPlayers(Set<Player> startingPlayers) {
         this.startingPlayers = startingPlayers;
     }
 
-    public List<Player> getAvailableSubstitutions() {
+    public Set<Player> getAvailableSubstitutions() {
         return availableSubstitutions;
     }
 
-    public void setAvailableSubstitutions(List<Player> availableSubstitutions) {
+    public void setAvailableSubstitutions(Set<Player> availableSubstitutions) {
         this.availableSubstitutions = availableSubstitutions;
     }
 
-    public List<Substitution> getSubstitutionChanges() {
+    public Set<Substitution> getSubstitutionChanges() {
         return substitutionChanges;
     }
 
-    public void setSubstitutionChanges(List<Substitution> substitutionChanges) {
+    public void setSubstitutionChanges(Set<Substitution> substitutionChanges) {
         this.substitutionChanges = substitutionChanges;
     }
 

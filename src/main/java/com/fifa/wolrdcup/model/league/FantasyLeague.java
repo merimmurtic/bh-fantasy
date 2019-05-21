@@ -4,9 +4,7 @@ import com.fasterxml.jackson.annotation.JsonView;
 import com.fifa.wolrdcup.model.FantasyLineup;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 @Entity
 @DiscriminatorValue("FantasyLeague")
@@ -17,7 +15,8 @@ public class FantasyLeague extends League {
 
     @OneToMany(mappedBy = "league")
     @JsonView(LeagueLineupsView.class)
-    private List<FantasyLineup> lineups = new LinkedList<>();
+    @OrderBy("id")
+    private Set<FantasyLineup> lineups = new HashSet<>();
 
     public FantasyLeague(){}
 
@@ -29,11 +28,11 @@ public class FantasyLeague extends League {
         this.regularLeague = regularLeague;
     }
 
-    public List<FantasyLineup> getLineups() {
+    public Set<FantasyLineup> getLineups() {
         return lineups;
     }
 
-    public void setLineups(List<FantasyLineup> lineups) {
+    public void setLineups(Set<FantasyLineup> lineups) {
         this.lineups = lineups;
     }
 

@@ -3,8 +3,8 @@ package com.fifa.wolrdcup.model.league;
 import com.fasterxml.jackson.annotation.JsonView;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @DiscriminatorValue("RegularLeague")
@@ -17,7 +17,8 @@ public class RegularLeague extends LeagueGroup{
 
     @ManyToMany
     @JsonView(LeagueGroupsView.class)
-    private List<LeagueGroup> groups = new ArrayList<>();
+    @OrderBy("id")
+    private Set<LeagueGroup> groups = new HashSet<>();
 
     public RegularLeague(){}
 
@@ -29,11 +30,11 @@ public class RegularLeague extends LeagueGroup{
         this.season = season;
     }
 
-    public List<LeagueGroup> getGroups() {
+    public Set<LeagueGroup> getGroups() {
         return groups;
     }
 
-    public void setGroups(List<LeagueGroup> groups) {
+    public void setGroups(Set<LeagueGroup> groups) {
         this.groups = groups;
     }
 }

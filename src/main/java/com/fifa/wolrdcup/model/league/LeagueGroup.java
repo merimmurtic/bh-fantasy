@@ -4,9 +4,7 @@ import com.fasterxml.jackson.annotation.JsonView;
 import com.fifa.wolrdcup.model.Round;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 @Entity
 @DiscriminatorValue("LeagueGroup")
@@ -14,15 +12,16 @@ public class LeagueGroup extends League{
 
     @OneToMany(mappedBy = "league")
     @JsonView(LeagueRoundsView.class)
-    private List<Round> rounds = new LinkedList<>();
+    @OrderBy("id")
+    private Set<Round> rounds = new HashSet<>();
 
     public LeagueGroup(){}
 
-    public List<Round> getRounds() {
+    public Set<Round> getRounds() {
         return rounds;
     }
 
-    public void setRounds(List<Round> rounds) {
+    public void setRounds(Set<Round> rounds) {
         this.rounds = rounds;
     }
 }

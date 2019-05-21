@@ -9,9 +9,7 @@ import com.fifa.wolrdcup.model.players.*;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Entity
@@ -39,7 +37,8 @@ public abstract class League {
 
     @ManyToMany(mappedBy = "leagues")
     @JsonView(LeagueTeamsView.class)
-    private List<Team> teams = new LinkedList<>();
+    @OrderBy("id")
+    private Set<Team> teams = new HashSet<>();
 
     @Transient
     private Long currentRoundId = null;
@@ -57,7 +56,7 @@ public abstract class League {
         teams.add(team);
     }
 
-    public List<Team> getTeams() {
+    public Set<Team> getTeams() {
         return teams;
     }
 
@@ -145,7 +144,7 @@ public abstract class League {
         this.name = name;
     }
 
-    public void setTeams(List<Team> teams) {
+    public void setTeams(Set<Team> teams) {
         this.teams = teams;
     }
 

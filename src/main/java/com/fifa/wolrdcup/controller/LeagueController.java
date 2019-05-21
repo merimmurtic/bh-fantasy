@@ -28,21 +28,23 @@ public class LeagueController {
     private final TeamRepository teamRepository;
     private final RoundRepository roundRepository;
     private final LeagueGroupRepository leagueGroupRepository;
+    private final RegularLeagueRepository regularLeagueRepository;
 
     public LeagueController(
             TeamRepository teamRepository,
             LeagueRepository leagueRepository,
-            RoundRepository roundRepository, LeagueGroupRepository leagueGroupRepository) {
+            RoundRepository roundRepository, LeagueGroupRepository leagueGroupRepository, RegularLeagueRepository regularLeagueRepository) {
         this.leagueRepository = leagueRepository;
         this.teamRepository = teamRepository;
         this.roundRepository = roundRepository;
         this.leagueGroupRepository = leagueGroupRepository;
+        this.regularLeagueRepository = regularLeagueRepository;
     }
 
     @GetMapping
     @JsonView(DefaultView.class)
-    public Iterable<League> getLeagues() throws Exception{
-        return leagueRepository.findAll();
+    public Iterable<RegularLeague> getLeagues() throws Exception{
+        return regularLeagueRepository.getAllLeagues();
     }
 
     @PostMapping
