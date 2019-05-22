@@ -149,6 +149,7 @@ public class WorldCupWorker extends ProcessWorker {
             goal.setMinute((Integer) goalMap.get("minute"));
             goal.setOwnGoal(ownGoal);
             goal.setPenalty((Boolean) goalMap.getOrDefault("penalty", false));
+            goal.setTeam(team);
             goal.setMatch(match);
 
             goal.setPlayer(processPlayer((String) goalMap.get("name"), ownGoal ? teamAgainstPlayed : team));

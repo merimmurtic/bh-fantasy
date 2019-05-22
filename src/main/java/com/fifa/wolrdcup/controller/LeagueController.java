@@ -43,7 +43,7 @@ public class LeagueController {
     }
 
     @GetMapping
-    @JsonView(DefaultView.class)
+    @JsonView(League.LeagueGroupsView.class)
     public Iterable<RegularLeague> getLeagues() throws Exception{
         return regularLeagueRepository.getAllLeagues();
     }

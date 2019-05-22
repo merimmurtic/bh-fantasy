@@ -97,12 +97,14 @@ public class FantasyService {
         Map<Long, PointsValue> pointsMap = new HashMap<>();
 
         for(Goal goal : match.getGoals()) {
-            pointsMap.putIfAbsent(goal.getPlayer().getId(), new PointsValue(goal.getPlayer()));
+            if(goal.getPlayer() != null) {
+                pointsMap.putIfAbsent(goal.getPlayer().getId(), new PointsValue(goal.getPlayer()));
 
-            if(!goal.getOwnGoal()) {
-                pointsMap.get(goal.getPlayer().getId()).addGoal();
-            } else {
-                pointsMap.get(goal.getPlayer().getId()).addOwnGoal();
+                if (!goal.getOwnGoal()) {
+                    pointsMap.get(goal.getPlayer().getId()).addGoal();
+                } else {
+                    pointsMap.get(goal.getPlayer().getId()).addOwnGoal();
+                }
             }
 
             if(goal.getAssist() != null) {

@@ -158,6 +158,8 @@ public class TransferMarktWorker extends ProcessWorker {
                            round.setEndDate(endDate);
 
                            roundRepository.save(round);
+
+                           logger.info("Round '{}' saved.", round.getName());
                        }
 
                        if(groupRound != null) {
@@ -373,10 +375,6 @@ public class TransferMarktWorker extends ProcessWorker {
 
             matchService.getMatchRepository().save(match);
 
-            Elements goalElements = document.select("#sb-tore ul li");
-
-            processGoals(goalElements, match);
-
             Elements substitutionElements = document.select("#sb-wechsel ul li");
 
             processSubstitutions(substitutionElements, match);
@@ -388,6 +386,10 @@ public class TransferMarktWorker extends ProcessWorker {
             Elements missedPenaltyELements = document.select("#sb-verschossene ul li");
 
             processMissedPenalties(missedPenaltyELements, match);
+
+            Elements goalElements = document.select("#sb-tore ul li");
+
+            processGoals(goalElements, match);
         } catch (IOException e) {
             logger.error("Error while processing match {}.", matchUrl);
         }
@@ -579,14 +581,9 @@ public class TransferMarktWorker extends ProcessWorker {
 
                 Long transferMarktId = Long.parseLong(playerElement.attr("id"));
 
-                Player player = new Unknown();
-                player.setTransferMarktId(transferMarktId);
+                Optional<Player> optionalPlayer = playerService.getPlayer(transferMarktId);
 
-                populateFirstAndLastName(playerElement.text(), player);
-
-                player = playerService.processPlayer(player, team);
-
-                goal.setPlayer(player);
+                optionalPlayer.ifPresent(goal::setPlayer);
             }
 
             if(playerElements.size() > 1) {
@@ -594,14 +591,11 @@ public class TransferMarktWorker extends ProcessWorker {
 
                 Long transferMarktId = Long.parseLong(playerElement.attr("id"));
 
-                Player player = new Unknown();
-                player.setTransferMarktId(transferMarktId);
+                Optional<Player> optionalPlayer = playerService.getPlayer(transferMarktId);
 
-                populateFirstAndLastName(playerElement.text(), player);
-
-                player = playerService.processPlayer(player, team);
-
-                goal.setAssist(player);
+                if(optionalPlayer.isPresent()) {
+                    optionalPlayer.ifPresent(goal::setAssist);
+                }
             }
 
             goal.setMinute(calculateMinute(goalElement.selectFirst(".sb-sprite-uhr-klein")));
@@ -615,6 +609,11 @@ public class TransferMarktWorker extends ProcessWorker {
 
             goal.setPenalty(goalElement.text().contains("Penalty"));
             goal.setOwnGoal(goalElement.text().contains("Own-goal"));
+            goal.setTeam(team);
+
+            if(goal.getAssist() != null) {
+                goal.setOwnAssist(goal.getPenalty());
+            }
 
             goals.add(goal);
         }
@@ -745,7 +744,7 @@ public class TransferMarktWorker extends ProcessWorker {
     private Player processPlayerUrl(String playerName, String playerInfoUrl, Team team, Integer numberOnDress) {
         Long transferMarktId = getTransferMarktId(playerInfoUrl);
 
-        Optional<Player> optionalPlayer = playerService.getPlayerRepository().findByTransferMarktId(transferMarktId);
+        Optional<Player> optionalPlayer = playerService.getPlayer(transferMarktId);
 
         if(optionalPlayer.isPresent()) {
             Player player = optionalPlayer.get();

@@ -20,9 +20,14 @@ public class Goal {
 
     private Integer minute;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Team team;
+
     private Boolean penalty = false;
 
     private Boolean ownGoal = false;
+
+    private Boolean ownAssist = false;
 
     private Integer score1;
 
@@ -104,5 +109,21 @@ public class Goal {
 
     public void setAssist(Player assist) {
         this.assist = assist;
+    }
+
+    public Boolean getOwnAssist() {
+        return ownAssist;
+    }
+
+    public void setOwnAssist(Boolean ownAssist) {
+        this.ownAssist = ownAssist;
+    }
+
+    public Team getTeam() {
+        return team;
+    }
+
+    public void setTeam(Team team) {
+        this.team = team;
     }
 }

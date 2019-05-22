@@ -19,6 +19,11 @@ public class PlayerService {
     }
 
     @Transactional
+    public Optional<Player> getPlayer(Long transfermarktId) {
+        return playerRepository.findByTransferMarktId(transfermarktId);
+    }
+
+    @Transactional
     public Player processPlayer(Player player, Team team) {
         Optional<Player> existingPlayerOptional = Optional.empty();
 

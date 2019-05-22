@@ -24,7 +24,8 @@ import java.util.Set;
                         name = "goals-subgraph",
                         attributeNodes = {
                                 @NamedAttributeNode("player"),
-                                @NamedAttributeNode("assist")
+                                @NamedAttributeNode("assist"),
+                                @NamedAttributeNode("team")
                         }
                 ),
                 @NamedSubgraph(

@@ -11,6 +11,10 @@ import java.util.Set;
 @Table(
         uniqueConstraints=@UniqueConstraint(columnNames={"name", "season"})
 )
+@NamedEntityGraph(name = "RegularLeague.withGroups",
+        attributeNodes = {
+                @NamedAttributeNode("groups")
+        })
 public class RegularLeague extends LeagueGroup{
 
     private String season;

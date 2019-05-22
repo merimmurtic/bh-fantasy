@@ -2,6 +2,7 @@ package com.fifa.wolrdcup.repository;
 
 import com.fifa.wolrdcup.model.custom.TopPlayerValue;
 import com.fifa.wolrdcup.model.league.RegularLeague;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
@@ -22,7 +23,7 @@ public interface RegularLeagueRepository extends CrudRepository<RegularLeague, L
             "join goal.match match " +
             "join match.rounds round " +
             "join round.league roundLeague " +
-            "where league.id = :leagueId and roundLeague.id = :leagueId " +
+            "where league.id = :leagueId and roundLeague.id = :leagueId and goal.ownGoal = false " +
             "and (league.dtype = 'RegularLeague' or league.dtype = 'LeagueGroup') " +
             "group by player, team.profilePicture order by count(goal) desc")
     List<TopPlayerValue> getTopPlayers(@Param("leagueId") Long leagueId);
@@ -38,7 +39,7 @@ public interface RegularLeagueRepository extends CrudRepository<RegularLeague, L
             "join goal.match match " +
             "join match.rounds round " +
             "join round.league roundLeague " +
-            "where league.id = :leagueId and roundLeague.id = :leagueId " +
+            "where league.id = :leagueId and roundLeague.id = :leagueId and goal.ownAssist = false " +
             "and (league.dtype = 'RegularLeague' or league.dtype = 'LeagueGroup') " +
             "group by assist, team.profilePicture order by count(assist) desc")
     List<TopPlayerValue> getTopPlayerAssists(@Param("leagueId") Long leagueId);
@@ -55,5 +56,6 @@ public interface RegularLeagueRepository extends CrudRepository<RegularLeague, L
     List<TopPlayerValue> getTopPlayersFantasyPoints(@Param("leagueId") Long leagueId);
 
     @Query("select league from League league where league.dtype = 'RegularLeague' or league.dtype = 'FantasyLeague'")
+    @EntityGraph(value = "RegularLeague.withGroups", type = EntityGraph.EntityGraphType.LOAD)
     Iterable<RegularLeague> getAllLeagues();
 }
