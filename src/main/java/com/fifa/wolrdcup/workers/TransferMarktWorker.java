@@ -159,7 +159,7 @@ public class TransferMarktWorker extends ProcessWorker {
 
                            roundRepository.save(round);
 
-                           logger.info("Round '{}' saved.", round.getName());
+                           logger.info("Round '{}' saved for {}, season: {}.", round.getName(), league.getName(), league.getSeason());
                        }
 
                        if(groupRound != null) {
@@ -201,7 +201,7 @@ public class TransferMarktWorker extends ProcessWorker {
         leagueService.getRegularLeagueRepository().save(league);
     }
 
-    private void processRounds(Elements matchDays, League league) {
+    private void processRounds(Elements matchDays, RegularLeague league) {
         RoundRepository roundRepository = roundService.getRoundRepository();
 
         for(Element matchDayElement : matchDays) {
@@ -220,7 +220,8 @@ public class TransferMarktWorker extends ProcessWorker {
 
                 roundRepository.save(round);
 
-                logger.info("Round '{}' saved.", round.getName());
+                logger.info("Round '{}' saved for {}, season: {}.",
+                        round.getName(), league.getName(), league.getSeason());
             }
 
             Elements matchElements = matchDayElement.select("tr");
@@ -344,8 +345,6 @@ public class TransferMarktWorker extends ProcessWorker {
 
             created = true;
         } else if(match.getLineup1() != null) {
-            logger.info("Match {} is already processed.", match.getTransfermarktId());
-
             return match;
         }
 
