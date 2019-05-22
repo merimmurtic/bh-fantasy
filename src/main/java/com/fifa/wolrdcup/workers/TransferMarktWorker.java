@@ -325,11 +325,11 @@ public class TransferMarktWorker extends ProcessWorker {
         boolean created = false;
 
         if(match == null) {
-            String profilePictureTeam1 = elements.get(3).select("img")
-                    .attr("src").replace("tiny", "normal");
+            String profilePictureTeam1 = fixTeamProfileImage(elements.get(3).select("img")
+                    .attr("src"));
 
-            String profilePictureTeam2 = elements.get(5).select("img")
-                    .attr("src").replace("tiny", "normal");
+            String profilePictureTeam2 = fixTeamProfileImage(elements.get(5).select("img")
+                    .attr("src"));
 
             Map<String, String> teamMap1 = processTeamMap(elements.get(2).select("a").text(), profilePictureTeam1);
             Map<String, String> teamMap2 = processTeamMap(elements.get(6).select("a").text(), profilePictureTeam2);
@@ -354,13 +354,17 @@ public class TransferMarktWorker extends ProcessWorker {
         }
 
         if(match.getScore1() != null) {
-            processMatchDetails(matchDetailsElement.attr("href"), match);
+            processMatchDetails(matchDetailsElement.attr("href"), match, group);
         }
 
         return match;
     }
 
-    private void processMatchDetails(String matchUrl, Match match) {
+    private String fixTeamProfileImage(String image) {
+        return image.replace("tiny", image.contains("flagge") ? "head" : "normal");
+    }
+
+    private void processMatchDetails(String matchUrl, Match match, League group) {
         try {
             Document document = Jsoup.parse(new URL(BASE_URL.concat(matchUrl)), 10000);
 
