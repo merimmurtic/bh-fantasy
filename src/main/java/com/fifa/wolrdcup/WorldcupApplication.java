@@ -4,7 +4,6 @@ import com.fifa.wolrdcup.repository.*;
 import com.fifa.wolrdcup.service.*;
 import com.fifa.wolrdcup.workers.ProcessWorker;
 import com.fifa.wolrdcup.workers.TransferMarktWorker;
-import com.fifa.wolrdcup.workers.WorldCupWorker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
@@ -137,10 +136,10 @@ public class WorldcupApplication {
                         url, "2018"));
             }
 
-            workers.add(new WorldCupWorker(
-                    stadiumRepository, goalRepository, matchService,
-                    teamService, roundService, leagueService, playerService, "2014"
-            ));
+            //workers.add(new WorldCupWorker(
+            //        stadiumRepository, goalRepository, matchService,
+            //        teamService, roundService, leagueService, playerService, "2014"
+            //));
 
             List<Long> top5LeagueIds = new ArrayList<>();
 
