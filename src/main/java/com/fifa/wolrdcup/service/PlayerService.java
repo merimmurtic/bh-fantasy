@@ -6,6 +6,7 @@ import com.fifa.wolrdcup.repository.PlayerRepository;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.util.Iterator;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -27,22 +28,26 @@ public class PlayerService {
     public Player processPlayer(Player player, Team team) {
         Optional<Player> existingPlayerOptional = Optional.empty();
 
+        Player existingPlayer = null;
+
         if(player.getTransferMarktId() != null) {
             existingPlayerOptional = playerRepository.findByTransferMarktId(player.getTransferMarktId());
         }
 
         if(!existingPlayerOptional.isPresent()) {
             if (player.getFirstName() != null) {
-                existingPlayerOptional = playerRepository.findByFirstNameAndLastName(
-                        player.getFirstName(), player.getLastName());
+                Iterator<Player> iterable = playerRepository.findByFirstNameAndLastName(
+                        player.getFirstName(), player.getLastName()).iterator();
+
+                existingPlayer = iterable.hasNext() ? iterable.next() : null;
             }
 
-            if (!existingPlayerOptional.isPresent()) {
-                existingPlayerOptional = playerRepository.findByLastName(player.getLastName());
+            if (existingPlayer != null) {
+                Iterator<Player> iterable = playerRepository.findByLastName(player.getLastName()).iterator();
+
+                existingPlayer = iterable.hasNext() ? iterable.next() : null;
             }
         }
-
-        Player existingPlayer = null;
 
         if (existingPlayerOptional.isPresent()) {
             existingPlayer = existingPlayerOptional.get();
