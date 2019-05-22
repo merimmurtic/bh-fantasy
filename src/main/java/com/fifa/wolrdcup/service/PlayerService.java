@@ -46,6 +46,11 @@ public class PlayerService {
 
         if (existingPlayerOptional.isPresent()) {
             existingPlayer = existingPlayerOptional.get();
+
+            if(player.getTransferMarktId() != null && existingPlayer.getTransferMarktId() != null &&
+                    !player.getTransferMarktId().equals(existingPlayer.getTransferMarktId())) {
+                existingPlayer = null;
+            }
         }
 
         if(existingPlayer != null) {
