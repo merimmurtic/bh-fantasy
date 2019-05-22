@@ -159,7 +159,8 @@ public class TransferMarktWorker extends ProcessWorker {
 
                            roundRepository.save(round);
 
-                           logger.info("Round '{}' saved for {}, season: {}.", round.getName(), league.getName(), league.getSeason());
+                           logger.info("Round '{}' saved for {}, season: {}, group: {}.",
+                                   round.getName(), league.getName(), league.getSeason(), group.getName());
                        }
 
                        if(groupRound != null) {
