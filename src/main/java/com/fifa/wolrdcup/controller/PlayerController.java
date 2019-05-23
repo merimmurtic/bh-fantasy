@@ -9,6 +9,7 @@ import com.fifa.wolrdcup.model.views.DefaultView;
 import com.fifa.wolrdcup.repository.GoalRepository;
 import com.fifa.wolrdcup.repository.PlayerRepository;
 
+import com.fifa.wolrdcup.repository.TeamRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -26,17 +27,24 @@ public class PlayerController {
 
     private final GoalRepository goalRepository;
 
+    private final TeamRepository teamRepository;
+
     public PlayerController(
             GoalRepository goalRepository,
-            PlayerRepository playerRepository) {
+            PlayerRepository playerRepository, TeamRepository teamRepository) {
         this.playerRepository = playerRepository;
         this.goalRepository = goalRepository;
+        this.teamRepository = teamRepository;
     }
 
     @GetMapping("/{playerId}")
     @JsonView(Player.DetailedView.class)
     public ResponseEntity<Player> getPlayer(@PathVariable("playerId") Long playerId) {
-        return ResponseEntity.of(playerRepository.findById(playerId));
+        Optional<Player> playerOptional = playerRepository.findById(playerId);
+
+        playerOptional.ifPresent(player -> player.setTeams(teamRepository.getTeams(playerId)));
+
+        return ResponseEntity.of(playerOptional);
     }
 
     @GetMapping

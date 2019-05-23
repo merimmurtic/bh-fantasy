@@ -222,7 +222,7 @@ public class FantasyService {
 
         RegularLeague regularLeague = regularLeagueOptional.get();
 
-        String leagueName = "Fantasy Premijer Liga";
+        String leagueName = "Fantasy " + regularLeague.getName();
 
         Optional<FantasyLeague> fantasyLeagueOptional = fantasyLeagueRepository.findByRegularLeague_Id(
                 regularLeague.getId());
@@ -239,8 +239,8 @@ public class FantasyService {
         fantasyLeagueRepository.save(fantasyLeague);
 
         Team fantasyTeam = new Team();
-        fantasyTeam.setCode("VUCKO");
-        fantasyTeam.setName("Vucko");
+        fantasyTeam.setCode("Team " + leagueName);
+        fantasyTeam.setName("Team " + leagueName);
 
         teamRepository.save(fantasyTeam);
 

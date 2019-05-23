@@ -278,7 +278,5 @@ public abstract class Player implements Comparable<Player> {
 
     public interface PlayerTeamsView {}
 
-    public interface DetailedView extends PlayerTeamsView {}
-
-
+    public interface DetailedView extends PlayerTeamsView, Team.TeamLeaguesView {}
 }
