@@ -38,7 +38,7 @@ public class StandingController {
             value.setTeamId(team.getId());
             value.setTeamName(team.getName());
             value.setProfilePicture(team.getProfilePicture());
-            setTeamStats(team, value);
+            setTeamStats(team, value, leagueId);
 
             result.add(value);
         }
@@ -62,7 +62,7 @@ public class StandingController {
         return result;
     }
 
-    private void setTeamStats(Team team, StandingValue value) {
+    private void setTeamStats(Team team, StandingValue value, Long leagueId) {
         long goalsScored = 0L;
         long goalsConceded = 0L;
         long won = 0L;
@@ -70,7 +70,8 @@ public class StandingController {
         long draw = 0L;
         long counterPlayed = 0L;
 
-        Iterable<Match> matches = matchRepository.getByTeam1OrTeam2(team, team);
+        Iterable<Match> matches = matchRepository.getByTeam1AndRounds_League_IdOrTeam2AndRounds_League_Id(
+                team, leagueId, team, leagueId);
 
         for(Match match : matches){
 

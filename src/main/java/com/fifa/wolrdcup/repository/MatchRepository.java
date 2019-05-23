@@ -12,7 +12,8 @@ import java.util.Optional;
 
 public interface MatchRepository extends CrudRepository<Match, Long> {
     @EntityGraph(value = "Match.standings", type = EntityGraph.EntityGraphType.LOAD)
-    Iterable<Match> getByTeam1OrTeam2(Team team1, Team team2);
+    Iterable<Match> getByTeam1AndRounds_League_IdOrTeam2AndRounds_League_Id(
+            Team team1, Long league1, Team team2, Long league2);
 
     @EntityGraph(value = "Match.detail", type = EntityGraph.EntityGraphType.LOAD)
     Optional<Match> getDistinctByIdAndRounds_IdAndRounds_League_Id(Long id, Long roundId, Long leagueId);
