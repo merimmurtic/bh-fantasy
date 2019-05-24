@@ -24,7 +24,7 @@ public class LeagueRoundController {
     @GetMapping
     @JsonView(DefaultView.class)
     public Iterable<Round> getLeagueRounds(@PathVariable("leagueId") Long leagueId) throws Exception{
-        return roundRepository.findByLeagueId(leagueId);
+        return roundRepository.findByLeagueIdOrderById(leagueId);
     }
 
     @GetMapping("/{roundId}")

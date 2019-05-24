@@ -1,5 +1,6 @@
 package com.fifa.wolrdcup;
 
+import com.fifa.wolrdcup.model.league.RegularLeague;
 import com.fifa.wolrdcup.repository.*;
 import com.fifa.wolrdcup.service.*;
 import com.fifa.wolrdcup.workers.ProcessWorker;
@@ -155,6 +156,10 @@ public class WorldcupApplication {
                         fantasyService.seedFantasyPlayerLeague(leagueId);
                     }
 
+                    if(((TransferMarktWorker) worker).getTransfermarktUrl().equals(EURO_QUALIFICATIONS_URL)) {
+                        fantasyService.seedFantasyPlayerLeague(leagueId);
+                    }
+
                     if(TOP_5_URLS.contains(((TransferMarktWorker) worker).getTransfermarktUrl())) {
                         top5LeagueIds.add(leagueId);
                     }
@@ -163,7 +168,9 @@ public class WorldcupApplication {
                 Thread.sleep(10000);
             }
 
-            multiLeagueService.seedTop5League(top5LeagueIds);
+            RegularLeague regularLeague = multiLeagueService.seedTop5League(top5LeagueIds);
+
+            fantasyService.seedFantasyPlayerLeague(regularLeague.getId());
         } finally {
             WORKERS_RUNNING = false;
         }

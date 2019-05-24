@@ -48,14 +48,19 @@ public interface RegularLeagueRepository extends CrudRepository<RegularLeague, L
             "player.id, trim(concat(coalesce(player.firstName, ''), ' ', coalesce(player.lastName, ''))), " +
             "team.profilePicture, 0L, 0L, sum(playerPoints.points)) " +
             "from PlayerPoints playerPoints " +
+            "join playerPoints.match match " +
+            "join match.rounds round " +
+            "join round.league roundLeague " +
             "join playerPoints.player player " +
             "join player.teams team " +
             "join team.leagues leagues " +
-            "where leagues.id = :leagueId and (leagues.dtype = 'RegularLeague' or leagues.dtype = 'LeagueGroup') " +
+            "where leagues.id = :leagueId and roundLeague.id = :leagueId " +
+            "and (leagues.dtype = 'RegularLeague' or leagues.dtype = 'LeagueGroup') " +
             "group by player, team.profilePicture order by sum(playerPoints.points) desc")
     List<TopPlayerValue> getTopPlayersFantasyPoints(@Param("leagueId") Long leagueId);
 
-    @Query("select league from League league where league.dtype = 'RegularLeague' or league.dtype = 'FantasyLeague'")
+    @Query("select league from League league " +
+            "where league.dtype = 'RegularLeague' or league.dtype = 'FantasyLeague' order by league.id")
     @EntityGraph(value = "RegularLeague.withGroups", type = EntityGraph.EntityGraphType.LOAD)
     Iterable<RegularLeague> getAllLeagues();
 }

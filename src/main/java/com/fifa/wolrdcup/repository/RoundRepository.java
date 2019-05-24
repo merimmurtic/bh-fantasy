@@ -8,7 +8,7 @@ import java.util.Optional;
 
 public interface RoundRepository extends CrudRepository<Round, Long> {
 
-    Iterable<Round> findByLeagueId(Long leagueId);
+    Iterable<Round> findByLeagueIdOrderById(Long leagueId);
 
     @EntityGraph(value = "Round.detail", type = EntityGraph.EntityGraphType.LOAD)
     Optional<Round> getByIdAndLeague_Id(Long id, Long leagueId);

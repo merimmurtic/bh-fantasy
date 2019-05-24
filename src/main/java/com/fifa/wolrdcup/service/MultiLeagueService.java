@@ -85,7 +85,7 @@ public class MultiLeagueService {
     }
 
     @Transactional
-    public void seedTop5League(List<Long> leagueIds) {
+    public RegularLeague seedTop5League(List<Long> leagueIds) {
         List<RegularLeague> regularLeagues = new ArrayList<>();
 
         regularLeagueRepository.findAllById(leagueIds).forEach(regularLeagues::add);
@@ -113,9 +113,15 @@ public class MultiLeagueService {
                 });
 
                 calculateRounds(top5League);
+
+                return top5League;
             } else {
                 logger.info("Top 5 League is already created for season {}", firstLeague.getSeason());
+
+                return top5LeagueOptional.get();
             }
         }
+
+        return null;
     }
 }
