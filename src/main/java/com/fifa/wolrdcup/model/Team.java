@@ -101,5 +101,5 @@ public class Team{
 
     public interface TeamLeaguesView {}
 
-    public interface DetailedView extends TeamPlayersView, TeamLeaguesView{}
+    public interface DetailedView extends TeamPlayersView, TeamLeaguesView, League.LeagueGroupsView {}
 }
