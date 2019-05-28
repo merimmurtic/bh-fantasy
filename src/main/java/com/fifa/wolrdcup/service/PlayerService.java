@@ -1,31 +1,23 @@
 package com.fifa.wolrdcup.service;
 
 import com.fifa.wolrdcup.model.Team;
-import com.fifa.wolrdcup.model.custom.TransferInfoValue;
 import com.fifa.wolrdcup.model.players.Player;
 import com.fifa.wolrdcup.repository.PlayerRepository;
 import com.fifa.wolrdcup.repository.TeamRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
 public class PlayerService {
 
-    private static Logger logger = LoggerFactory.getLogger(MultiLeagueService.class);
-
     private final PlayerRepository playerRepository;
-    private final TeamRepository teamRepository;
 
     public PlayerService(PlayerRepository playerRepository, TeamRepository teamRepository) {
         this.playerRepository = playerRepository;
-        this.teamRepository = teamRepository;
     }
 
     @Transactional
@@ -129,12 +121,6 @@ public class PlayerService {
         return existingPlayer;
     }
 
-    @Transactional
-    public List<Team> makeTransfers(Long teamId, TransferInfoValue transferInfoValue){
-
-
-        return teamRepository.getFantasyTeam(teamId);
-    }
 
     public PlayerRepository getPlayerRepository() {
         return playerRepository;

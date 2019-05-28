@@ -133,17 +133,11 @@ public class TeamController {
 
     @PostMapping("/{teamId}/transfers")
     public void makeTransfer(
-            @PathVariable("teamId") Long teamId,
-            @RequestBody TransferInfoValue transferInfoValue,
-            @RequestBody Player player) {
+            @PathVariable("teamId") Long teamId) {
 
-        if (transferInfoValue.getTransferIn().size() != transferInfoValue.getTransferOut().size()) {
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST, "You must to have the same number of players on lists");
-        }
 
-        List<Player> transferIn = new ArrayList<>();
-        List<Player> transferOut = new ArrayList<>();
+        //List<Player> transferIn = new ArrayList<>();
+        //List<Player> transferOut = new ArrayList<>();
 
         Optional<Team> optionalTeam = teamRepository.findById(teamId);
 
@@ -152,45 +146,17 @@ public class TeamController {
         }
 
         Team team = optionalTeam.get();
+
         Map<Long, Player> playerMap = new HashMap<>();
+        List<Player> transferOut = new ArrayList<>();
+        List<Player> transferIn = new ArrayList<>();
 
         for (Player player1 : team.getPlayers()) {
             playerMap.put(player1.getId(), player1);
         }
 
-        for (Player player1 : team.getPlayers()) {
-            if (!playerMap.containsKey(player1.getId())) {
-                throwInvalidPlayerIdException(player1.getId());
-            }
 
-            transferOut.add(playerMap.get(player.getId()));
-        }
-
-        for (Player player1 : team.getPlayers()) {
-            if (!playerMap.containsKey(player1.getId())) {
-                throwInvalidPlayerIdException(player1.getId());
-            }
-
-            transferIn.add(playerMap.get(player.getId()));
-        }
-
-        for (Player player1 : team.getPlayers()) {
-
-            for (Player player2 : transferOut) {
-                for (Player player3 : transferIn) {
-
-                    if (player1.getId().equals(player2.getId())) {
-                        player1.setId(player3.getId());
-                    }
-                }
-            }
-        }
-        transferIn.clear();
-        transferOut.clear();
     }
 
-    private void throwInvalidPlayerIdException (Long playerId){
-        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format(
-                "Invalid player id %s!", playerId));
-    }
+
 }

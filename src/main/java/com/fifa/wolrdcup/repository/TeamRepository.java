@@ -32,6 +32,6 @@ public interface TeamRepository extends CrudRepository<Team, Long> {
             "join fetch team.leagues league "+
             "where player.id = :playerId and league.dtype = 'FantasyLeague' " +
             "order by team.id asc")
-    List<Team> getFantasyTeam(Long teamId);
+    Optional<Team> getFantasyTeam(Long teamId);
 
 }

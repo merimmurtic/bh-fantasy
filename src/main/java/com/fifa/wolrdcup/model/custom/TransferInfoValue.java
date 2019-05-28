@@ -34,4 +34,6 @@ public class TransferInfoValue {
     public void setTransferOut(List<Player> transferOut) {
         this.transferOut = transferOut;
     }
+
+
 }
