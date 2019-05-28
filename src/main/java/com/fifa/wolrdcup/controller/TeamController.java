@@ -163,7 +163,7 @@ public class TeamController {
                 throwInvalidPlayerIdException(player1.getId());
             }
 
-            transferIn.add(playerMap.get(player.getId()));
+            transferOut.add(playerMap.get(player.getId()));
         }
 
         for (Player player1 : team.getPlayers()) {
@@ -171,15 +171,20 @@ public class TeamController {
                 throwInvalidPlayerIdException(player1.getId());
             }
 
-            transferOut.add(playerMap.get(player.getId()));
+            transferIn.add(playerMap.get(player.getId()));
         }
 
-        for(Player player1 : team.getPlayers()){
+        for (Player player1 : team.getPlayers()) {
 
-            transferOut = transferIn;
+            for (Player player2 : transferOut) {
+                for (Player player3 : transferIn) {
 
+                    if (player1.getId().equals(player2.getId())) {
+                        player1.setId(player3.getId());
+                    }
+                }
+            }
         }
-
         transferIn.clear();
         transferOut.clear();
     }
