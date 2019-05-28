@@ -3,6 +3,7 @@ package com.fifa.wolrdcup.controller;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.fifa.wolrdcup.exception.InvalidPlayerIdException;
 import com.fifa.wolrdcup.exception.InvalidTeamIdException;
+import com.fifa.wolrdcup.model.custom.TransferInfoValue;
 import com.fifa.wolrdcup.model.league.FantasyLeague;
 import com.fifa.wolrdcup.model.players.*;
 import com.fifa.wolrdcup.model.views.DefaultView;
@@ -17,8 +18,7 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.validation.ConstraintViolationException;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @RestController
 @RequestMapping("/teams")
@@ -34,7 +34,7 @@ public class TeamController {
 
     @GetMapping
     @JsonView(DefaultView.class)
-    public Iterable<Team> getTeams() throws Exception{
+    public Iterable<Team> getTeams() throws Exception {
         return teamRepository.findAll();
     }
 
@@ -56,7 +56,7 @@ public class TeamController {
         // Make sure id is null to avoid update of existing league
         team.setId(null);
 
-        if(team.getCode() == null) {
+        if (team.getCode() == null) {
             team.setCode(team.getName());
         }
 
@@ -78,16 +78,16 @@ public class TeamController {
             @PathVariable("teamId") Long teamId,
             @RequestBody Player player) {
 
-        if(player.getId() != null){
+        if (player.getId() != null) {
             Optional<Player> existingPlayerOptional = playerRepository.findById(player.getId());
 
-            if(!existingPlayerOptional.isPresent()) {
+            if (!existingPlayerOptional.isPresent()) {
                 throw new InvalidPlayerIdException();
             }
 
             Optional<Team> existingTeamOptional = teamRepository.findById(teamId);
 
-            if(!existingTeamOptional.isPresent()) {
+            if (!existingTeamOptional.isPresent()) {
                 throw new InvalidTeamIdException();
             }
 
@@ -109,7 +109,7 @@ public class TeamController {
                     }
                 } else if (player instanceof Middle) {
                     if (players.size() > 4) {
-                        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Maximum Middlers!");
+                        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Maximum Middles!");
                     }
                 } else if (player instanceof Striker) {
                     if (players.size() > 2) {
@@ -118,7 +118,7 @@ public class TeamController {
                 }
             }
 
-            if(!player.getTeams().contains(team)) {
+            if (!player.getTeams().contains(team)) {
                 player.getTeams().add(team);
             } else {
                 throw new ResponseStatusException(
@@ -129,5 +129,75 @@ public class TeamController {
         } else {
             throw new InvalidPlayerIdException();
         }
+    }
+
+    @PostMapping("/{teamId}/transfers")
+    public void makeTransfer(
+            @PathVariable("teamId") Long teamId,
+            @RequestBody TransferInfoValue transferInfoValue,
+            @RequestBody Player player) {
+
+        if (transferInfoValue.getTransferIn().size() != transferInfoValue.getTransferOut().size()) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST, "You must to have the same number of players on lists");
+        }
+
+        List<Player> transferIn = new ArrayList<>();
+        List<Player> transferOut = new ArrayList<>();
+
+        Optional<Team> optionalTeam = teamRepository.findById(teamId);
+
+        if (!optionalTeam.isPresent()) {
+            throw new InvalidTeamIdException();
+        }
+
+        if (player.getId() != null) {
+            Optional<Player> existingPlayerOptional = playerRepository.findById(player.getId());
+
+            Team team = optionalTeam.get();
+
+
+            Map<Long, Player> playerMap = new HashMap<>();
+
+            for (Player player1 : team.getPlayers()) {
+                playerMap.put(player1.getId(), player1);
+            }
+
+
+            for (Player player1 : team.getPlayers()) {
+                if (!playerMap.containsKey(player1.getId())) {
+                    throwInvalidPlayerIdException(player1.getId());
+                }
+
+                transferIn.add(playerMap.get(player.getId()));
+            }
+
+
+            for (Player player1 : team.getPlayers()) {
+                if (!playerMap.containsKey(player1.getId())) {
+                    throwInvalidPlayerIdException(player1.getId());
+                }
+
+                transferOut.add(playerMap.get(player.getId()));
+            }
+
+            for(Player player1 : team.getPlayers()){
+
+                transferOut = transferIn;
+
+            }
+
+            transferIn.clear();
+            transferOut.clear();
+
+
+        }
+
+    }
+
+
+    private void throwInvalidPlayerIdException (Long playerId){
+        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format(
+                "Invalid player id %s!", playerId));
     }
 }
