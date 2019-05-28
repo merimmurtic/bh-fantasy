@@ -130,7 +130,7 @@ public class PlayerService {
     }
 
     @Transactional
-    public Optional<Team> makeTransfers(Long teamId, TransferInfoValue transferInfoValue){
+    public List<Team> makeTransfers(Long teamId, TransferInfoValue transferInfoValue){
 
 
         return teamRepository.getFantasyTeam(teamId);

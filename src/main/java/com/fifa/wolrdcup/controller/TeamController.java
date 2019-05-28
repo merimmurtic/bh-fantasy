@@ -151,50 +151,38 @@ public class TeamController {
             throw new InvalidTeamIdException();
         }
 
-        if (player.getId() != null) {
-            Optional<Player> existingPlayerOptional = playerRepository.findById(player.getId());
+        Team team = optionalTeam.get();
+        Map<Long, Player> playerMap = new HashMap<>();
 
-            Team team = optionalTeam.get();
+        for (Player player1 : team.getPlayers()) {
+            playerMap.put(player1.getId(), player1);
+        }
 
-
-            Map<Long, Player> playerMap = new HashMap<>();
-
-            for (Player player1 : team.getPlayers()) {
-                playerMap.put(player1.getId(), player1);
+        for (Player player1 : team.getPlayers()) {
+            if (!playerMap.containsKey(player1.getId())) {
+                throwInvalidPlayerIdException(player1.getId());
             }
 
+            transferIn.add(playerMap.get(player.getId()));
+        }
 
-            for (Player player1 : team.getPlayers()) {
-                if (!playerMap.containsKey(player1.getId())) {
-                    throwInvalidPlayerIdException(player1.getId());
-                }
-
-                transferIn.add(playerMap.get(player.getId()));
+        for (Player player1 : team.getPlayers()) {
+            if (!playerMap.containsKey(player1.getId())) {
+                throwInvalidPlayerIdException(player1.getId());
             }
 
+            transferOut.add(playerMap.get(player.getId()));
+        }
 
-            for (Player player1 : team.getPlayers()) {
-                if (!playerMap.containsKey(player1.getId())) {
-                    throwInvalidPlayerIdException(player1.getId());
-                }
+        for(Player player1 : team.getPlayers()){
 
-                transferOut.add(playerMap.get(player.getId()));
-            }
-
-            for(Player player1 : team.getPlayers()){
-
-                transferOut = transferIn;
-
-            }
-
-            transferIn.clear();
-            transferOut.clear();
-
+            transferOut = transferIn;
 
         }
 
+        transferIn.clear();
+        transferOut.clear();
     }
-
 
     private void throwInvalidPlayerIdException (Long playerId){
         throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format(
