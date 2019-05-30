@@ -4,13 +4,14 @@ import com.fasterxml.jackson.annotation.JsonView;
 import com.fifa.wolrdcup.exception.InvalidLeagueIdException;
 import com.fifa.wolrdcup.exception.InvalidTeamIdException;
 import com.fifa.wolrdcup.model.Round;
+import com.fifa.wolrdcup.model.custom.TransferInfoValue;
 import com.fifa.wolrdcup.model.league.FantasyLeague;
 import com.fifa.wolrdcup.model.league.LeagueGroup;
 import com.fifa.wolrdcup.model.league.RegularLeague;
-import com.fifa.wolrdcup.model.views.DefaultView;
 import com.fifa.wolrdcup.model.league.League;
 import com.fifa.wolrdcup.model.Team;
 import com.fifa.wolrdcup.repository.*;
+import com.fifa.wolrdcup.service.LeagueService;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -30,16 +31,18 @@ public class LeagueController {
     private final RoundRepository roundRepository;
     private final LeagueGroupRepository leagueGroupRepository;
     private final RegularLeagueRepository regularLeagueRepository;
+    private final LeagueService leagueService;
 
     public LeagueController(
             TeamRepository teamRepository,
             LeagueRepository leagueRepository,
-            RoundRepository roundRepository, LeagueGroupRepository leagueGroupRepository, RegularLeagueRepository regularLeagueRepository) {
+            RoundRepository roundRepository, LeagueGroupRepository leagueGroupRepository, RegularLeagueRepository regularLeagueRepository, LeagueService leagueService) {
         this.leagueRepository = leagueRepository;
         this.teamRepository = teamRepository;
         this.roundRepository = roundRepository;
         this.leagueGroupRepository = leagueGroupRepository;
         this.regularLeagueRepository = regularLeagueRepository;
+        this.leagueService = leagueService;
     }
 
     @GetMapping
@@ -152,5 +155,16 @@ public class LeagueController {
         });
 
         return ResponseEntity.of(optionalLeague);
+    }
+
+    @PostMapping("/{leagueId}/{teamId}/transfers")
+    public ResponseEntity<Team> makeTransfer(
+            @PathVariable("leagueId") Long leagueId,
+            @PathVariable("teamId") Long teamId,
+            @RequestBody TransferInfoValue transferInfoValue) {
+
+        Team team = leagueService.makeTransfers(leagueId, teamId, transferInfoValue);
+
+        return ResponseEntity.ok(team);
     }
 }

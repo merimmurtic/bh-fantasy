@@ -10,13 +10,7 @@ public class TransferInfoValue {
     private List<Player> transferIn = new ArrayList<>();
     private List<Player> transferOut = new ArrayList<>();
 
-
     public TransferInfoValue() {
-    }
-
-    public TransferInfoValue(List<Player> transferIn, List<Player> transferOut) {
-        this.transferIn = transferIn;
-        this.transferOut = transferOut;
     }
 
     public List<Player> getTransferIn() {
@@ -34,6 +28,4 @@ public class TransferInfoValue {
     public void setTransferOut(List<Player> transferOut) {
         this.transferOut = transferOut;
     }
-
-
 }

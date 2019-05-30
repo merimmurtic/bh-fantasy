@@ -24,14 +24,12 @@ public interface TeamRepository extends CrudRepository<Team, Long> {
             "order by team.id asc")
     Set<Team> getTeams(@Param("playerId") Long playerId);
 
-
-
     @Query("select team " +
             "from Team team " +
-            "join team.players player " +
-            "join fetch team.leagues league "+
-            "where player.id = :playerId and league.dtype = 'FantasyLeague' " +
+            "join fetch team.players player " +
+            "join team.leagues league "+
+            "where team.id = :teamId and league.dtype = 'FantasyLeague' and league.id = :leagueId " +
             "order by team.id asc")
-    Optional<Team> getFantasyTeam(Long teamId);
+    Optional<Team> getFantasyTeam(@Param("teamId") Long teamId, @Param("leagueId") Long leagueId);
 
 }

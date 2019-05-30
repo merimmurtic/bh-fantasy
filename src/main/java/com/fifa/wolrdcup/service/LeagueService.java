@@ -1,16 +1,26 @@
 package com.fifa.wolrdcup.service;
 
 import com.fifa.wolrdcup.exception.InvalidLeagueIdException;
-import com.fifa.wolrdcup.model.league.League;
+import com.fifa.wolrdcup.exception.InvalidPlayerIdException;
+import com.fifa.wolrdcup.exception.InvalidTeamIdException;
+import com.fifa.wolrdcup.model.Team;
+import com.fifa.wolrdcup.model.custom.TransferInfoValue;
 import com.fifa.wolrdcup.model.league.LeagueGroup;
 import com.fifa.wolrdcup.model.league.RegularLeague;
+import com.fifa.wolrdcup.model.players.Player;
 import com.fifa.wolrdcup.repository.LeagueGroupRepository;
+import com.fifa.wolrdcup.repository.PlayerRepository;
 import com.fifa.wolrdcup.repository.RegularLeagueRepository;
+import com.fifa.wolrdcup.repository.TeamRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import javax.transaction.Transactional;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -20,12 +30,19 @@ public class LeagueService {
 
     private final LeagueGroupRepository leagueGroupRepository;
 
+    private final TeamRepository teamRepository;
+
+    private final PlayerRepository playerRepository;
+
     private static Logger logger = LoggerFactory.getLogger(LeagueService.class);
 
     public LeagueService(RegularLeagueRepository regularLeagueRepository,
-                         LeagueGroupRepository leagueGroupRepository) {
+                         LeagueGroupRepository leagueGroupRepository,
+                         TeamRepository teamRepository, PlayerRepository playerRepository) {
         this.regularLeagueRepository = regularLeagueRepository;
         this.leagueGroupRepository = leagueGroupRepository;
+        this.teamRepository = teamRepository;
+        this.playerRepository = playerRepository;
     }
 
     @Transactional
@@ -87,6 +104,48 @@ public class LeagueService {
         } else {
             throw new InvalidLeagueIdException();
         }
+    }
+
+    @Transactional
+    public Team makeTransfers(Long leagueId, Long teamId, TransferInfoValue transferInfoValue){
+        Optional<Team> optionalTeam = teamRepository.getFantasyTeam(teamId, leagueId);
+
+        if(!optionalTeam.isPresent()){
+            throw new InvalidTeamIdException();
+        }
+
+        Team team = optionalTeam.get();
+
+        if (transferInfoValue.getTransferIn().size() != transferInfoValue.getTransferOut().size()) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "You must to have the same number of players on transferIn and transferOut");
+        }
+
+        Map<Long, Player> playersMap = team.getPlayers().stream()
+                .collect(LinkedHashMap::new, (map, item) -> map.put(item.getId(), item), Map::putAll);
+
+        for(Player player : transferInfoValue.getTransferOut()) {
+            Player dbPlayer = playersMap.get(player.getId());
+
+            if(dbPlayer == null) {
+                throw new InvalidPlayerIdException();
+            }
+
+            team.getPlayers().remove(dbPlayer);
+        }
+
+        for(Player player : transferInfoValue.getTransferIn()) {
+            Optional<Player> optionalPlayer = playerRepository.findByIdAndTeams_Leagues_Id(player.getId(), leagueId);
+
+            if(!optionalPlayer.isPresent()) {
+                throw new InvalidPlayerIdException();
+            }
+
+            team.getPlayers().add(optionalPlayer.get());
+        }
+
+        return team;
     }
 
     public RegularLeagueRepository getRegularLeagueRepository() {

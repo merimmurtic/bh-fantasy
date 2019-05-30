@@ -3,13 +3,13 @@ package com.fifa.wolrdcup.controller;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.fifa.wolrdcup.exception.InvalidPlayerIdException;
 import com.fifa.wolrdcup.exception.InvalidTeamIdException;
-import com.fifa.wolrdcup.model.custom.TransferInfoValue;
 import com.fifa.wolrdcup.model.league.FantasyLeague;
 import com.fifa.wolrdcup.model.players.*;
 import com.fifa.wolrdcup.model.views.DefaultView;
 import com.fifa.wolrdcup.model.Team;
 import com.fifa.wolrdcup.repository.PlayerRepository;
 import com.fifa.wolrdcup.repository.TeamRepository;
+import com.fifa.wolrdcup.service.TeamService;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,10 +26,12 @@ public class TeamController {
 
     private final TeamRepository teamRepository;
     private final PlayerRepository playerRepository;
+    private final TeamService teamService;
 
-    public TeamController(TeamRepository teamRepository, PlayerRepository playerRepository) {
+    public TeamController(TeamRepository teamRepository, PlayerRepository playerRepository, TeamService teamService) {
         this.teamRepository = teamRepository;
         this.playerRepository = playerRepository;
+        this.teamService = teamService;
     }
 
     @GetMapping
@@ -130,33 +132,4 @@ public class TeamController {
             throw new InvalidPlayerIdException();
         }
     }
-
-    @PostMapping("/{teamId}/transfers")
-    public void makeTransfer(
-            @PathVariable("teamId") Long teamId) {
-
-
-        //List<Player> transferIn = new ArrayList<>();
-        //List<Player> transferOut = new ArrayList<>();
-
-        Optional<Team> optionalTeam = teamRepository.findById(teamId);
-
-        if (!optionalTeam.isPresent()) {
-            throw new InvalidTeamIdException();
-        }
-
-        Team team = optionalTeam.get();
-
-        Map<Long, Player> playerMap = new HashMap<>();
-        List<Player> transferOut = new ArrayList<>();
-        List<Player> transferIn = new ArrayList<>();
-
-        for (Player player1 : team.getPlayers()) {
-            playerMap.put(player1.getId(), player1);
-        }
-
-
-    }
-
-
 }

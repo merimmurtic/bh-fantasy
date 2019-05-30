@@ -1,19 +1,13 @@
 package com.fifa.wolrdcup.service;
 
 import com.fifa.wolrdcup.model.Team;
-import com.fifa.wolrdcup.model.custom.TransferInfoValue;
 import com.fifa.wolrdcup.model.league.League;
-import com.fifa.wolrdcup.model.players.Player;
 import com.fifa.wolrdcup.repository.TeamRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
-import javax.swing.text.html.Option;
 import javax.transaction.Transactional;
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -84,29 +78,5 @@ public class TeamService {
 
     public TeamRepository getTeamRepository() {
         return teamRepository;
-    }
-
-    @Transactional
-    public Team makeTransfer(Long teamId, TransferInfoValue transferInfoValue){
-
-        Optional<Team> optionalTeam = teamRepository.getFantasyTeam(teamId);
-
-        if(!optionalTeam.isPresent()){
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST,
-                    "This team is not present");
-        }
-
-        Team team = optionalTeam.get();
-
-        if (transferInfoValue.getTransferIn().size() != transferInfoValue.getTransferOut().size()) {
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST,
-                    "You must to have the same number of players on transferIn and transferOut");
-        }
-
-        //logika :D
-
-        return team;
     }
 }
