@@ -9,7 +9,6 @@ import com.fifa.wolrdcup.model.views.DefaultView;
 import com.fifa.wolrdcup.model.Team;
 import com.fifa.wolrdcup.repository.PlayerRepository;
 import com.fifa.wolrdcup.repository.TeamRepository;
-import com.fifa.wolrdcup.service.TeamService;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,12 +25,10 @@ public class TeamController {
 
     private final TeamRepository teamRepository;
     private final PlayerRepository playerRepository;
-    private final TeamService teamService;
 
-    public TeamController(TeamRepository teamRepository, PlayerRepository playerRepository, TeamService teamService) {
+    public TeamController(TeamRepository teamRepository, PlayerRepository playerRepository) {
         this.teamRepository = teamRepository;
         this.playerRepository = playerRepository;
-        this.teamService = teamService;
     }
 
     @GetMapping
