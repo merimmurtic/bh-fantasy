@@ -1,0 +1,54 @@
+spring:
+  jackson.mapper.default-view-inclusion: true
+  h2.console.enabled: true
+  datasource:
+    url: jdbc:h2:file:~/brasil;AUTO_SERVER=TRUE
+  #  url: jdbc:postgresql://localhost:5432/postgres
+  #  username: postgres
+  #  password: postgres
+  #  hikari:
+  #    connectionTimeout: 20000
+  #    maximumPoolSize: 20
+  jpa:
+    hibernate.ddl-auto: update
+    properties.hibernate.temp.use_jdbc_metadata_defaults: false
+    database-platform: org.hibernate.dialect.PostgreSQL9Dialect
+  jackson.serialization.fail-on-empty-beans: false
+
+logging.level.org.hibernate:
+  engine.internal.StatefulPersistenceContext: ERROR
+  dialect.function.TemplateRenderer: ERROR
+  #SQL: DEBUG
+
+#spring.jpa.properties:
+#  javax.persistence.schema-generation:
+#    create-source: metadata
+#    scripts:
+#      action: update
+#      create-target: update.sql
+#  hibernate.hbm2ddl.delimiter: ;
+
+facebook:
+  client:
+    clientId: 2361793817205600
+    clientSecret: 43eef2367e61fcf7f84f2dacc193bc12
+    accessTokenUri: https://graph.facebook.com/oauth/access_token
+    userAuthorizationUri: https://www.facebook.com/dialog/oauth
+    tokenName: oauth_token
+    authenticationScheme: query
+    clientAuthenticationScheme: form
+    scope: email
+  resource:
+    userInfoUri: https://graph.facebook.com/me?fields=id,name,email
+google:
+  client:
+    clientId: 385692143323-ig348jfbadq3qd285thq4f7f4n1i6p04.apps.googleusercontent.com
+    clientSecret: DLRSIQP-tnAV2tL_ehN1nDjF
+    accessTokenUri: https://accounts.google.com/o/oauth2/token
+    userAuthorizationUri: https://accounts.google.com/o/oauth2/auth
+    tokenName: oauth_token
+    authenticationScheme: query
+    clientAuthenticationScheme: form
+    scope: profile email
+  resource:
+    userInfoUri: https://www.googleapis.com/userinfo/v2/me
