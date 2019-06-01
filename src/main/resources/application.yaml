@@ -52,3 +52,6 @@ google:
     scope: profile email
   resource:
     userInfoUri: https://www.googleapis.com/userinfo/v2/me
+
+server:
+  use-forward-headers: true
