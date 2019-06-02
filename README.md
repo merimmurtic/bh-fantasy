@@ -1,3 +1,3 @@
-# wolrdcup
+# BH Fantasy
 
-World Cup platform
+BH Fantasy backend
