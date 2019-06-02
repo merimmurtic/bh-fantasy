@@ -30,9 +30,10 @@ import org.springframework.security.oauth2.client.filter.OAuth2ClientContextFilt
 import org.springframework.security.oauth2.client.token.grant.code.AuthorizationCodeResourceDetails;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableOAuth2Client;
-import org.springframework.security.oauth2.provider.OAuth2Authentication;
+import org.springframework.security.oauth2.provider.*;
 import org.springframework.security.oauth2.provider.authentication.OAuth2AuthenticationManager;
 import org.springframework.security.oauth2.provider.authentication.OAuth2AuthenticationProcessingFilter;
+import org.springframework.security.oauth2.provider.client.BaseClientDetails;
 import org.springframework.security.oauth2.provider.token.*;
 import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
 import org.springframework.security.oauth2.provider.token.store.JwtTokenStore;
@@ -64,6 +65,8 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
     private final UserRepository userRepository;
 
     private static DefaultTokenServices TOKEN_SERVICES;
+
+    static CustomClientDetailsService CLIENT_DETAILS = new CustomClientDetailsService();
 
     @Autowired
     public WebSecurityConfiguration(
@@ -141,6 +144,8 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
         DefaultTokenServices service = new DefaultTokenServices();
         service.setTokenStore(new JwtTokenStore(jwtAccessTokenConverter));
         service.setTokenEnhancer(jwtAccessTokenConverter);
+
+        service.setClientDetailsService(CLIENT_DETAILS);
 
         return service;
     }
@@ -282,6 +287,10 @@ class SocialAuthenticationFilter extends OAuth2ClientAuthenticationProcessingFil
 
         OAuth2Authentication authentication = (OAuth2Authentication) super.attemptAuthentication(request, response);
 
+        String clientId = authentication.getOAuth2Request().getClientId();
+
+        WebSecurityConfiguration.CLIENT_DETAILS.addDefaultClientDetails(clientId);
+
         OAuth2AccessToken token = defaultTokenServices.createAccessToken(authentication);
 
         response.getWriter().write("<script>window.opener.postMessage('" + token.getValue() +
@@ -366,4 +375,29 @@ class UserTokenConverter extends DefaultUserAuthenticationConverter {
         }
         throw new IllegalArgumentException("Authorities must be either a String or a Collection");
     }
+}
+
+class CustomClientDetailsService implements ClientDetailsService {
+    private Map<String, ClientDetails> clientDetailsStore = new HashMap<String, ClientDetails>();
+
+    public ClientDetails loadClientByClientId(String clientId) throws ClientRegistrationException {
+        ClientDetails details = clientDetailsStore.get(clientId);
+        if (details == null) {
+            throw new NoSuchClientException("No client with requested id: " + clientId);
+        }
+        return details;
+    }
+
+    public void addDefaultClientDetails(String clientId) {
+        this.clientDetailsStore.put(clientId, getClientDetails(clientId));
+    }
+
+    private ClientDetails getClientDetails(String clientId) {
+        BaseClientDetails clientDetails = new BaseClientDetails();
+        clientDetails.setClientId(clientId);
+        clientDetails.setAccessTokenValiditySeconds(Integer.MAX_VALUE);
+
+        return clientDetails;
+    }
+
 }
