@@ -30,8 +30,8 @@ logging.level.org.hibernate:
 
 facebook:
   client:
-    clientId: 2361793817205600
-    clientSecret: 43eef2367e61fcf7f84f2dacc193bc12
+    clientId: ###
+    clientSecret: ###
     accessTokenUri: https://graph.facebook.com/oauth/access_token
     userAuthorizationUri: https://www.facebook.com/dialog/oauth
     tokenName: oauth_token
@@ -42,8 +42,8 @@ facebook:
     userInfoUri: https://graph.facebook.com/me?fields=id,name,email
 google:
   client:
-    clientId: 385692143323-ig348jfbadq3qd285thq4f7f4n1i6p04.apps.googleusercontent.com
-    clientSecret: DLRSIQP-tnAV2tL_ehN1nDjF
+    clientId: ###
+    clientSecret: ###
     accessTokenUri: https://accounts.google.com/o/oauth2/token
     userAuthorizationUri: https://accounts.google.com/o/oauth2/auth
     tokenName: oauth_token
