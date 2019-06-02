@@ -1,5 +1,6 @@
 package com.fifa.wolrdcup.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.fifa.wolrdcup.model.league.League;
@@ -36,6 +37,10 @@ public class Team{
     @JsonView(TeamLeaguesView.class)
     @OrderBy("id")
     private Set<League> leagues = new HashSet<>();
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JsonIgnore
+    private User user;
 
     public Team(){}
 
@@ -90,6 +95,14 @@ public class Team{
 
     public void setProfilePicture(String profilePicture) {
         this.profilePicture = profilePicture;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 
     public List<Player> getPlayersOfType(Class<? extends Player> type) {

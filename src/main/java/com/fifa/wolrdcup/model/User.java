@@ -1,7 +1,11 @@
 package com.fifa.wolrdcup.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "users")
@@ -24,10 +28,23 @@ public class User {
 
     private LocalDateTime lastLogin;
 
+    @JsonIgnore
+    @OneToMany(mappedBy = "user")
+    @OrderBy("id")
+    private Set<Team> teams = new HashSet<>();
+
     @Enumerated(EnumType.STRING)
     private UserLoginType loginType;
 
     public User(){}
+
+    public Set<Team> getTeams() {
+        return teams;
+    }
+
+    public void setTeams(Set<Team> teams) {
+        this.teams = teams;
+    }
 
     public Long getId() {
         return id;

@@ -3,15 +3,19 @@ package com.fifa.wolrdcup.controller;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.fifa.wolrdcup.exception.InvalidPlayerIdException;
 import com.fifa.wolrdcup.exception.InvalidTeamIdException;
+import com.fifa.wolrdcup.model.User;
 import com.fifa.wolrdcup.model.league.FantasyLeague;
 import com.fifa.wolrdcup.model.players.*;
 import com.fifa.wolrdcup.model.views.DefaultView;
 import com.fifa.wolrdcup.model.Team;
 import com.fifa.wolrdcup.repository.PlayerRepository;
 import com.fifa.wolrdcup.repository.TeamRepository;
+import com.fifa.wolrdcup.repository.UserRepository;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -51,13 +55,17 @@ public class TeamController {
 
     @PostMapping
     @JsonView(Team.DetailedView.class)
-    public ResponseEntity<Team> createTeam(@RequestBody Team team, UriComponentsBuilder builder) {
+    @Secured("ROLE_USER")
+    public ResponseEntity<Team> createTeam(
+            @RequestBody Team team, UriComponentsBuilder builder, @AuthenticationPrincipal User user) {
         // Make sure id is null to avoid update of existing league
         team.setId(null);
 
         if (team.getCode() == null) {
             team.setCode(team.getName());
         }
+
+        team.setUser(user);
 
         try {
             team = teamRepository.save(team);
