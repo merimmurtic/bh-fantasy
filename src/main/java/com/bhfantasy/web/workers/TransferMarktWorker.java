@@ -65,8 +65,6 @@ public class TransferMarktWorker {
 
     private final MissedPenaltyRepository missedPenaltyRepository;
 
-    private final LeagueSetupRepository leagueSetupRepository;
-
     public TransferMarktWorker(StadiumRepository stadiumRepository,
                                GoalRepository goalRepository,
                                MatchService matchService,
@@ -77,7 +75,7 @@ public class TransferMarktWorker {
                                LineupRepository lineupRepository,
                                SubstitutionRepository substitutionRepository,
                                CardRepository cardRepository,
-                               MissedPenaltyRepository missedPenaltyRepository, LeagueSetupRepository leagueSetupRepository) {
+                               MissedPenaltyRepository missedPenaltyRepository) {
         this.leagueService = leagueService;
         this.roundService = roundService;
         this.teamService = teamService;
@@ -89,7 +87,6 @@ public class TransferMarktWorker {
         this.substitutionRepository = substitutionRepository;
         this.cardRepository = cardRepository;
         this.missedPenaltyRepository = missedPenaltyRepository;
-        this.leagueSetupRepository = leagueSetupRepository;
     }
 
     public RegularLeague process(String transfermarktUrl) {
