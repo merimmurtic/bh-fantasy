@@ -1,7 +1,7 @@
 spring:
   h2.console.enabled: false
   datasource:
-    url: postgres://cbmotsvxsdkspc:dc7348ed349fda3d18d83555c4aee45c787fac5c81ad37db631c992964d73f1b@ec2-54-75-245-196.eu-west-1.compute.amazonaws.com:5432/dcqq3do15g3ajt
+    url: jdbc:postgres://cbmotsvxsdkspc:dc7348ed349fda3d18d83555c4aee45c787fac5c81ad37db631c992964d73f1b@ec2-54-75-245-196.eu-west-1.compute.amazonaws.com:5432/dcqq3do15g3ajt
     hikari:
       connectionTimeout: 20000
       maximumPoolSize: 20
