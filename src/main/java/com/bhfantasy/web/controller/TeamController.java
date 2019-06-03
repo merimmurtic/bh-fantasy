@@ -23,7 +23,7 @@ import javax.validation.ConstraintViolationException;
 import java.util.*;
 
 @RestController
-@RequestMapping("/teams")
+@RequestMapping("/api/teams")
 public class TeamController {
 
     private final TeamRepository teamRepository;

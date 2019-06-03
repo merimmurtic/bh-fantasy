@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @Secured("ROLE_ADMIN")
-@RequestMapping("/admin")
+@RequestMapping("/api/admin")
 public class AdminController {
 
     private final LeagueSetupRepository leagueSetupRepository;

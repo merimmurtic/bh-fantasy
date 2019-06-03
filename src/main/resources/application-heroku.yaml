@@ -1,0 +1,11 @@
+spring:
+  h2.console.enabled: false
+  datasource:
+    url: postgres://mnljxgdtebesbr:c39167c027429f51f35ff3b44cd1b0f599ade9f2a5fd93ccec5b1dc7fdbfc7a5@ec2-176-34-184-174.eu-west-1.compute.amazonaws.com:5432/dcuqbpi7suv949
+    hikari:
+      connectionTimeout: 20000
+      maximumPoolSize: 20
+  jpa:
+    hibernate.ddl-auto: update
+    properties.hibernate.temp.use_jdbc_metadata_defaults: false
+    database-platform: org.hibernate.dialect.PostgreSQL9Dialect

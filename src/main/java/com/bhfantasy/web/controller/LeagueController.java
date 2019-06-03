@@ -23,7 +23,7 @@ import javax.validation.ConstraintViolationException;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/leagues")
+@RequestMapping("/api/leagues")
 public class LeagueController {
 
     private final LeagueRepository leagueRepository;

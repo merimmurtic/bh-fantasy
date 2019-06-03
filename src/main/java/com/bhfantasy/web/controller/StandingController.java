@@ -15,7 +15,7 @@ import java.util.List;
 
 
 @RestController
-@RequestMapping("/leagues/{leagueId}/standings")
+@RequestMapping("/api/leagues/{leagueId}/standings")
 public class StandingController {
 
     private final TeamRepository teamRepository;

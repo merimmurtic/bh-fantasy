@@ -22,7 +22,7 @@ import javax.validation.ConstraintViolationException;
 import java.util.*;
 
 @RestController
-@RequestMapping("/leagues/{leagueId}/rounds/{roundId}")
+@RequestMapping("/api/leagues/{leagueId}/rounds/{roundId}")
 public class LineupController {
 
     private final LeagueRepository leagueRepository;

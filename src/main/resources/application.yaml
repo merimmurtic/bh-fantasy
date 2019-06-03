@@ -1,18 +1,14 @@
 spring:
+  profiles:
+    include: social
+
   jackson.mapper.default-view-inclusion: true
   h2.console.enabled: true
   datasource:
-    url: jdbc:h2:file:~/brasil;AUTO_SERVER=TRUE
-  #  url: jdbc:postgresql://localhost:5432/postgres
-  #  username: postgres
-  #  password: postgres
-  #  hikari:
-  #    connectionTimeout: 20000
-  #    maximumPoolSize: 20
+    url: jdbc:h2:file:~/bh-fantasy;AUTO_SERVER=TRUE
   jpa:
     hibernate.ddl-auto: update
     properties.hibernate.temp.use_jdbc_metadata_defaults: false
-    #database-platform: org.hibernate.dialect.PostgreSQL9Dialect
   jackson.serialization.fail-on-empty-beans: false
 
 logging.level.org.hibernate:
@@ -28,30 +24,10 @@ logging.level.org.hibernate:
 #      create-target: update.sql
 #  hibernate.hbm2ddl.delimiter: ;
 
-facebook:
-  client:
-    clientId: ###
-    clientSecret: ###
-    accessTokenUri: https://graph.facebook.com/oauth/access_token
-    userAuthorizationUri: https://www.facebook.com/dialog/oauth
-    tokenName: oauth_token
-    authenticationScheme: query
-    clientAuthenticationScheme: form
-    scope: email
-  resource:
-    userInfoUri: https://graph.facebook.com/me?fields=id,name,email
-google:
-  client:
-    clientId: ###
-    clientSecret: ###
-    accessTokenUri: https://accounts.google.com/o/oauth2/token
-    userAuthorizationUri: https://accounts.google.com/o/oauth2/auth
-    tokenName: oauth_token
-    authenticationScheme: query
-    clientAuthenticationScheme: form
-    scope: profile email
-  resource:
-    userInfoUri: https://www.googleapis.com/userinfo/v2/me
-
 server:
   use-forward-headers: true
+  compression:
+    enabled: true
+    mime-types: text/css,text/javascript,application/javascript,application/x-font-ttf
+  http2:
+    enabled: true

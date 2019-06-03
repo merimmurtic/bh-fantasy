@@ -62,9 +62,9 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
 
         http
-                .antMatcher("/**")
+                .antMatcher("/api/**")
                     .authorizeRequests()
-                    .antMatchers("/**")
+                    .antMatchers("/api/**")
                     .permitAll()
                 .anyRequest()
                     .authenticated()
@@ -80,7 +80,7 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
         List<Filter> filters = new ArrayList<>();
 
         SocialAuthenticationFilter facebookFilter = new SocialAuthenticationFilter(
-                "/login/facebook", customTokenServices());
+                "/api/login/facebook", customTokenServices());
         OAuth2RestTemplate facebookTemplate = new OAuth2RestTemplate(facebook(), oauth2ClientContext);
 
         facebookFilter.setRestTemplate(facebookTemplate);
@@ -89,7 +89,7 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
         filters.add(facebookFilter);
 
         SocialAuthenticationFilter googleFilter = new SocialAuthenticationFilter(
-                "/login/google", customTokenServices());
+                "/api/login/google", customTokenServices());
         OAuth2RestTemplate googleTemplate = new OAuth2RestTemplate(google(), oauth2ClientContext);
 
         googleFilter.setRestTemplate(googleTemplate);

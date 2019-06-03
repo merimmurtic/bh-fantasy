@@ -17,7 +17,7 @@ import java.util.Map;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("leagues/{leagueId}/top-players")
+@RequestMapping("/api/leagues/{leagueId}/top-players")
 public class TopPlayerController {
 
     private final LeagueRepository leagueRepository;

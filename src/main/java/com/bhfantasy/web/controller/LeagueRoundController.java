@@ -10,7 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/leagues/{leagueId}/rounds")
+@RequestMapping("/api/leagues/{leagueId}/rounds")
 public class LeagueRoundController {
 
     private final RoundRepository roundRepository;
