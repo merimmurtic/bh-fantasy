@@ -85,7 +85,7 @@ public class MultiLeagueService {
     }
 
     @Transactional
-    public RegularLeague seedTop5League(List<Long> leagueIds) {
+    public RegularLeague seedTop5League(List<Long> leagueIds, String name) {
         List<RegularLeague> regularLeagues = new ArrayList<>();
 
         regularLeagueRepository.findAllById(leagueIds).forEach(regularLeagues::add);
@@ -94,11 +94,11 @@ public class MultiLeagueService {
             RegularLeague firstLeague = regularLeagues.get(0);
 
             Optional<RegularLeague> top5LeagueOptional = regularLeagueRepository.findByNameAndSeason(
-                    "TOP 5 League", firstLeague.getSeason());
+                    name, firstLeague.getSeason());
 
             if (!top5LeagueOptional.isPresent()) {
                 RegularLeague top5League = new RegularLeague();
-                top5League.setName("TOP 5 League");
+                top5League.setName(name);
                 top5League.setSeason(firstLeague.getSeason());
                 top5League.getGroups().addAll(regularLeagues);
 

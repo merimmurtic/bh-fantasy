@@ -24,6 +24,8 @@ public class User {
 
     private String photo;
 
+    private Boolean admin;
+
     private LocalDateTime created;
 
     private LocalDateTime lastLogin;
@@ -108,6 +110,14 @@ public class User {
 
     public void setLoginType(UserLoginType loginType) {
         this.loginType = loginType;
+    }
+
+    public Boolean getAdmin() {
+        return admin;
+    }
+
+    public void setAdmin(Boolean admin) {
+        this.admin = admin;
     }
 
     public enum UserLoginType {

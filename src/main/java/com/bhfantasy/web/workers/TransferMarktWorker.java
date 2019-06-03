@@ -15,6 +15,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.net.URL;
@@ -27,7 +28,8 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class TransferMarktWorker extends ProcessWorker {
+@Service
+public class TransferMarktWorker {
 
     private static final String BASE_URL = "https://www.transfermarkt.com";
 
@@ -41,9 +43,29 @@ public class TransferMarktWorker extends ProcessWorker {
 
     private static final String BACKGROUND_POSITIONS_REGEX = "(-\\d*)px";
 
-    private final String transfermarktUrl;
+    private final StadiumRepository stadiumRepository;
 
-    private final String season;
+    private final LeagueService leagueService;
+
+    private final RoundService roundService;
+
+    private final TeamService teamService;
+
+    private final MatchService matchService;
+
+    private final PlayerService playerService;
+
+    private final GoalRepository goalRepository;
+
+    private final LineupRepository lineupRepository;
+
+    private final SubstitutionRepository substitutionRepository;
+
+    private final CardRepository cardRepository;
+
+    private final MissedPenaltyRepository missedPenaltyRepository;
+
+    private final LeagueSetupRepository leagueSetupRepository;
 
     public TransferMarktWorker(StadiumRepository stadiumRepository,
                                GoalRepository goalRepository,
@@ -55,58 +77,73 @@ public class TransferMarktWorker extends ProcessWorker {
                                LineupRepository lineupRepository,
                                SubstitutionRepository substitutionRepository,
                                CardRepository cardRepository,
-                               MissedPenaltyRepository missedPenaltyRepository,
-                               String transfermarktUrl, String season) {
-        super(stadiumRepository, goalRepository, matchService,
-                teamService, roundService, leagueService,
-                playerService, lineupRepository, substitutionRepository, cardRepository, missedPenaltyRepository);
-
-        this.transfermarktUrl = transfermarktUrl;
-        this.season = season;
+                               MissedPenaltyRepository missedPenaltyRepository, LeagueSetupRepository leagueSetupRepository) {
+        this.leagueService = leagueService;
+        this.roundService = roundService;
+        this.teamService = teamService;
+        this.matchService = matchService;
+        this.playerService = playerService;
+        this.goalRepository = goalRepository;
+        this.stadiumRepository = stadiumRepository;
+        this.lineupRepository = lineupRepository;
+        this.substitutionRepository = substitutionRepository;
+        this.cardRepository = cardRepository;
+        this.missedPenaltyRepository = missedPenaltyRepository;
+        this.leagueSetupRepository = leagueSetupRepository;
     }
 
-    public String getTransfermarktUrl() {
-        return transfermarktUrl;
-    }
+    public RegularLeague process(String transfermarktUrl) {
+        RegularLeague league = null;
 
-    public Long process() throws Exception {
-        Document document = Jsoup.parse(new URL(BASE_URL.concat(transfermarktUrl).concat(season)), 10000);
+        try {
+            Document document = Jsoup.parse(new URL(BASE_URL.concat(transfermarktUrl)), 10000);
 
-        Element leagueNameElement = document.selectFirst(".spielername-profil");
+            Element leagueNameElement = document.selectFirst(".spielername-profil");
 
-        String leagueName = null;
+            String leagueName;
 
-        boolean multiLeague = false;
+            boolean multiLeague = false;
 
-        if(leagueNameElement == null) {
-            leagueNameElement = document.selectFirst("#wettbewerb_head .dataName");
+            if (leagueNameElement == null) {
+                leagueNameElement = document.selectFirst("#wettbewerb_head .dataName");
 
-            if (leagueNameElement != null) {
-                multiLeague = true;
+                if (leagueNameElement != null) {
+                    multiLeague = true;
+                }
             }
+
+            if (leagueNameElement == null) {
+                return null;
+            }
+
+            leagueName = leagueNameElement.text();
+
+            logger.info("Processing league {}.", leagueName);
+
+            league = leagueService.processRegularLeague(leagueName, getSeasonId(transfermarktUrl));
+
+            if (multiLeague) {
+                Elements groups = document.select(".large-8 .row .large-6");
+
+                processGroups(groups, league);
+            } else {
+                Elements matchDays = document.select(".row .large-6 .box");
+
+                processRounds(matchDays, league);
+            }
+
+            logger.info("League {} processed successfully.", leagueName);
+        } catch (IOException e) {
+            logger.error("Error while processing url: ".concat(transfermarktUrl));
         }
 
-        if(leagueNameElement == null) {
-            return null;
-        }
+        return league;
+    }
 
-        leagueName = leagueNameElement.text();
+    private String getSeasonId(String transfermarktUrl) {
+        int position = transfermarktUrl.indexOf("/saison_id/");
 
-        logger.info("Processing league {}.", leagueName);
-
-        RegularLeague league = leagueService.processRegularLeague(leagueName, season);
-
-        if(multiLeague) {
-            Elements groups = document.select(".large-8 .row .large-6");
-
-            processGroups(groups, league);
-        } else {
-            Elements matchDays = document.select(".row .large-6 .box");
-
-            processRounds(matchDays, league);
-        }
-
-        return league.getId();
+        return transfermarktUrl.substring(position + 11);
     }
 
     private void processGroups(Elements groupElements, RegularLeague league) {
@@ -353,17 +390,21 @@ public class TransferMarktWorker extends ProcessWorker {
         }
 
         if(match.getScore1() != null) {
-            processMatchDetails(matchDetailsElement.attr("href"), match, group);
+            processMatchDetails(matchDetailsElement.attr("href"), match);
         }
 
         return match;
+    }
+
+    private Team processTeam(Map<String, String> teamMap, League league) {
+        return teamService.processTeam(teamMap.get("code"), teamMap.get("name"), teamMap.get("picture"), league);
     }
 
     private String fixTeamProfileImage(String image) {
         return image.replace("tiny", image.contains("flagge") ? "head" : "normal");
     }
 
-    private void processMatchDetails(String matchUrl, Match match, League group) {
+    private void processMatchDetails(String matchUrl, Match match) {
         try {
             Document document = Jsoup.parse(new URL(BASE_URL.concat(matchUrl)), 10000);
 
@@ -460,11 +501,9 @@ public class TransferMarktWorker extends ProcessWorker {
 
                 populateFirstAndLastName(playerElement.text(), player);
 
-                if(playerElementSpan.text().contains("Missed")) {
-                    continue;
-                } else if(playerElementSpan.text().contains("Saved")) {
+                if(playerElementSpan.text().contains("Saved")) {
                     missedPenalty.setSavedBy(playerService.processPlayer(player, otherTeam));
-                } else {
+                } else if(!playerElementSpan.text().contains("Missed")){
                     missedPenalty.setPlayer(playerService.processPlayer(player, team));
                 }
             }
@@ -759,31 +798,33 @@ public class TransferMarktWorker extends ProcessWorker {
 
         Player player = null;
 
-        try {
-            Document document = Jsoup.connect(BASE_URL.concat("/spieler/_profilTooltip"))
-                    .data("spieler_id", transferMarktId.toString()).timeout(10000).post();
+        if(transferMarktId != null) {
+            try {
+                Document document = Jsoup.connect(BASE_URL.concat("/spieler/_profilTooltip"))
+                        .data("spieler_id", transferMarktId.toString()).timeout(10000).post();
 
-            playerName = document.select(".spielername-kurzprofil a").text();
+                playerName = document.select(".spielername-kurzprofil a").text();
 
-            Player.Position position = parsePosition(document.selectFirst(".kurzprofil-infos"));
+                Player.Position position = parsePosition(document.selectFirst(".kurzprofil-infos"));
 
-            player = Player.getInstance(position);
-            player.setPosition(position);
+                player = Player.getInstance(position);
+                player.setPosition(position);
 
-            String marketValueRaw = document.selectFirst(".kurzprofil-marktwert")
-                    .text().replace("Market Value: ", "");
+                String marketValueRaw = document.selectFirst(".kurzprofil-marktwert")
+                        .text().replace("Market Value: ", "");
 
-            LocalDate dateBirth = parseDate(document.selectFirst(".kurzprofil-infos-text")
-                    .selectFirst("br").previousSibling().toString());
+                LocalDate dateBirth = parseDate(document.selectFirst(".kurzprofil-infos-text")
+                        .selectFirst("br").previousSibling().toString());
 
-            String profilePicture = document.selectFirst(".bilderrahmen").attr("src");
+                String profilePicture = document.selectFirst(".bilderrahmen").attr("src");
 
-            player.setProfilePicture(profilePicture);
-            player.setBirthDate(dateBirth != null ? Date.valueOf(dateBirth) : null);
-            player.setMarketValueRaw(marketValueRaw);
-            player.setNumberoOnDress(numberOnDress);
-        } catch (IOException e) {
-            logger.error("Error while loading player info.", e);
+                player.setProfilePicture(profilePicture);
+                player.setBirthDate(dateBirth != null ? Date.valueOf(dateBirth) : null);
+                player.setMarketValueRaw(marketValueRaw);
+                player.setNumberoOnDress(numberOnDress);
+            } catch (IOException e) {
+                logger.error("Error while loading player info.", e);
+            }
         }
 
         if(player == null) {

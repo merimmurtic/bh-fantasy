@@ -8,10 +8,7 @@ import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.oauth2.provider.token.DefaultUserAuthenticationConverter;
 import org.springframework.util.StringUtils;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 
 public class UserTokenConverter extends DefaultUserAuthenticationConverter {
     @Override
@@ -42,9 +39,18 @@ public class UserTokenConverter extends DefaultUserAuthenticationConverter {
             response.put("type", user.getLoginType());
         }
 
-        if (authentication.getAuthorities() != null && !authentication.getAuthorities().isEmpty()) {
-            response.put(AUTHORITIES, AuthorityUtils.authorityListToSet(authentication.getAuthorities()));
+        Set<String> authorities = new HashSet<>();
+
+        if(user.getAdmin() != null && user.getAdmin()) {
+            authorities.add("ROLE_ADMIN");
         }
+
+        if (authentication.getAuthorities() != null && !authentication.getAuthorities().isEmpty()) {
+            authorities.addAll(AuthorityUtils.authorityListToSet(authentication.getAuthorities()));
+        }
+
+        response.put(AUTHORITIES, authorities);
+
         return response;
     }
 
@@ -55,6 +61,7 @@ public class UserTokenConverter extends DefaultUserAuthenticationConverter {
             user.setFullName((String) map.get("name"));
             user.setPhoto((String) map.get("photo"));
             user.setPrincipalId((String) map.get(USERNAME));
+            user.setAdmin(false);
 
             if(map.containsKey("userId")) {
                 user.setId(Long.parseLong(map.get("userId").toString()));
@@ -63,6 +70,13 @@ public class UserTokenConverter extends DefaultUserAuthenticationConverter {
             user.setLoginType(User.UserLoginType.valueOf((String)map.get("type")));
 
             Collection<? extends GrantedAuthority> authorities = getAuthorities(map);
+
+            authorities.forEach(value -> {
+                if(value.getAuthority().equals("ROLE_ADMIN")) {
+                    user.setAdmin(true);
+                }
+            });
+
             return new UsernamePasswordAuthenticationToken(user, "N/A", authorities);
         }
         return null;

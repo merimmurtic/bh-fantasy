@@ -217,13 +217,13 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
                 user.setCreated(LocalDateTime.now());
                 user.setLoginType(type);
                 user.setLastLogin(LocalDateTime.now());
+                user.setAdmin(isAdmin(user.getPrincipalId()));
             } else {
                 user.setLastLogin(LocalDateTime.now());
             }
 
             user.setEmail((String) map.get("email"));
             user.setFullName((String) map.get("name"));
-
             if(type == User.UserLoginType.FACEBOOK) {
                 user.setPhoto("http://graph.facebook.com/" + user.getPrincipalId()+ "/picture?width=256&height=256");
             } else {
@@ -233,5 +233,9 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
             userRepository.save(user);
             return user;
         };
+    }
+
+    private boolean isAdmin(String principalId) {
+        return Arrays.asList("114768242047881168319", "10157422100039443").contains(principalId);
     }
 }
