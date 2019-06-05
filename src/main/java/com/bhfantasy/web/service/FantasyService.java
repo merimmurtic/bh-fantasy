@@ -28,13 +28,9 @@ public class FantasyService {
 
     private final FantasyLeagueRepository fantasyLeagueRepository;
 
-    private final TeamRepository teamRepository;
-
     private final FantasyLineupRepository fantasyLineupRepository;
 
     private final LineupRepository lineupRepository;
-
-    private final PlayerRepository playerRepository;
 
     private final PlayerPointsRepository playerPointsRepository;
 
@@ -42,16 +38,14 @@ public class FantasyService {
 
     public FantasyService(PlayerPointsRepository playerPointsRepository,
                           RegularLeagueRepository regularLeagueRepository,
-                          FantasyLeagueRepository fantasyLeagueRepository, TeamRepository teamRepository,
+                          FantasyLeagueRepository fantasyLeagueRepository,
                           FantasyLineupRepository fantasyLineupRepository,
-                          LineupRepository lineupRepository, PlayerRepository playerRepository,
+                          LineupRepository lineupRepository,
                           MatchRepository matchRepository) {
         this.regularLeagueRepository = regularLeagueRepository;
         this.fantasyLeagueRepository = fantasyLeagueRepository;
-        this.teamRepository = teamRepository;
         this.fantasyLineupRepository = fantasyLineupRepository;
         this.lineupRepository = lineupRepository;
-        this.playerRepository = playerRepository;
         this.playerPointsRepository = playerPointsRepository;
         this.matchRepository = matchRepository;
     }
@@ -212,12 +206,12 @@ public class FantasyService {
     }
 
     @Transactional
-    public void seedFantasyPlayerLeague(Long leagueId) {
+    public FantasyLeague createFantasyPlayerLeague(Long leagueId) {
         Optional<RegularLeague> regularLeagueOptional = regularLeagueRepository.findById(leagueId);
 
         if (!regularLeagueOptional.isPresent()) {
             logger.warn("Regular league doesn't exist, skip seeding Fantasy League");
-            return;
+            return null;
         }
 
         RegularLeague regularLeague = regularLeagueOptional.get();
@@ -229,7 +223,7 @@ public class FantasyService {
 
         if(fantasyLeagueOptional.isPresent()) {
             logger.info(leagueName.concat(" is already seeded!"));
-            return;
+            return fantasyLeagueOptional.get();
         }
 
         FantasyLeague fantasyLeague = new FantasyLeague();
@@ -238,28 +232,11 @@ public class FantasyService {
 
         fantasyLeagueRepository.save(fantasyLeague);
 
-        Team fantasyTeam = new Team();
-        fantasyTeam.setCode("Team " + leagueName);
-        fantasyTeam.setName("Team " + leagueName);
+        return fantasyLeague;
+    }
 
-        teamRepository.save(fantasyTeam);
-
-        fantasyTeam.getLeagues().add(fantasyLeague);
-
-        teamRepository.save(fantasyTeam);
-
-        for(long playerId = 1L; playerId <= 15; playerId++) {
-            Optional<Player> optionalPlayer = playerRepository.findById(playerId);
-
-            if(optionalPlayer.isPresent()) {
-                Player player = optionalPlayer.get();
-
-                player.getTeams().add(fantasyTeam);
-
-                playerRepository.save(player);
-            }
-        }
-
+    @Transactional
+    public FantasyLineup createFantasyLineup(FantasyLeague fantasyLeague, Team fantasyTeam) {
         FantasyLineup fantasyLineup = new FantasyLineup();
         fantasyLineup.setLeague(fantasyLeague);
         fantasyLineup.setTeam(fantasyTeam);
@@ -273,5 +250,7 @@ public class FantasyService {
         fantasyLineup.setLineup(lineup);
 
         fantasyLineupRepository.save(fantasyLineup);
+
+        return fantasyLineup;
     }
 }

@@ -1,8 +1,10 @@
 package com.bhfantasy.web.controller;
 
 import com.bhfantasy.web.model.LeagueSetup;
+import com.bhfantasy.web.model.league.FantasyLeague;
 import com.bhfantasy.web.model.league.RegularLeague;
 import com.bhfantasy.web.repository.*;
+import com.bhfantasy.web.service.FantasyService;
 import com.bhfantasy.web.service.LeagueSetupService;
 import com.bhfantasy.web.service.MultiLeagueService;
 import com.bhfantasy.web.workers.TransferMarktWorker;
@@ -30,13 +32,16 @@ public class AdminController {
 
     private final MultiLeagueService multiLeagueService;
 
+    private final FantasyService fantasyService;
+
     public AdminController(LeagueSetupRepository leagueSetupRepository,
                            LeagueSetupService leagueSetupService, TransferMarktWorker transferMarktWorker,
-                           MultiLeagueService multiLeagueService) {
+                           MultiLeagueService multiLeagueService, FantasyService fantasyService) {
         this.leagueSetupRepository = leagueSetupRepository;
         this.leagueSetupService = leagueSetupService;
         this.transferMarktWorker = transferMarktWorker;
         this.multiLeagueService = multiLeagueService;
+        this.fantasyService = fantasyService;
     }
 
     @GetMapping("/setups")
@@ -52,6 +57,23 @@ public class AdminController {
         setup.setId(null);
 
         return leagueSetupRepository.save(setup);
+    }
+
+    @PostMapping("/setups/{setupId}/createFantasyLeague")
+    public FantasyLeague createFantasyLeague(@PathVariable("setupId") Long setupId) {
+        Optional<LeagueSetup> optionalLeagueSetup = leagueSetupRepository.findById(setupId);
+
+        if (optionalLeagueSetup.isPresent()) {
+            LeagueSetup leagueSetup = optionalLeagueSetup.get();
+
+            if(leagueSetup.getLeague() == null) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "League setup is not processed!");
+            }
+
+            return fantasyService.createFantasyPlayerLeague(leagueSetup.getId());
+        } else {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "League setup doesn't exist!");
+        }
     }
 
     @PostMapping("/setups/{setupId}/process")

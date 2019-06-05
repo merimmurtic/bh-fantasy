@@ -54,7 +54,7 @@ public class LeagueSetupService {
             WORKERS_RUNNING = true;
 
             Iterable<LeagueSetup> leagueSetups = leagueSetupRepository.findLeaguesBetween(
-                    LocalDateTime.now().minusDays(90), LocalDateTime.now().plusDays(1));
+                    LocalDateTime.now(), LocalDateTime.now().plusDays(1));
 
             for(LeagueSetup setup : leagueSetups) {
                 if(setup.getTransfermarktUrl() != null) {
