@@ -70,7 +70,7 @@ public class AdminController {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "League setup is not processed!");
             }
 
-            return fantasyService.createFantasyPlayerLeague(leagueSetup.getId());
+            return fantasyService.createFantasyPlayerLeague(leagueSetup.getLeague().getId());
         } else {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "League setup doesn't exist!");
         }
