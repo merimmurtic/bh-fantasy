@@ -60,7 +60,8 @@ public class AdminController {
     }
 
     @PostMapping("/setups/{setupId}/createFantasyLeague")
-    public FantasyLeague createFantasyLeague(@PathVariable("setupId") Long setupId) {
+    @JsonView(LeagueSetup.DetailedView.class)
+    public LeagueSetup createFantasyLeague(@PathVariable("setupId") Long setupId) {
         Optional<LeagueSetup> optionalLeagueSetup = leagueSetupRepository.findById(setupId);
 
         if (optionalLeagueSetup.isPresent()) {
@@ -70,7 +71,9 @@ public class AdminController {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "League setup is not processed!");
             }
 
-            return fantasyService.createFantasyPlayerLeague(leagueSetup.getLeague().getId());
+            FantasyLeague fantasyLeague = fantasyService.createFantasyPlayerLeague(leagueSetup.getLeague().getId());
+
+            return leagueSetupService.updateLeagueSetup(leagueSetup, null, fantasyLeague);
         } else {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "League setup doesn't exist!");
         }
@@ -90,7 +93,7 @@ public class AdminController {
                         () -> {
                             RegularLeague league = transferMarktWorker.process(leagueSetup.getTransfermarktUrl());
 
-                            leagueSetupService.updateLeagueSetup(leagueSetup, league);
+                            leagueSetupService.updateLeagueSetup(leagueSetup, league, null);
                         }
                 );
             } else if(leagueSetup.getLeagueSetups().size() > 0) {

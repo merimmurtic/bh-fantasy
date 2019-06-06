@@ -1,5 +1,6 @@
 package com.bhfantasy.web.model;
 
+import com.bhfantasy.web.model.league.FantasyLeague;
 import com.bhfantasy.web.model.league.RegularLeague;
 import com.fasterxml.jackson.annotation.JsonView;
 
@@ -19,6 +20,10 @@ public class LeagueSetup {
     @OneToOne(fetch = FetchType.LAZY)
     @JsonView(LeagueSetupLeagueView.class)
     private RegularLeague league;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JsonView(LeagueSetupLeagueView.class)
+    private FantasyLeague fantasyLeague;
 
     @ManyToMany
     @OrderBy("id")
@@ -43,6 +48,14 @@ public class LeagueSetup {
 
     public void setLeague(RegularLeague league) {
         this.league = league;
+    }
+
+    public FantasyLeague getFantasyLeague() {
+        return fantasyLeague;
+    }
+
+    public void setFantasyLeague(FantasyLeague fantasyLeague) {
+        this.fantasyLeague = fantasyLeague;
     }
 
     public String getTransfermarktUrl() {

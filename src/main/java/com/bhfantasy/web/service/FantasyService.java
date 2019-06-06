@@ -28,10 +28,6 @@ public class FantasyService {
 
     private final FantasyLeagueRepository fantasyLeagueRepository;
 
-    private final FantasyLineupRepository fantasyLineupRepository;
-
-    private final LineupRepository lineupRepository;
-
     private final PlayerPointsRepository playerPointsRepository;
 
     private final MatchRepository matchRepository;
@@ -39,13 +35,9 @@ public class FantasyService {
     public FantasyService(PlayerPointsRepository playerPointsRepository,
                           RegularLeagueRepository regularLeagueRepository,
                           FantasyLeagueRepository fantasyLeagueRepository,
-                          FantasyLineupRepository fantasyLineupRepository,
-                          LineupRepository lineupRepository,
                           MatchRepository matchRepository) {
         this.regularLeagueRepository = regularLeagueRepository;
         this.fantasyLeagueRepository = fantasyLeagueRepository;
-        this.fantasyLineupRepository = fantasyLineupRepository;
-        this.lineupRepository = lineupRepository;
         this.playerPointsRepository = playerPointsRepository;
         this.matchRepository = matchRepository;
     }
@@ -233,24 +225,5 @@ public class FantasyService {
         fantasyLeagueRepository.save(fantasyLeague);
 
         return fantasyLeague;
-    }
-
-    @Transactional
-    public FantasyLineup createFantasyLineup(FantasyLeague fantasyLeague, Team fantasyTeam) {
-        FantasyLineup fantasyLineup = new FantasyLineup();
-        fantasyLineup.setLeague(fantasyLeague);
-        fantasyLineup.setTeam(fantasyTeam);
-        fantasyLineup.setRound(fantasyLeague.getRegularLeague().getRounds().iterator().next());
-
-        Lineup lineup = new Lineup();
-        lineup.setFormation(Lineup.Formation.F_4_3_3);
-
-        lineupRepository.save(lineup);
-
-        fantasyLineup.setLineup(lineup);
-
-        fantasyLineupRepository.save(fantasyLineup);
-
-        return fantasyLineup;
     }
 }

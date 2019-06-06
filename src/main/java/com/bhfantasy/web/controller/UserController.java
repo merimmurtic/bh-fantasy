@@ -2,6 +2,7 @@ package com.bhfantasy.web.controller;
 
 import com.bhfantasy.web.model.User;
 import com.bhfantasy.web.repository.UserRepository;
+import com.fasterxml.jackson.annotation.JsonView;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,7 +21,8 @@ public class UserController {
 
     @GetMapping("/me")
     @Secured("ROLE_USER")
+    @JsonView(User.DetailedView.class)
     public User user(@AuthenticationPrincipal User user) {
-        return userRepository.findByPrincipalId(user.getPrincipalId());
+        return userRepository.getByPrincipalId(user.getPrincipalId());
     }
 }

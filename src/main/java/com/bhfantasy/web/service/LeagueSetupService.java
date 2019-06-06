@@ -1,6 +1,7 @@
 package com.bhfantasy.web.service;
 
 import com.bhfantasy.web.model.LeagueSetup;
+import com.bhfantasy.web.model.league.FantasyLeague;
 import com.bhfantasy.web.model.league.RegularLeague;
 import com.bhfantasy.web.repository.LeagueSetupRepository;
 import com.bhfantasy.web.workers.TransferMarktWorker;
@@ -30,7 +31,7 @@ public class LeagueSetupService {
     }
 
     @Transactional
-    public void updateLeagueSetup(LeagueSetup setup, RegularLeague league) {
+    public LeagueSetup updateLeagueSetup(LeagueSetup setup, RegularLeague league, FantasyLeague fantasyLeague) {
         Optional<LeagueSetup> optionalLeagueSetup = leagueSetupRepository.findById(setup.getId());
 
         if(optionalLeagueSetup.isPresent()) {
@@ -38,10 +39,16 @@ public class LeagueSetupService {
 
             if(setup.getLeague() == null) {
                 setup.setLeague(league);
-
-                leagueSetupRepository.save(setup);
             }
+
+            if(setup.getFantasyLeague() == null) {
+                setup.setFantasyLeague(fantasyLeague);
+            }
+
+            return leagueSetupRepository.save(setup);
         }
+
+        return null;
     }
 
     @Scheduled(fixedRate = 60 * 60 * 1000)

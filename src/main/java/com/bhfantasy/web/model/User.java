@@ -1,6 +1,6 @@
 package com.bhfantasy.web.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonView;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -9,6 +9,17 @@ import java.util.Set;
 
 @Entity
 @Table(name = "users")
+@NamedEntityGraph(name = "User.detail",
+    attributeNodes = {
+        @NamedAttributeNode(value = "teams", subgraph = "teams-leagues")
+    }, subgraphs = {
+        @NamedSubgraph(
+            name = "teams-leagues",
+            attributeNodes = {
+                    @NamedAttributeNode("leagues")
+            }
+        )
+    })
 public class User {
 
     @Id
@@ -30,9 +41,9 @@ public class User {
 
     private LocalDateTime lastLogin;
 
-    @JsonIgnore
     @OneToMany(mappedBy = "user")
     @OrderBy("id")
+    @JsonView(UserTeamsView.class)
     private Set<Team> teams = new HashSet<>();
 
     @Enumerated(EnumType.STRING)
@@ -129,4 +140,8 @@ public class User {
     public String toString() {
         return principalId;
     }
+
+    public interface UserTeamsView {}
+
+    public interface DetailedView extends UserTeamsView, Team.TeamLeaguesView {};
 }
