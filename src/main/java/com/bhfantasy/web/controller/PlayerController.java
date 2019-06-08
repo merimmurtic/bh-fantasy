@@ -57,10 +57,17 @@ public class PlayerController {
         } else if (teamId != null) {
             return playerRepository.findByTeams(teamId);
         } else if (leagueId != null) {
-            return playerRepository.findDistinctByTeams_Leagues_Id(leagueId);
+            return playerRepository.findPlayersWithTeams(leagueId);
         } else {
             return playerRepository.findAll();
         }
+    }
+
+    @GetMapping("/leagues/{leagueId}")
+    @JsonView(Player.PlayerTeamsView.class)
+    public Iterable<Player> getLeaguePlayers(
+            @PathVariable("leagueId") Long leagueId) {
+        return playerRepository.findPlayersWithTeams(leagueId);
     }
 
     @PostMapping
