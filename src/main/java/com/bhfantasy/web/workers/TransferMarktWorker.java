@@ -785,17 +785,19 @@ public class TransferMarktWorker {
 
         Optional<Player> optionalPlayer = playerService.getPlayer(transferMarktId);
 
+        boolean fetchPlayerInfo = true;
+
         if(optionalPlayer.isPresent()) {
             Player player = optionalPlayer.get();
 
             if(player.getPosition() != null && player.getTransferMarktId() != null) {
-                return player;
+                fetchPlayerInfo = false;
             }
         }
 
         Player player = null;
 
-        if(transferMarktId != null) {
+        if(transferMarktId != null && fetchPlayerInfo) {
             try {
                 Document document = Jsoup.connect(BASE_URL.concat("/spieler/_profilTooltip"))
                         .data("spieler_id", transferMarktId.toString()).timeout(10000).post();
@@ -818,7 +820,6 @@ public class TransferMarktWorker {
                 player.setProfilePicture(profilePicture);
                 player.setBirthDate(dateBirth != null ? Date.valueOf(dateBirth) : null);
                 player.setMarketValueRaw(marketValueRaw);
-                player.setNumberoOnDress(numberOnDress);
             } catch (IOException e) {
                 logger.error("Error while loading player info.", e);
             }
@@ -828,6 +829,7 @@ public class TransferMarktWorker {
             player = new Unknown();
         }
 
+        player.setNumberoOnDress(numberOnDress);
         player.setTransferMarktId(transferMarktId);
 
         populateFirstAndLastName(playerName, player);
