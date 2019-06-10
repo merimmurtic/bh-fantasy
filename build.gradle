@@ -20,6 +20,7 @@ dependencies {
     implementation 'org.postgresql:postgresql'
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.security.oauth.boot:spring-security-oauth2-autoconfigure:2.1.5.RELEASE'
+    compile 'io.sentry:sentry:1.7.16'
     compile group: 'org.jsoup', name: 'jsoup', version: '1.11.3'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
