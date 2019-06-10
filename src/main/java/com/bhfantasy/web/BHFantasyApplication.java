@@ -1,6 +1,7 @@
 package com.bhfantasy.web;
 
 import com.bhfantasy.web.model.LeagueSetup;
+import com.bhfantasy.web.model.league.RegularLeague;
 import com.bhfantasy.web.repository.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,7 +54,10 @@ public class BHFantasyApplication {
         if(leagueSetupRepository.count() == 0) {
             saveLeagueSetup("Premijer Liga","/premijer-liga/gesamtspielplan/wettbewerb/BOS1", seasonId);
 
-            saveLeagueSetup("Euro Qualification","/em-qualifikation/gesamtspielplan/pokalwettbewerb/EMQ", seasonId);
+            saveLeagueSetup(
+                    "Euro Qualification",
+                    "/em-qualifikation/gesamtspielplan/pokalwettbewerb/EMQ",
+                    seasonId, RegularLeague.Level.NATION);
 
             saveLeagueSetup("Champions league","/uefa-champions-league/gesamtspielplan/pokalwettbewerb/CL", seasonId);
 
@@ -78,8 +82,13 @@ public class BHFantasyApplication {
     }
 
     private LeagueSetup saveLeagueSetup(String name, String transferMarktUrl, String seasonId) {
+        return saveLeagueSetup(name, transferMarktUrl, seasonId, RegularLeague.Level.CLUB);
+    }
+
+    private LeagueSetup saveLeagueSetup(String name, String transferMarktUrl, String seasonId, RegularLeague.Level level) {
         LeagueSetup setup = new LeagueSetup();
         setup.setName(name);
+        setup.setLevel(level);
         setup.setTransfermarktUrl(
                 transferMarktUrl.concat("/saison_id/").concat(seasonId));
 

@@ -17,6 +17,8 @@ public class LeagueSetup {
 
     private String name;
 
+    private RegularLeague.Level level;
+
     @OneToOne(fetch = FetchType.LAZY)
     @JsonView(LeagueSetupLeagueView.class)
     private RegularLeague league;
@@ -80,6 +82,14 @@ public class LeagueSetup {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public RegularLeague.Level getLevel() {
+        return level;
+    }
+
+    public void setLevel(RegularLeague.Level level) {
+        this.level = level;
     }
 
     public interface LeagueSetupLeagueView {}

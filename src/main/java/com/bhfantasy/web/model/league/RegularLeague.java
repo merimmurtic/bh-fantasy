@@ -24,6 +24,8 @@ public class RegularLeague extends LeagueGroup{
     @OrderBy("id")
     private Set<LeagueGroup> groups = new HashSet<>();
 
+    private Level level;
+
     public RegularLeague(){}
 
     public String getSeason() {
@@ -40,5 +42,18 @@ public class RegularLeague extends LeagueGroup{
 
     public void setGroups(Set<LeagueGroup> groups) {
         this.groups = groups;
+    }
+
+    public Level getLevel() {
+        return level;
+    }
+
+    public void setLevel(Level level) {
+        this.level = level;
+    }
+
+    public enum Level {
+        NATION,
+        CLUB
     }
 }

@@ -85,7 +85,7 @@ public class MultiLeagueService {
     }
 
     @Transactional
-    public RegularLeague seedTop5League(List<Long> leagueIds, String name) {
+    public RegularLeague seedMultiLeague(List<Long> leagueIds, String name) {
         List<RegularLeague> regularLeagues = new ArrayList<>();
 
         regularLeagueRepository.findAllById(leagueIds).forEach(regularLeagues::add);
@@ -93,32 +93,33 @@ public class MultiLeagueService {
         if(regularLeagues.size() > 0) {
             RegularLeague firstLeague = regularLeagues.get(0);
 
-            Optional<RegularLeague> top5LeagueOptional = regularLeagueRepository.findByNameAndSeason(
+            Optional<RegularLeague> multiLeagueOptional = regularLeagueRepository.findByNameAndSeason(
                     name, firstLeague.getSeason());
 
-            if (!top5LeagueOptional.isPresent()) {
-                RegularLeague top5League = new RegularLeague();
-                top5League.setName(name);
-                top5League.setSeason(firstLeague.getSeason());
-                top5League.getGroups().addAll(regularLeagues);
+            if (!multiLeagueOptional.isPresent()) {
+                RegularLeague multiLeague = new RegularLeague();
+                multiLeague.setName(name);
+                multiLeague.setSeason(firstLeague.getSeason());
+                multiLeague.getGroups().addAll(regularLeagues);
+                multiLeague.setLevel(firstLeague.getLevel());
 
-                regularLeagueRepository.save(top5League);
+                regularLeagueRepository.save(multiLeague);
 
                 regularLeagues.forEach(league -> {
                     league.getTeams().forEach(team -> {
-                        team.getLeagues().add(top5League);
+                        team.getLeagues().add(multiLeague);
 
                         teamRepository.save(team);
                     });
                 });
 
-                calculateRounds(top5League);
+                calculateRounds(multiLeague);
 
-                return top5League;
+                return multiLeague;
             } else {
-                logger.info("Top 5 League is already created for season {}", firstLeague.getSeason());
+                logger.info("Multi League is already created for season {}", firstLeague.getSeason());
 
-                return top5LeagueOptional.get();
+                return multiLeagueOptional.get();
             }
         }
 

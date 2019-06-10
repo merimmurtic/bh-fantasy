@@ -34,14 +34,17 @@ public class AdminController {
 
     private final FantasyService fantasyService;
 
+    private final RegularLeagueRepository regularLeagueRepository;
+
     public AdminController(LeagueSetupRepository leagueSetupRepository,
                            LeagueSetupService leagueSetupService, TransferMarktWorker transferMarktWorker,
-                           MultiLeagueService multiLeagueService, FantasyService fantasyService) {
+                           MultiLeagueService multiLeagueService, FantasyService fantasyService, RegularLeagueRepository regularLeagueRepository) {
         this.leagueSetupRepository = leagueSetupRepository;
         this.leagueSetupService = leagueSetupService;
         this.transferMarktWorker = transferMarktWorker;
         this.multiLeagueService = multiLeagueService;
         this.fantasyService = fantasyService;
+        this.regularLeagueRepository = regularLeagueRepository;
     }
 
     @GetMapping("/setups")
@@ -93,11 +96,17 @@ public class AdminController {
                         () -> {
                             RegularLeague league = transferMarktWorker.process(leagueSetup.getTransfermarktUrl());
 
+                            if(league.getLevel() != leagueSetup.getLevel()) {
+                                league.setLevel(leagueSetup.getLevel());
+
+                                league = regularLeagueRepository.save(league);
+                            }
+
                             leagueSetupService.updateLeagueSetup(leagueSetup, league, null);
                         }
                 );
             } else if(leagueSetup.getLeagueSetups().size() > 0) {
-                RegularLeague regularLeague = multiLeagueService.seedTop5League(
+                RegularLeague regularLeague = multiLeagueService.seedMultiLeague(
                         leagueSetup.getLeagueSetups().stream().map(setup -> {
                             if(setup.getLeague() == null) {
                                 throw new ResponseStatusException(
