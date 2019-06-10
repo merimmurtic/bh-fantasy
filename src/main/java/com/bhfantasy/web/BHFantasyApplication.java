@@ -7,11 +7,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.web.servlet.ServletContextInitializer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
+import org.springframework.web.servlet.HandlerExceptionResolver;
 
 import javax.annotation.PostConstruct;
 import javax.transaction.Transactional;
@@ -44,6 +46,16 @@ public class BHFantasyApplication {
         config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "OPTIONS", "DELETE", "PATCH"));
         source.registerCorsConfiguration("/**", config);
         return new CorsFilter(source);
+    }
+
+    @Bean
+    public HandlerExceptionResolver sentryExceptionResolver() {
+        return new io.sentry.spring.SentryExceptionResolver();
+    }
+
+    @Bean
+    public ServletContextInitializer sentryServletContextInitializer() {
+        return new io.sentry.spring.SentryServletContextInitializer();
     }
 
     @PostConstruct
