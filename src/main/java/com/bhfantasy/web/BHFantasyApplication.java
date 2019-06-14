@@ -73,6 +73,8 @@ public class BHFantasyApplication {
 
             saveLeagueSetup("Champions league","/uefa-champions-league/gesamtspielplan/pokalwettbewerb/CL", seasonId);
 
+            saveLeagueSetup("Copa America 2019","/copa-america-2019/gesamtspielplan/pokalwettbewerb/C19A", seasonId);
+
             LeagueSetup top5LeagueSetup = new LeagueSetup();
             top5LeagueSetup.setName("TOP 5 League Setup");
 
