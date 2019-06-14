@@ -102,6 +102,8 @@ public class AdminController {
                                 league = regularLeagueRepository.save(league);
                             }
 
+                            fantasyService.process(league.getId());
+
                             leagueSetupService.updateLeagueSetup(leagueSetup, league, null);
                         }
                 );

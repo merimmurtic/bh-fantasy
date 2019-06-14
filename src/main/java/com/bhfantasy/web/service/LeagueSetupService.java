@@ -21,13 +21,17 @@ public class LeagueSetupService {
 
     private final TransferMarktWorker transferMarktWorker;
 
+    private final FantasyService fantasyService;
+
     private static Logger logger = LoggerFactory.getLogger(LeagueSetupService.class);
 
     private static boolean WORKERS_RUNNING = false;
 
-    public LeagueSetupService(LeagueSetupRepository leagueSetupRepository, TransferMarktWorker transferMarktWorker) {
+    public LeagueSetupService(LeagueSetupRepository leagueSetupRepository, TransferMarktWorker transferMarktWorker,
+                              FantasyService fantasyService) {
         this.leagueSetupRepository = leagueSetupRepository;
         this.transferMarktWorker = transferMarktWorker;
+        this.fantasyService = fantasyService;
     }
 
     @Transactional
@@ -66,6 +70,10 @@ public class LeagueSetupService {
             for(LeagueSetup setup : leagueSetups) {
                 if(setup.getTransfermarktUrl() != null) {
                     transferMarktWorker.process(setup.getTransfermarktUrl());
+                }
+
+                if(setup.getLeague() != null) {
+                    fantasyService.process(setup.getLeague().getId());
                 }
             }
         } finally {
